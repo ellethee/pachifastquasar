@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-10-14
+
+### Changed
+
+- First release published from GitHub Actions with trusted publishing (npm provenance); no code changes.
+
 ## [0.1.0] - 2026-10-14
 
 Initial public release. User settings page driven by a JSON schema served by the backend.
@@ -21,5 +27,6 @@ Initial public release. User settings page driven by a JSON schema served by the
 - Named, declarative actions for the schema `events` / `watch` (no code from the backend is executed).
 - Self-contained styles (`--pachi-*` variables) and Italian / English texts.
 
-[Unreleased]: https://github.com/ellethee/pachifastquasar/compare/fastquasar-settings@0.1.0...HEAD
+[Unreleased]: https://github.com/ellethee/pachifastquasar/compare/fastquasar-settings@0.1.1...HEAD
+[0.1.1]: https://github.com/ellethee/pachifastquasar/compare/fastquasar-settings@0.1.0...fastquasar-settings@0.1.1
 [0.1.0]: https://github.com/ellethee/pachifastquasar/releases/tag/fastquasar-settings@0.1.0
