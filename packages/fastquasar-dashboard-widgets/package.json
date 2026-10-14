@@ -1,6 +1,6 @@
 {
   "name": "@ilpachi/fastquasar-dashboard-widgets",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Dashboard widgets for Vue 3 + Quasar (recent activity and system status) fed by injectable HTTP endpoints.",
   "author": {
     "name": "ilPachi",
