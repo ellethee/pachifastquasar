@@ -1,6 +1,6 @@
 {
   "name": "@ilpachi/fastquasar-admin",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Generic backend-schema-driven Admin page for Vue 3 + Quasar (table, filters, forms, bulk actions, history).",
   "author": {
     "name": "ilPachi",
