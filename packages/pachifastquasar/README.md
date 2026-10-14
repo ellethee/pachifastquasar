@@ -219,6 +219,11 @@ pnpm build                            # dist/ (library, ./quasar entry, styles.c
 Publishing is manual and always explicit (`npm publish`, never pnpm). The `exports` of the package are `.`,
 `./quasar`, `./styles.css` and `./scss/*`.
 
+## Security notes
+
+See `docs/security.md` (token storage, CSP, CORS, Gravatar, script actions). `npm audit` may show a build-time `braces` advisory
+through the i18n Vite plugin: it never reaches the app bundle (details in the security page).
+
 ## License
 
 [MIT](LICENSE), copyright (c) 2026 ilPachi.

@@ -79,6 +79,13 @@ registered action is ignored with a warning.
 `new Function`. Enabling it means the backend, or anyone able to tamper with the schema response, can run code in your app (with
 access to the tokens above), and it requires `'unsafe-eval'` in `script-src`. A warning is printed once per string. Keep it off.
 
+## Known `npm audit` notice (build tooling)
+
+`npm audit` / `pnpm audit` may report a **high** advisory for `braces` (stack exhaustion on crafted glob patterns, GHSA-vfj7-8cjw-p6xm)
+reached through `@intlify/unplugin-vue-i18n` > `fast-glob` > `micromatch` > `braces`. No patched `braces` release exists yet.
+The chain is the build-time Vite plugin that compiles the message files: it runs on your machine or CI against your own source tree,
+and none of it is shipped in the app bundle. We track the upstream fix; until then it is an accepted, documented notice.
+
 ## Reporting a vulnerability
 
 See `SECURITY.md` in the repository root.
