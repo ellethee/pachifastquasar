@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-10-14
+
+### Changed
+
+- First release published from GitHub Actions with trusted publishing (npm provenance); no code changes.
+
 ## [0.1.0] - 2026-10-14
 
 Initial public release. User profile page receiving the user through a prop.
@@ -20,5 +26,6 @@ Initial public release. User profile page receiving the user through a prop.
 - Avatar from the resolver provided by the shell, or from a custom slot.
 - Self-contained styles (`--pachi-*` variables) and Italian / English texts.
 
-[Unreleased]: https://github.com/ellethee/pachifastquasar/compare/fastquasar-profile@0.1.0...HEAD
+[Unreleased]: https://github.com/ellethee/pachifastquasar/compare/fastquasar-profile@0.1.1...HEAD
+[0.1.1]: https://github.com/ellethee/pachifastquasar/compare/fastquasar-profile@0.1.0...fastquasar-profile@0.1.1
 [0.1.0]: https://github.com/ellethee/pachifastquasar/releases/tag/fastquasar-profile@0.1.0
