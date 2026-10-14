@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-10-14
+
+### Changed
+
+- Accessibility: the dashboard card parent-level button now has an accessible name (aria-label).
+
 ## [0.1.1] - 2026-10-14
 
 ### Changed
@@ -28,6 +34,7 @@ Initial public release. Vue 3 / Quasar application shell for pachifast backends.
 - HTTP client on `@ilpachi/use-alova`, wired to authentication, spinner and error messages.
 - Runtime configuration through `QCLI_*` environment variables or code, and the Quasar preset `definePachiQuasarConfig`.
 
-[Unreleased]: https://github.com/ellethee/pachifastquasar/compare/pachifastquasar@0.1.1...HEAD
+[Unreleased]: https://github.com/ellethee/pachifastquasar/compare/pachifastquasar@0.1.2...HEAD
+[0.1.2]: https://github.com/ellethee/pachifastquasar/compare/pachifastquasar@0.1.1...pachifastquasar@0.1.2
 [0.1.1]: https://github.com/ellethee/pachifastquasar/compare/pachifastquasar@0.1.0...pachifastquasar@0.1.1
 [0.1.0]: https://github.com/ellethee/pachifastquasar/releases/tag/pachifastquasar@0.1.0
