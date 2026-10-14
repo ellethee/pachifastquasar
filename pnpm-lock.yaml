@@ -499,6 +499,9 @@ importers:
       '@ilpachi/pachi-i18n':
         specifier: workspace:*
         version: link:../packages/pachi-i18n
+      '@ilpachi/pachi-kit':
+        specifier: workspace:*
+        version: link:../packages/pachi-kit
       '@ilpachi/pachifastquasar':
         specifier: workspace:*
         version: link:../packages/pachifastquasar
@@ -1192,7 +1195,7 @@ packages:
     engines: {node: '>=18.18'}
 
   '@ilpachi/use-alova@2.1.1':
-    resolution: {integrity: sha512-O6eLqcyKhkO6yycAD5pSdYRnVMANfrAasRZujZDltvTe8Pp49CMd/2HGyppv3oEBGUzp4vctZ1WDRI2kTXJs0w==}
+    resolution: {integrity: sha512-v6ICML8DigSAcDDT2VhzNtT+Xsg1Zl8cWFsYRfKou3nqbdpsX/n93pLjcJc2gk9kcac3zaCwDywFCcnfndtP/A==, tarball: https://git.internal/api/packages/ilpachi/npm/@ilpachi%2Fuse-alova/-/2.1.1/use-alova-2.1.1.tgz}
     engines: {node: '>=20'}
     peerDependencies:
       alova: ^3.3.0

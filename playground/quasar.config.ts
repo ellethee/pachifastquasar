@@ -25,6 +25,11 @@ export default definePachiQuasarConfig({
         }
         alias.unshift({ find: new RegExp(`^@ilpachi/${pkg}$`), replacement: srcOf(pkg) })
       }
+      // pachi-kit: un entry per area (nessun import di radice), dai sorgenti
+      alias.unshift({
+        find: /^@ilpachi\/pachi-kit\/(ui|dialog|edit-dialog|fields|table|uploader)$/,
+        replacement: fileURLToPath(new URL('../packages/pachi-kit/src/$1/index.ts', import.meta.url))
+      })
       viteConf.resolve = { ...viteConf.resolve, alias }
     }
   }

@@ -32,6 +32,7 @@
           :icon="card.parentIcon"
           size="10px"
           class="pachi-dc-parent-btn"
+          :aria-label="t('dashboard.backToParent')"
           @click.stop="onParentClick"
         >
           <q-tooltip>{{ t('dashboard.backToParent') }}</q-tooltip>

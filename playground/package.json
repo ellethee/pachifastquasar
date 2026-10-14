@@ -15,6 +15,7 @@
   "dependencies": {
     "@ilpachi/use-alova": "^2.1.1",
     "@ilpachi/pachi-i18n": "workspace:*",
+    "@ilpachi/pachi-kit": "workspace:*",
     "@ilpachi/pachifastquasar": "workspace:*",
     "@quasar/extras": "^2.0.1",
     "alova": "^3.3.0",

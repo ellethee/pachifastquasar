@@ -14,6 +14,7 @@ of `pnpm check` nor of the CI workflow.
 | `admin.spec.ts` | `fastquasar-admin` item table: search and pagination over seeded rows (created and deleted through the API), non-staff user sees nothing |
 | `a11y.spec.ts` | `@axe-core/playwright` (WCAG 2 A/AA) on login (light and dark) and home: no serious/critical violations; moderate/minor are annotations |
 | `layout.spec.ts` | login in light/dark theme and at 390px: no horizontal scroll, the logo image is loaded and inside the viewport |
+| `kit.spec.ts` | playground page `/kit` using `@ilpachi/pachi-kit` (`ui`: popup edit, duotone icon, confirm dialog; `dialog`: programmatic `PachiDialog`) |
 | `mfa.spec.ts` | MFA SMS two-step enrolment: skipped (the compat backend has no SMS channel and the playground enables only the password block) |
 
 Each test builds its own state: the admin test seeds rows with a unique prefix and removes them, the profile tests use
