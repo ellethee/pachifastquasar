@@ -1,6 +1,6 @@
 {
   "name": "@ilpachi/pachi-i18n",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "vue-i18n based i18n for Vue/Quasar apps: instance creation, locale detection and persistence, per-package messages and a language selector.",
   "author": {
     "name": "ilPachi",
