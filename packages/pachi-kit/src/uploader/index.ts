@@ -1,0 +1,6 @@
+import './styles/theme-defaults.scss'
+export { default as PachiUploader } from './components/PachiUploader.vue'
+export * from './types/pachi-uploader'
+export * from './composables/use-pachi-uploader'
+export * from './helpers/uploader-defaults'
+export * from './helpers/uploader-utils'

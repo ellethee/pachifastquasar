@@ -1,0 +1,4 @@
+# Backend minimo per lo smoke di compatibilita' dei package frontend (vedi ../README.md).
+host: 127.0.0.1
+port: 8030
+default_locale: en

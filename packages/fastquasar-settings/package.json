@@ -1,0 +1,98 @@
+{
+  "name": "@ilpachi/fastquasar-settings",
+  "version": "0.1.0",
+  "description": "Backend-schema-driven user settings page for Vue 3 + Quasar, with an Appearance section (theme, accent, density) and a Pinia manager/store.",
+  "author": {
+    "name": "ilPachi",
+    "url": "https://github.com/ellethee"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ellethee/pachifastquasar.git",
+    "directory": "packages/fastquasar-settings"
+  },
+  "bugs": {
+    "url": "https://github.com/ellethee/pachifastquasar/issues"
+  },
+  "homepage": "https://github.com/ellethee/pachifastquasar/tree/main/packages/fastquasar-settings#readme",
+  "keywords": [
+    "vue",
+    "vue3",
+    "quasar",
+    "typescript",
+    "pachifast",
+    "settings",
+    "pinia",
+    "theme"
+  ],
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./menu": {
+      "types": "./dist/menu.d.ts",
+      "import": "./dist/menu.js",
+      "default": "./dist/menu.js"
+    },
+    "./routes": {
+      "types": "./dist/routes.d.ts",
+      "import": "./dist/routes.js",
+      "default": "./dist/routes.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "build": "vite build",
+    "typecheck": "vue-tsc --noEmit -p tsconfig.json",
+    "prepublishOnly": "pnpm typecheck && pnpm build",
+    "test": "vitest run"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "@ilpachi/pachi-i18n": ">=0.1.0 <1.0.0",
+    "@ilpachi/use-alova": "^2.1.1",
+    "@quasar/extras": "^2.0.0",
+    "pinia": "^3.0.0 || ^4.0.0",
+    "quasar": "^2.20.0",
+    "vue": "^3.5.0",
+    "vue-i18n": "^11.0.0"
+  },
+  "devDependencies": {
+    "@ilpachi/pachi-i18n": "workspace:^",
+    "@ilpachi/use-alova": "^2.1.1",
+    "@quasar/extras": "^2.0.1",
+    "@quasar/vite-plugin": "^2.0.2",
+    "@types/node": "^22.0.0",
+    "@vitejs/plugin-vue": "^6.0.10",
+    "@vue/language-core": "~2.2.12",
+    "pinia": "^4.0.3",
+    "quasar": "^2.35.0",
+    "sass-embedded": "^1.90.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.4",
+    "vite-plugin-css-injected-by-js": "^5.0.2",
+    "vite-plugin-dts": "^5.1.2",
+    "vitest": "^5.0.3",
+    "vue": "^3.5.35",
+    "vue-i18n": "^11.4.14",
+    "vue-tsc": "^3.3.13"
+  }
+}

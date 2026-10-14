@@ -1,0 +1,105 @@
+// Stili globali della shell (compilati in `dist/styles.css`; sorgente disponibile come `./scss/app`).
+// Configurabile: `@use '@ilpachi/pachifastquasar/scss/app' with ($dark-page: ..., $light-page: ..., $light-color: ...)`
+$dark-page: #0a0d12 !default;
+$light-page: #f0f4f8 !default;
+$light-color: #3a4252 !default;
+
+@use 'tokens' with (
+  $dark-page: $dark-page,
+  $light-page: $light-page,
+  $light-color: $light-color
+);
+@use 'blueprint-card';
+@use 'transitions-groups';
+@use 'browsers-hacks';
+@use 'bento-card';
+@use 'quasar-hacks';
+
+// ── Density tokens ───────────────────────────────────────────────────────────
+:root {
+  --pachi-row-h: 40px;
+  --pachi-pad: 22px;
+  --pachi-card-r: 12px;
+}
+
+:root[data-density='compact'] {
+  --pachi-row-h: 32px;
+  --pachi-pad: 16px;
+  --pachi-card-r: 8px;
+}
+
+// ── Card avatar (blueprint header) ───────────────────────────────────────────
+.pachi-card-avatar {
+  position: relative;
+  overflow: hidden;
+  background: var(--pachi-app-card-avatar-bg);
+  border-bottom: 1px solid var(--pachi-app-card-avatar-border);
+}
+
+// Blueprint grid (fine + grossa) — solo metà superiore
+.pachi-card-avatar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: var(--pachi-app-grid-bg);
+  background-size:
+    16px 16px,
+    16px 16px,
+    64px 64px,
+    64px 64px;
+  opacity: 0.9;
+  mask-image: radial-gradient(ellipse 100% 120% at 50% 0%, black 45%, transparent 70%);
+}
+
+// Crosshair axes
+.pachi-card-avatar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: var(--pachi-app-crosshair-bg);
+  opacity: 0.6;
+  mix-blend-mode: screen;
+}
+
+// ── Avatar blueprint pill ────────────────────────────────────────────────────
+.pachi-avatar-blueprint {
+  position: relative;
+  z-index: 2;
+  background: var(--pachi-app-avatar-plate-bg);
+  border: 1px solid var(--pachi-app-avatar-border);
+  color: var(--pachi-app-avatar-blueprint-color);
+  border-radius: 10px;
+  padding: 10px;
+  box-shadow: var(--pachi-app-avatar-shadow);
+
+  &.pachi-no-border-radius {
+    border-radius: 0;
+  }
+}
+
+.pachi-avatar-blueprint::before {
+  content: '';
+  position: absolute;
+  inset: -16px;
+  z-index: -1;
+  background: var(--pachi-app-avatar-glow);
+  filter: blur(2px);
+  opacity: 0.85;
+}
+
+// ── Light mode base ──────────────────────────────────────────────────────────
+body.body--light {
+  background-color: var(--pachi-body-bg);
+  color: var(--pachi-body-color);
+}
+
+// ── pachi-layout-bg (dismesso — tenuto per compatibilità ma invisibile) ─────────────
+.pachi-layout-bg {
+  display: none;
+}
+
+.swal2-container {
+  z-index: 9999;
+}

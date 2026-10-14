@@ -1,0 +1,66 @@
+// Valori di default: se il progetto definisce le stesse variabili --pachi-* hanno la precedenza (specificità zero)
+
+// Tema scuro (default) + densità standard + font
+:where(:root) {
+  --pachi-bg: #0a0d12;
+  --pachi-surface: #10141b;
+  --pachi-surface-2: #161b23;
+  --pachi-surface-3: #1c2230;
+  --pachi-border: #1f2530;
+  --pachi-border-hi: #2a3140;
+  --pachi-ink: #e6eaf2;
+  --pachi-ink-2: #b7becc;
+  --pachi-muted: #7b8494;
+  --pachi-faint: #525b6b;
+  --pachi-accent: #2dd4bf;
+  --pachi-accent-soft: rgba(45, 212, 191, 0.12);
+  --pachi-accent-mid: rgba(45, 212, 191, 0.22);
+  --pachi-accent-ink: #5eead4;
+  --pachi-accent-deep: #0f766e;
+  --pachi-blue: #60a5fa;
+  --pachi-blue-soft: rgba(96, 165, 250, 0.14);
+  --pachi-amber: #fbbf24;
+  --pachi-amber-soft: rgba(251, 191, 36, 0.14);
+  --pachi-red: #f87171;
+  --pachi-red-soft: rgba(248, 113, 113, 0.14);
+  --pachi-green: #34d399;
+  --pachi-font: 'Geist', 'Inter Tight', system-ui, -apple-system, sans-serif;
+  --pachi-mono: 'Geist Mono', 'JetBrains Mono', ui-monospace, monospace;
+  --pachi-title-font: var(--pachi-font);
+  --pachi-row-h: 40px;
+  --pachi-pad: 22px;
+  --pachi-card-r: 12px;
+}
+
+// Tema chiaro (dichiarato dopo: Quasar alterna body--dark / body--light)
+:where(body.body--light) {
+  --pachi-bg: #f0f4f8;
+  --pachi-surface: #ffffff;
+  --pachi-surface-2: #e8edf3;
+  --pachi-surface-3: #dde3eb;
+  --pachi-border: #d1d9e0;
+  --pachi-border-hi: #b8c3cc;
+  --pachi-ink: #1a2232;
+  --pachi-ink-2: #3a4252;
+  --pachi-muted: #6b7688;
+  --pachi-faint: #9aa3b0;
+  --pachi-accent: #2dd4bf;
+  --pachi-accent-soft: rgba(45, 212, 191, 0.1);
+  --pachi-accent-mid: rgba(45, 212, 191, 0.2);
+  --pachi-accent-ink: #0f766e;
+  --pachi-accent-deep: #0d9488;
+  --pachi-blue: #2563eb;
+  --pachi-blue-soft: rgba(37, 99, 235, 0.1);
+  --pachi-amber: #d97706;
+  --pachi-amber-soft: rgba(217, 119, 6, 0.1);
+  --pachi-red: #dc2626;
+  --pachi-red-soft: rgba(220, 38, 38, 0.1);
+  --pachi-green: #059669;
+}
+
+// Densità compatta
+:where(:root[data-density='compact']) {
+  --pachi-row-h: 32px;
+  --pachi-pad: 16px;
+  --pachi-card-r: 8px;
+}

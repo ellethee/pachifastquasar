@@ -1,0 +1,112 @@
+{
+  "name": "@ilpachi/pachifastquasar",
+  "version": "0.1.0",
+  "description": "Vue 3 / Quasar application shell for pachifast backends: layout, optional auth, dashboard, i18n, router and HTTP client in a few lines of configuration.",
+  "author": {
+    "name": "ilPachi",
+    "url": "https://github.com/ellethee"
+  },
+  "license": "MIT",
+  "keywords": [
+    "vue",
+    "vue3",
+    "quasar",
+    "typescript",
+    "pachifast",
+    "application-shell",
+    "layout",
+    "dashboard",
+    "authentication",
+    "i18n",
+    "alova"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ellethee/pachifastquasar.git",
+    "directory": "packages/pachifastquasar"
+  },
+  "bugs": {
+    "url": "https://github.com/ellethee/pachifastquasar/issues"
+  },
+  "homepage": "https://github.com/ellethee/pachifastquasar/tree/main/packages/pachifastquasar#readme",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./quasar": {
+      "types": "./dist/quasar/index.d.ts",
+      "import": "./dist/quasar.js",
+      "default": "./dist/quasar.js"
+    },
+    "./styles.css": "./dist/styles.css",
+    "./scss/*": {
+      "sass": "./dist/scss/*.scss",
+      "default": "./dist/scss/*"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "vite build && pnpm build:node && node scripts/build-styles.mjs",
+    "build:node": "vite build -c vite.config.node.ts",
+    "typecheck": "vue-tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "prepublishOnly": "pnpm typecheck && pnpm build"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@intlify/unplugin-vue-i18n": "~11.1.2",
+    "vite-plugin-checker": "^0.14.5"
+  },
+  "peerDependencies": {
+    "@ilpachi/pachi-i18n": ">=0.1.0 <1.0.0",
+    "@ilpachi/use-alova": "^2.1.1",
+    "@quasar/extras": "^2.0.0",
+    "alova": "^3.3.0",
+    "pinia": "^3.0.0 || ^4.0.0",
+    "pinia-plugin-persistedstate": "^4.0.0",
+    "quasar": "^2.20.0",
+    "vue": "^3.5.0",
+    "vue-i18n": "^11.0.0",
+    "vue-router": "^4.0.0 || ^5.0.0"
+  },
+  "devDependencies": {
+    "@ilpachi/pachi-i18n": "workspace:^",
+    "@ilpachi/use-alova": "^2.1.1",
+    "@quasar/extras": "^2.0.1",
+    "@quasar/vite-plugin": "^2.0.2",
+    "@types/node": "^22.0.0",
+    "@vitejs/plugin-vue": "^6.0.10",
+    "@vue/language-core": "~2.2.12",
+    "alova": "^3.3.0",
+    "pinia": "^4.0.3",
+    "pinia-plugin-persistedstate": "^4.7.1",
+    "quasar": "^2.35.0",
+    "sass-embedded": "^1.90.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.4",
+    "vite-plugin-css-injected-by-js": "^5.0.2",
+    "vite-plugin-dts": "^5.1.2",
+    "vitest": "^5.0.3",
+    "vue": "^3.5.35",
+    "vue-i18n": "^11.4.14",
+    "vue-router": "^5.4.0",
+    "vue-tsc": "^3.3.13"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

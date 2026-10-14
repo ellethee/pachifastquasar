@@ -1,0 +1,133 @@
+// Token CSS `--pachi-*` della shell (tema scuro e chiaro), come proprietà custom sul `body`.
+// Tre valori derivano dalla palette Sass dell'app e si possono configurare con `@use ... with (...)`:
+//   @use '@ilpachi/pachifastquasar/scss/tokens' with ($dark-page: #000, $light-page: #fafafa);
+// Gli altri token si ridefiniscono con CSS normale (selettore `body.body--dark` / `body.body--light`).
+
+$dark-page: #0a0d12 !default;
+$light-page: #f0f4f8 !default;
+$light-color: #3a4252 !default;
+
+// ── Dark mode (default) ──────────────────────────────────────────────────────
+body.body--dark {
+  // Surfaces (slate scale)
+  --pachi-bg: #0a0d12;
+  --pachi-surface: #10141b;
+  --pachi-surface-2: #161b23;
+  --pachi-surface-3: #1c2230; // hover / elevated
+
+  // Borders
+  --pachi-border: #1f2530;
+  --pachi-border-hi: #2a3140;
+
+  // Ink (foreground scale)
+  --pachi-ink: #e6eaf2;
+  --pachi-ink-2: #b7becc;
+  --pachi-muted: #7b8494;
+  --pachi-faint: #525b6b;
+
+  // Accent (teal)
+  --pachi-accent: #2dd4bf;
+  --pachi-accent-soft: rgb(45 212 191 / 12%);
+  --pachi-accent-mid: rgb(45 212 191 / 22%);
+  --pachi-accent-ink: #5eead4;
+  --pachi-accent-deep: #0f766e;
+
+  // Semantic
+  --pachi-blue: #60a5fa;
+  --pachi-blue-soft: rgb(96 165 250 / 14%);
+  --pachi-amber: #fbbf24;
+  --pachi-amber-soft: rgb(251 191 36 / 14%);
+  --pachi-red: #f87171;
+  --pachi-red-soft: rgb(248 113 113 / 14%);
+  --pachi-green: #34d399;
+
+  // Legacy compat (blueprint card, avatar)
+  --pachi-body-bg: #{$dark-page};
+  --pachi-app-card-bg: #10141b;
+  --pachi-app-card-border: #1f2530;
+  --pachi-app-card-border-hover: rgb(45 212 191 / 35%);
+  --pachi-app-card-shadow: rgb(0 0 0 / 45%);
+  --pachi-app-card-avatar-bg:
+    radial-gradient(1200px 300px at 50% -40%, rgb(45 212 191 / 14%), transparent 60%),
+    radial-gradient(800px 240px at 70% 0%, rgb(96 165 250 / 8%), transparent 55%), #10141b;
+  --pachi-app-card-avatar-border: rgb(255 255 255 / 5%);
+  --pachi-app-grid-bg:
+    linear-gradient(rgb(255 255 255 / 4%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(255 255 255 / 4%) 1px, transparent 1px),
+    linear-gradient(rgb(45 212 191 / 7%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(45 212 191 / 7%) 1px, transparent 1px);
+  --pachi-app-crosshair-bg:
+    linear-gradient(to right, transparent 49.7%, rgb(45 212 191 / 14%) 50%, transparent 50.3%),
+    linear-gradient(to bottom, transparent 49.7%, rgb(45 212 191 / 10%) 50%, transparent 50.3%);
+  --pachi-app-avatar-plate-bg: rgb(255 255 255 / 4%);
+  --pachi-app-avatar-border: rgb(255 255 255 / 10%);
+  --pachi-app-avatar-shadow: 0 14px 45px rgb(0 0 0 / 55%), 0 0 0 1px rgb(45 212 191 / 10%) inset;
+  --pachi-app-avatar-glow:
+    radial-gradient(circle at center, rgb(45 212 191 / 18%), transparent 60%),
+    radial-gradient(circle at center, rgb(45 212 191 / 12%), transparent 55%);
+  --pachi-app-avatar-blueprint-color: rgb(45 212 191 / 20%);
+  --pachi-app-blueprint-card-bg: var(--pachi-surface);
+}
+
+// ── Light mode ───────────────────────────────────────────────────────────────
+body.body--light {
+  // Surfaces
+  --pachi-bg: #f0f4f8;
+  --pachi-surface: #fff;
+  --pachi-surface-2: #e8edf3;
+  --pachi-surface-3: #dde3eb;
+
+  // Borders
+  --pachi-border: #d1d9e0;
+  --pachi-border-hi: #b8c3cc;
+
+  // Ink
+  --pachi-ink: #1a2232;
+  --pachi-ink-2: #3a4252;
+  --pachi-muted: #6b7688;
+  --pachi-faint: #9aa3b0;
+
+  // Accent (same teal)
+  --pachi-accent: #2dd4bf;
+  --pachi-accent-soft: rgb(45 212 191 / 10%);
+  --pachi-accent-mid: rgb(45 212 191 / 20%);
+  --pachi-accent-ink: #0f766e;
+  --pachi-accent-deep: #0d9488;
+
+  // Semantic
+  --pachi-blue: #2563eb;
+  --pachi-blue-soft: rgb(37 99 235 / 10%);
+  --pachi-amber: #d97706;
+  --pachi-amber-soft: rgb(217 119 6 / 10%);
+  --pachi-red: #dc2626;
+  --pachi-red-soft: rgb(220 38 38 / 10%);
+  --pachi-green: #059669;
+
+  // Legacy compat
+  --pachi-body-bg: #{$light-page};
+  --pachi-body-color: #{$light-color};
+  --pachi-app-card-bg: #fff;
+  --pachi-app-card-border: #d1d9e0;
+  --pachi-app-card-border-hover: rgb(45 212 191 / 35%);
+  --pachi-app-card-shadow: rgb(15 23 42 / 10%);
+  --pachi-app-card-avatar-bg:
+    radial-gradient(1200px 300px at 50% -40%, rgb(45 212 191 / 12%), transparent 60%),
+    radial-gradient(800px 240px at 70% 0%, rgb(96 165 250 / 8%), transparent 55%), #f8fafc;
+  --pachi-app-card-avatar-border: rgb(15 23 42 / 6%);
+  --pachi-app-grid-bg:
+    linear-gradient(rgb(15 23 42 / 5%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(15 23 42 / 5%) 1px, transparent 1px),
+    linear-gradient(rgb(45 212 191 / 12%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(45 212 191 / 12%) 1px, transparent 1px);
+  --pachi-app-crosshair-bg:
+    linear-gradient(to right, transparent 49.7%, rgb(45 212 191 / 18%) 50%, transparent 50.3%),
+    linear-gradient(to bottom, transparent 49.7%, rgb(45 212 191 / 14%) 50%, transparent 50.3%);
+  --pachi-app-avatar-plate-bg: rgb(255 255 255 / 90%);
+  --pachi-app-avatar-border: rgb(15 23 42 / 8%);
+  --pachi-app-avatar-shadow: 0 14px 45px rgb(15 23 42 / 14%), 0 0 0 1px rgb(45 212 191 / 10%) inset;
+  --pachi-app-avatar-glow:
+    radial-gradient(circle at center, rgb(45 212 191 / 14%), transparent 60%),
+    radial-gradient(circle at center, rgb(45 212 191 / 10%), transparent 55%);
+  --pachi-app-avatar-blueprint-color: rgb(13 148 136 / 30%);
+  --pachi-app-blueprint-card-bg: var(--pachi-surface);
+}

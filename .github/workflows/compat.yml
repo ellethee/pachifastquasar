@@ -1,0 +1,64 @@
+# Compat pachifast: smoke OPZIONALE dei package frontend (fastquasar-settings, fastquasar-admin, use-alova)
+# contro un backend pachifast reale. NON blocca nulla: parte solo a mano ("Run workflow") o una volta a settimana,
+# e il job ha continue-on-error. Dettagli in compat/README.md.
+# NOTA: pachifast non e' ancora pubblicato su PyPI: finche' non lo e', questo job fallisce all'installazione
+# del backend (e' atteso). Variabili opzionali del repository: PACHIFAST_INDEX_URL (indice PyPI alternativo,
+# senza credenziali) e PACHIFAST_VERSION. Input manuale: pachifast_version (vuoto = ultima). Nessun segreto.
+name: Compat pachifast
+
+on:
+  workflow_dispatch:
+    inputs:
+      pachifast_version:
+        description: 'Versione di pachifast da PyPI (vuoto = ultima)'
+        required: false
+        default: ''
+  schedule:
+    - cron: '30 4 * * 1'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: compat
+  cancel-in-progress: false
+
+env:
+  COMPAT_PORT: '8030'
+  PACHIFAST_VERSION: ${{ inputs.pachifast_version || vars.PACHIFAST_VERSION }}
+  # vuoto = PyPI (backend.sh usa PyPI se la variabile manca)
+  PACHIFAST_INDEX_URL: ${{ vars.PACHIFAST_INDEX_URL }}
+
+jobs:
+  compat:
+    runs-on: ubuntu-latest
+    # opzionale: un fallimento non rende rosso il resto della pipeline
+    continue-on-error: true
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+      - uses: astral-sh/setup-uv@v7
+      - name: Backend pachifast (installazione, database, avvio)
+        run: |
+          set -eu
+          export COMPAT_DATA_DIR="${RUNNER_TEMP}/compat-data"
+          compat/backend.sh all
+          echo "COMPAT_DATA_DIR=${COMPAT_DATA_DIR}" >> "$GITHUB_ENV"
+      - name: Versione di pachifast
+        run: compat/backend.sh version
+      - run: pnpm install --frozen-lockfile
+      - name: Build dei package coinvolti
+        run: pnpm --filter "ilpachi-compat-smoke..." --filter '!ilpachi-compat-smoke' build
+      - name: Smoke
+        run: pnpm -C compat/smoke smoke
+      - name: Log del backend (se fallisce)
+        if: failure()
+        run: tail -n 80 "${COMPAT_DATA_DIR}/backend.log" || true
+      - name: Stop del backend
+        if: always()
+        run: compat/backend.sh stop || true

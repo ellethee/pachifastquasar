@@ -1,0 +1,7 @@
+import './styles/theme-defaults.scss'
+import './styles/pdw-card.scss'
+export { default as PachiDashboardActivityCard } from './components/PachiDashboardActivityCard.vue'
+export { default as PachiDashboardSystemCard } from './components/PachiDashboardSystemCard.vue'
+export { setPachiWidgetsHttp, getPachiWidgetsHttp } from './helpers/http'
+export type { IPachiWidgetsHttp, PachiWidgetsHttpFactory } from './helpers/http'
+export type { IDashboardActivity, IDashboardSystemInfo } from './types/dashboard-widgets'

@@ -1,0 +1,35 @@
+{% extends "main.html" %}
+{% block tabs %}{{ super() }}{% endblock %}
+{% block content %}
+<section class="pf-hero">
+  <img class="pf-hero-logo" src="{{ 'assets/logo.svg' | url }}" alt="Pachi Fast Quasar" width="180" height="180">
+  <h1>Pachi Fast Quasar</h1>
+  <p>A Vue 3 / Quasar application shell as an npm package: layout, authentication, dashboard, i18n, routing and an
+     HTTP client already wired to a pachifast backend.</p>
+  <div class="pf-badges"><span>Vue 3</span><span>Quasar</span><span>TypeScript</span><span>Vite</span><span>vue-i18n</span><span>MIT</span></div>
+  <div class="pf-actions">
+    <a class="pf-btn pf-btn--primary" href="getting-started/">Get started</a>
+    <a class="pf-btn pf-btn--ghost" href="configuration/">Configuration</a>
+    <a class="pf-btn pf-btn--ghost" href="packages/">Packages</a>
+  </div>
+  <div class="pf-code"><span class="c"># a new app on top of the shell in four commands</span><br>
+<span class="p">$ </span>pnpm add -g @ilpachi/pachifq<br>
+<span class="p">$ </span>pachifq create demo &amp;&amp; cd demo<br>
+<span class="p">$ </span>pnpm install<br>
+<span class="p">$ </span>pnpm dev</div>
+</section>
+<div class="pf-section">
+  <h2>Guides</h2>
+  <div class="pf-grid">
+    <a class="pf-card" href="getting-started/"><strong>Getting started</strong><span>Install the package and wire a Quasar app.</span></a>
+    <a class="pf-card" href="configuration/"><strong>Configuration</strong><span>Runtime config, environment variables and the Quasar preset.</span></a>
+    <a class="pf-card" href="routing-and-menus/"><strong>Routing and menus</strong><span>Features, route meta, dashboard cards and the account menu.</span></a>
+    <a class="pf-card" href="authentication/"><strong>Authentication</strong><span>Tokens, silent restore, per-route authorization.</span></a>
+    <a class="pf-card" href="http-client/"><strong>HTTP client</strong><span>use-alova wiring, overlay, errors and file handling.</span></a>
+    <a class="pf-card" href="i18n/"><strong>Internationalization</strong><span>Messages, locales and backend-generated codes.</span></a>
+    <a class="pf-card" href="theming-and-styles/"><strong>Theming and styles</strong><span>Tokens, SCSS and scrollable pages.</span></a>
+    <a class="pf-card" href="backend-contract/"><strong>Backend contract</strong><span>What the shell expects from the API.</span></a>
+    <a class="pf-card" href="packages/"><strong>Packages</strong><span>The reusable @ilpachi/* packages.</span></a>
+  </div>
+</div>
+{% endblock %}

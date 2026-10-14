@@ -1,0 +1,69 @@
+# Typecheck + test + build + controllo tarball SOLO dei pacchetti toccati (e dei loro dipendenti).
+# Il filtro lo calcola scripts/ci-filter.sh: base = ramo di destinazione della PR, oppure il commit precedente del push;
+# se cambiano file fuori da packages/ e playground/ (lockfile, workflow, script) si costruisce tutto.
+# Nessun segreto: i pacchetti @ilpachi del monorepo sono workspace e use-alova arriva da npmjs.
+# Il publish NON sta qui: vedi release.yml (tag <nome>@<versione>).
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      # la versione di pnpm e' quella di `packageManager` in package.json
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Calcola il filtro
+        id: filter
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_REF: ${{ github.base_ref }}
+          BEFORE_SHA: ${{ github.event.before }}
+        run: |
+          set -eu
+          BASE=""
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            git fetch --no-tags origin "$BASE_REF"
+            BASE="origin/$BASE_REF"
+          elif [ "$EVENT_NAME" = "push" ]; then
+            BASE="$BEFORE_SHA"
+          fi
+          FILTER="$(scripts/ci-filter.sh "$BASE")"
+          echo "filter=${FILTER}" >> "$GITHUB_OUTPUT"
+          echo "Filtro pnpm: ${FILTER}"
+      - run: pnpm install --frozen-lockfile
+      # informativo: segnala vulnerabilita' delle dipendenze di produzione senza bloccare la CI
+      - name: Audit delle dipendenze
+        continue-on-error: true
+        run: pnpm audit --prod
+      # build per prima (i dist degli altri pacchetti servono a typecheck e test), poi i pacchetti (il playground usa il preset ./quasar buildato), il playground solo se toccato dal filtro
+      - run: pnpm --filter "${{ steps.filter.outputs.filter }}" --filter '!pachifastquasar-playground' --filter '!ilpachi-monorepo' --filter '!ilpachi-compat-smoke' build
+      - run: pnpm --filter "${{ steps.filter.outputs.filter }}" --filter '!pachifastquasar-playground' --filter '!ilpachi-monorepo' --filter '!ilpachi-compat-smoke' typecheck
+      - run: pnpm --filter "${{ steps.filter.outputs.filter }}" --filter '!pachifastquasar-playground' --filter '!ilpachi-monorepo' --filter '!ilpachi-compat-smoke' --if-present test
+      - name: Controllo dei tarball
+        run: pnpm --filter "${{ steps.filter.outputs.filter }}" --filter '!pachifastquasar-playground' --filter '!ilpachi-monorepo' --filter '!ilpachi-compat-smoke' exec npm pack --dry-run --ignore-scripts
+      - name: Playground (typecheck + build con il pacchetto da dist/)
+        run: |
+          if [ "${{ steps.filter.outputs.filter }}" = '*' ] || pnpm --filter "${{ steps.filter.outputs.filter }}" ls --depth -1 --json | grep -q '"name": "pachifastquasar-playground"'; then
+            QCLI_AUTH_ENABLED=false pnpm typecheck:playground
+            QCLI_AUTH_ENABLED=false pnpm build:playground
+          fi

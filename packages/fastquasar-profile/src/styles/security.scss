@@ -1,0 +1,194 @@
+// Sezione Sicurezza: card, form, avvisi. Usa solo le variabili --pachi-* (con i default di theme-defaults.scss)
+
+.pachi-profile-security {
+  display: grid;
+  gap: 16px;
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+  align-items: start;
+}
+
+.pachi-profile-sec-card {
+  background: var(--pachi-surface);
+  border: 1px solid var(--pachi-border);
+  border-radius: var(--pachi-card-r);
+  overflow: hidden;
+  min-width: 0;
+}
+
+.pachi-profile-sec-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--pachi-border);
+  background: var(--pachi-surface-2);
+  font-family: var(--pachi-font);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--pachi-ink);
+}
+
+.pachi-profile-sec-body {
+  padding: 18px 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  font-family: var(--pachi-font);
+  color: var(--pachi-ink);
+}
+
+.pachi-profile-sec-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.pachi-profile-sec-sub {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--pachi-ink);
+}
+
+.pachi-profile-sec-hint {
+  margin: 0;
+  font-size: 12px;
+  color: var(--pachi-muted);
+}
+
+.pachi-profile-sec-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.pachi-profile-sec-link {
+  font-size: 12px;
+  color: var(--pachi-accent-ink);
+}
+
+.pachi-profile-sec-banner {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  border: 1px solid transparent;
+
+  // una riga compatta (es. conto alla rovescia) per non spingere i pulsanti sotto il fold
+  &--dense {
+    padding: 4px 10px;
+    font-size: 12px;
+    line-height: 1.35;
+  }
+
+  &--ok {
+    background: color-mix(in srgb, var(--pachi-green) 12%, transparent);
+    color: var(--pachi-green);
+    border-color: color-mix(in srgb, var(--pachi-green) 30%, transparent);
+  }
+
+  &--error {
+    background: var(--pachi-red-soft);
+    color: var(--pachi-red);
+    border-color: color-mix(in srgb, var(--pachi-red) 30%, transparent);
+  }
+
+  &--warn {
+    background: var(--pachi-amber-soft);
+    color: var(--pachi-amber);
+    border-color: color-mix(in srgb, var(--pachi-amber) 33%, transparent);
+  }
+}
+
+.pachi-profile-sec-badge {
+  padding: 3px 9px;
+  font-size: 10.5px;
+  font-weight: 600;
+  border-radius: 11px;
+  border: 1px solid transparent;
+
+  &--on {
+    background: color-mix(in srgb, var(--pachi-green) 12%, transparent);
+    color: var(--pachi-green);
+    border-color: color-mix(in srgb, var(--pachi-green) 30%, transparent);
+  }
+
+  &--off {
+    background: var(--pachi-amber-soft);
+    color: var(--pachi-amber);
+    border-color: color-mix(in srgb, var(--pachi-amber) 33%, transparent);
+  }
+}
+
+.pachi-profile-qr {
+  align-self: flex-start;
+  width: 200px;
+  height: 200px;
+  display: grid;
+  place-items: center;
+  background: #fff; // il QR deve restare nero su bianco anche nel tema scuro
+  border-radius: 8px;
+  border: 1px solid var(--pachi-border);
+  overflow: hidden;
+
+  &__svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+}
+
+.pachi-profile-secret {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+
+  &__label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--pachi-muted);
+  }
+
+  &__value {
+    font-family: var(--pachi-mono);
+    font-size: 13px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: var(--pachi-surface-2);
+    color: var(--pachi-ink);
+    user-select: all;
+    overflow-wrap: anywhere;
+  }
+}
+
+.pachi-profile-codes {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 6px;
+
+  li {
+    font-family: var(--pachi-mono);
+    font-size: 13px;
+    padding: 6px 8px;
+    text-align: center;
+    border-radius: 6px;
+    background: var(--pachi-surface-2);
+    border: 1px solid var(--pachi-border);
+    color: var(--pachi-ink);
+    user-select: all;
+  }
+}
+
+.pachi-profile-retry {
+  font-variant-numeric: tabular-nums;
+}

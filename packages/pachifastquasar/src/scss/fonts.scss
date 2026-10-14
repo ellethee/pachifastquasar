@@ -1,0 +1,14 @@
+@import 'https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap';
+
+:root {
+  --pachi-font: 'Geist', 'Inter Tight', system-ui, -apple-system, sans-serif;
+  --pachi-mono: 'Geist Mono', 'JetBrains Mono', ui-monospace, monospace;
+
+  // Font titoli/wordmark, distinto dal body: default = stesso di --pachi-font,
+  // override nei progetti derivati per un lettering decorativo diverso.
+  --pachi-title-font: var(--pachi-font);
+}
+
+body {
+  font-family: var(--pachi-font);
+}

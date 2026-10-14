@@ -1,0 +1,64 @@
+{
+  "name": "@ilpachi/pachifq",
+  "version": "0.1.0",
+  "description": "Scaffold CLI for Vue 3 / Quasar apps and features built on @ilpachi/pachifastquasar",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "pachifq": "./dist/index.js"
+  },
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "templates",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "prepublishOnly": "pnpm run build",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@clack/prompts": "^1.7.0",
+    "picocolors": "^1.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsup": "^8.5.1",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.3"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "vue",
+    "quasar",
+    "cli",
+    "scaffold",
+    "generator",
+    "pachifast"
+  ],
+  "author": {
+    "name": "ilPachi",
+    "url": "https://github.com/ellethee"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ellethee/pachifastquasar.git",
+    "directory": "packages/pachifq"
+  },
+  "homepage": "https://github.com/ellethee/pachifastquasar/tree/main/packages/pachifq#readme",
+  "bugs": {
+    "url": "https://github.com/ellethee/pachifastquasar/issues"
+  }
+}

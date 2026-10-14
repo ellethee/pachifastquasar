@@ -1,0 +1,56 @@
+site_name: pachifq
+site_description: "Scaffolding CLI for apps and features built on @ilpachi/pachifastquasar"
+repo_url: https://github.com/ellethee/pachifastquasar
+site_url: !ENV [DOCS_SITE_URL, ""]
+repo_name: ilpachi/pachifastquasar
+docs_dir: docs
+theme:
+  name: material
+  font: false
+  logo: assets/logo.svg
+  favicon: assets/favicon.svg
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  features:
+    - navigation.sections
+    - navigation.top
+    - navigation.footer
+    - toc.follow
+    - content.code.copy
+    - search.suggest
+    - search.highlight
+extra_css:
+  - stylesheets/extra.css
+markdown_extensions:
+  - admonition
+  - tables
+  - attr_list
+  - md_in_html
+  - pymdownx.details
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - toc:
+      permalink: true
+nav:
+  - Home: index.md
+  - Commands:
+      - create: commands/create.md
+      - new feature: commands/new-feature.md
+      - new locale: commands/new-locale.md
+      - info and list: commands/info-list.md
+  - Generated project: generated-project.md
+  - Troubleshooting: troubleshooting.md
+
+exclude_docs: |
+  history/

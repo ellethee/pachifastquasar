@@ -1,0 +1,29 @@
+/*
+PachiDialog.scss
+This file contains the styles for the PachiDialog component.
+*/
+.pachi-dialog {
+  position: absolute;
+
+  .q-card__actions {
+    padding-right: 16px;
+    padding-bottom: 16px;
+  }
+
+  // azioni allineate a destra (con o senza etichette)
+  .pachi-dialog-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  &.pachi-rounded {
+    border-radius: 14px;
+  }
+
+  &.pachi-shaped {
+    border-top-left-radius: 14px;
+    border-bottom-right-radius: 14px;
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "name": "@ilpachi/pachi-i18n",
+  "version": "0.1.0",
+  "description": "vue-i18n based i18n for Vue/Quasar apps: instance creation, locale detection and persistence, per-package messages and a language selector.",
+  "author": {
+    "name": "ilPachi",
+    "url": "https://github.com/ellethee"
+  },
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "build": "vite build",
+    "typecheck": "vue-tsc --noEmit -p tsconfig.json",
+    "prepublishOnly": "pnpm typecheck && pnpm build",
+    "test": "vitest run"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "@quasar/extras": "^2.0.0",
+    "quasar": "^2.20.0",
+    "vue": "^3.5.0",
+    "vue-i18n": "^11.0.0"
+  },
+  "devDependencies": {
+    "@quasar/extras": "^2.0.1",
+    "@quasar/vite-plugin": "^2.0.2",
+    "@types/node": "^22.0.0",
+    "@vitejs/plugin-vue": "^6.0.10",
+    "@vue/language-core": "~2.2.12",
+    "quasar": "^2.35.0",
+    "sass-embedded": "^1.90.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.4",
+    "vite-plugin-dts": "^5.1.2",
+    "vitest": "^5.0.3",
+    "vue": "^3.5.35",
+    "vue-i18n": "^11.4.14",
+    "vue-tsc": "^3.3.13"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ellethee/pachifastquasar.git",
+    "directory": "packages/pachi-i18n"
+  },
+  "bugs": {
+    "url": "https://github.com/ellethee/pachifastquasar/issues"
+  },
+  "homepage": "https://github.com/ellethee/pachifastquasar/tree/main/packages/pachi-i18n#readme",
+  "keywords": [
+    "vue",
+    "vue3",
+    "quasar",
+    "typescript",
+    "pachifast",
+    "ilpachi",
+    "i18n",
+    "vue-i18n",
+    "locale"
+  ],
+  "engines": {
+    "node": ">=20"
+  }
+}

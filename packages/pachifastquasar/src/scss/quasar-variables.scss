@@ -1,0 +1,37 @@
+// Variabili Sass di Quasar del tema Pachi (palette e tooltip), valori di default (`!default`).
+// Uso nell'app, in `src/css/quasar.variables.scss` (il file letto da Quasar): definire PRIMA gli override,
+// poi importare questo file, così i valori dell'app prevalgono:
+//   (esempio) $primary: #7c3aed;
+//   @import '@ilpachi/pachifastquasar/scss/quasar-variables';
+// Sono variabili compile-time di Sass: servono a Quasar quando compila i suoi stili nell'app.
+// I token CSS `--pachi-*` (colori dell'interfaccia) stanno in `tokens.scss`.
+
+@use 'quasar/src/css/variables' as q;
+
+// ── Quasar palette ──────────────────────────────────────────────────────────
+$primary: #2dd4bf !default; // teal — accento principale e CTA primary
+$secondary: #60a5fa !default; // blue — info secondaria
+$accent: #5eead4 !default; // teal hover
+
+$dark: #10141b !default; // surface
+$dark-page: #0a0d12 !default; // bg
+
+$light: #e6eaf2 !default;
+$light-page: #f0f4f8 !default;
+$light-page-alt: #e8edf3 !default;
+$light-color: #3a4252 !default;
+$positive: #34d399 !default;
+$negative: #f87171 !default;
+$info: #60a5fa !default;
+$warning: #fbbf24 !default;
+
+// ── Tooltip defaults ────────────────────────────────────────────────────────
+$tooltip-color: #fafafa !default;
+$tooltip-background: q.$grey-7 !default;
+$tooltip-padding: 6px 10px !default;
+$tooltip-border-radius: q.$generic-border-radius !default;
+$tooltip-fontsize: 14px !default;
+$tooltip-mobile-padding: 8px 16px !default;
+$tooltip-mobile-fontsize: 14px !default;
+$tooltip-max-width: 95vw !default;
+$tooltip-max-height: 65vh !default;

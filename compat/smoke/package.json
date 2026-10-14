@@ -1,0 +1,25 @@
+{
+  "name": "ilpachi-compat-smoke",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Smoke di compatibilita' dei package frontend contro un backend pachifast reale (vedi ../README.md)",
+  "scripts": {
+    "smoke": "vitest run"
+  },
+  "devDependencies": {
+    "@ilpachi/fastquasar-admin": "workspace:*",
+    "@ilpachi/fastquasar-settings": "workspace:*",
+    "@ilpachi/pachi-i18n": "workspace:*",
+    "@ilpachi/use-alova": "^2.1.1",
+    "@quasar/extras": "^2.0.1",
+    "alova": "^3.3.0",
+    "happy-dom": "^20.14.6",
+    "pinia": "^4.0.3",
+    "quasar": "^2.35.0",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.3",
+    "vue": "^3.5.35",
+    "vue-i18n": "^11.4.14"
+  }
+}

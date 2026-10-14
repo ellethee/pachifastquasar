@@ -1,0 +1,79 @@
+/* Header area con blueprint */
+.pachi-blueprint-card {
+  position: relative;
+
+  //   display: grid;
+  //   place-items: center;
+  overflow: hidden;
+  background: var(--pachi-app-blueprint-card-bg);
+
+  // border-bottom: 1px solid var(--pachi-app-blueprint-card-border);
+}
+
+/* Griglia blueprint (fine + grossa) */
+.pachi-blueprint-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+
+  /* 2 livelli: griglia fine + griglia più larga */
+  background-image: var(--pachi-app-grid-bg);
+
+  /* fine: 16px, grossa: 64px */
+  background-size:
+    16px 16px,
+    16px 16px,
+    64px 64px,
+    64px 64px;
+  opacity: 0.9;
+
+  /* sfuma i bordi per look moderno */
+  mask-image: radial-gradient(circle at 50% 35%, black 50%, transparent 78%);
+}
+
+/* Linee “assi” (crosshair) */
+.pachi-blueprint-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+
+  // background-image: var(--pachi-app-crosshair-bg);
+
+  opacity: 0.75;
+  mix-blend-mode: screen;
+}
+
+/* Avatar con glow */
+.pachi-avatar-blueprint {
+  position: relative;
+  z-index: 2;
+
+  /* “piastra” moderna */
+  background: var(--pachi-app-avatar-plate-bg);
+  border: 1px solid var(--pachi-app-avatar-border);
+  color: var(--pachi-app-avatar-blueprint-color);
+  border-radius: 22px;
+
+  /* padding interno: QAvatar è un container, quindi aggiungiamo respiro */
+  padding: 22px;
+
+  /* glow */
+  box-shadow: var(--pachi-app-avatar-shadow);
+
+  &.pachi-no-border-radius {
+    border-radius: 0;
+  }
+}
+
+/* Glow extra dietro l’avatar */
+.pachi-avatar-blueprint::before {
+  content: '';
+  position: absolute;
+  inset: -26px;
+  z-index: -1;
+  background: var(--pachi-app-avatar-glow);
+  filter: blur(2px);
+  opacity: 0.95;
+}
