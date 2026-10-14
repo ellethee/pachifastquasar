@@ -59,7 +59,7 @@
     "@ilpachi/pachi-i18n": ">=0.1.0 <1.0.0",
     "@ilpachi/use-alova": "^2.1.1",
     "@quasar/extras": "^2.0.0",
-    "quasar": "^2.20.0",
+    "quasar": "^2.35.0",
     "vue": "^3.5.0",
     "vue-i18n": "^11.0.0"
   },
@@ -68,18 +68,18 @@
     "@ilpachi/use-alova": "^2.1.1",
     "@quasar/extras": "^2.0.1",
     "@quasar/vite-plugin": "^2.0.2",
-    "@types/node": "^20.19.41",
-    "@vitejs/plugin-vue": "^6.0.0",
+    "@types/node": "^26.6.5",
+    "@vitejs/plugin-vue": "^6.0.10",
     "@vue/language-core": "~2.2.12",
-    "quasar": "^2.20.0",
+    "quasar": "^2.35.0",
     "sass-embedded": "^1.90.0",
-    "typescript": "^5.9.3",
+    "typescript": "^7.0.2",
     "vite": "^8.3.4",
     "vite-plugin-css-injected-by-js": "^5.0.2",
     "vite-plugin-dts": "^5.1.2",
     "vitest": "^5.0.3",
     "vue": "^3.5.35",
-    "vue-i18n": "^11.4.4",
-    "vue-tsc": "^3.3.2"
+    "vue-i18n": "^11.4.14",
+    "vue-tsc": "^3.3.13"
   }
 }
