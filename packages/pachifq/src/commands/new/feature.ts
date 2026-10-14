@@ -7,31 +7,31 @@ import { loadMdiIconNames } from '../../helper/mdi-icons.js'
 import { generateFeature, GenerateFeatureError, validateChildren, validateFeatureName, validateIcon, validateTitle } from '../../generate-feature.js'
 
 export const HELP = `
-${pc.bold('pachifq new feature')} - Genera una nuova feature in src/features/<nome>
+${pc.bold('pachifq new feature')} - Generate a new feature in src/features/<name>
 
 ${pc.bold('Usage')}
-  $ pachifq new feature <nome> [opzioni]
-  $ pachifq new f <nome> [opzioni]
+  $ pachifq new feature <name> [options]
+  $ pachifq new f <name> [options]
 
 ${pc.bold('Examples')}
   $ pachifq new feature invoices
-  $ pachifq new f invoices --title "Fatture" --description "Gestione fatture" --icon mdiFileDocumentOutline --order 10 --yes
-  $ pachifq new f invoices --title "Fatture" --children billing,reports --yes
+  $ pachifq new f invoices --title "Invoices" --description "Invoice management" --icon mdiFileDocumentOutline --order 10 --yes
+  $ pachifq new f invoices --title "Invoices" --children billing,reports --yes
 
 ${pc.bold('Options')}
-  --title <string>          Titolo mostrato in dashboard/menu
-  --description <string>   Descrizione della feature
-  --icon <string>           Nome export icona da @quasar/extras/mdi-v7 (es. mdiFileDocumentOutline),
-                            verificato contro l'elenco reale; se omessa si usa il default
-  --order <number>          Ordine nella dashboard (default: 99)
-  --children <lista>        Rotte figlie in kebab-case separate da virgola (es. billing,reports).
-                            Se presenti, la feature diventa una sezione con una card per figlio,
-                            ognuno con una pagina vuota di default (nessuna pagina indice unica).
-  --yes                     Salta i prompt, richiede --title (oltre al nome posizionale)
-  -h, --help                Mostra questo aiuto
+  --title <string>          Title shown in the dashboard/menu
+  --description <string>    Description of the feature
+  --icon <string>           Icon export name from @quasar/extras/mdi-v7 (e.g. mdiFileDocumentOutline),
+                            checked against the real list; if omitted the default is used
+  --order <number>          Order in the dashboard (default: 99)
+  --children <list>        Child routes in kebab-case, comma-separated (e.g. billing,reports).
+                            If present, the feature becomes a section with one card per child,
+                            each with an empty default page (no single index page).
+  --yes                     Skip the prompts, requires --title (besides the positional name)
+  -h, --help                Show this help
 `
 
-/** Argomenti di `pachifq new feature` dopo il parsing. */
+/** Arguments of `pachifq new feature` after parsing. */
 export interface ParsedArgv {
   name?: string
   title?: string
@@ -44,10 +44,10 @@ export interface ParsedArgv {
 }
 
 /**
- * Parsing degli argomenti di `pachifq new feature`.
+ * Parses the arguments of `pachifq new feature`.
  *
- * @param argv - argomenti dopo `feature`
- * @throws ArgvError per opzioni sconosciute, valori mancanti/non validi o argomenti posizionali in più
+ * @param argv - arguments after `feature`
+ * @throws ArgvError for unknown options, missing/invalid values or extra positional arguments
  */
 export function parseArgv(argv: string[]): ParsedArgv {
   const result: ParsedArgv = { yes: false, help: false }
@@ -81,8 +81,8 @@ export function parseArgv(argv: string[]): ParsedArgv {
         result.help = true
         break
       default:
-        if (arg.startsWith('-')) throw new ArgvError(`Opzione sconosciuta: ${arg}. Usa "pachifq new feature --help".`)
-        if (result.name !== undefined) throw new ArgvError(`Argomento inatteso: "${arg}" (la feature è già "${result.name}").`)
+        if (arg.startsWith('-')) throw new ArgvError(`Unknown option: ${arg}. Run "pachifq new feature --help".`)
+        if (result.name !== undefined) throw new ArgvError(`Unexpected argument: "${arg}" (the feature is already "${result.name}").`)
         result.name = arg
     }
   }
@@ -94,7 +94,7 @@ function parseChildren(value: string | undefined): string[] {
 }
 
 function exitCancelled(): never {
-  clack.cancel('Scaffold annullato.')
+  clack.cancel('Scaffolding cancelled.')
   process.exit(0)
 }
 
@@ -133,7 +133,7 @@ export async function run(argv: string[]): Promise<void> {
   const warnNoIcons = (): void => {
     if (iconNames || iconWarned) return
     iconWarned = true
-    clack.log.warn('@quasar/extras/mdi-v7 non risolvibile: validazione dell\'icona solo sintattica.')
+    clack.log.warn('@quasar/extras/mdi-v7 cannot be resolved: icon validation is syntactic only.')
   }
 
   let name: string
@@ -145,7 +145,7 @@ export async function run(argv: string[]): Promise<void> {
 
   if (parsed.yes) {
     if (!parsed.name || !parsed.title) {
-      clack.log.error('Con --yes servono almeno il nome posizionale e --title.')
+      clack.log.error('With --yes at least the positional name and --title are required.')
       process.exitCode = 1
       return
     }
@@ -175,10 +175,10 @@ export async function run(argv: string[]): Promise<void> {
       name = parsed.name
     } else {
       const result = await clack.text({
-        message: 'Nome feature (kebab-case, es. invoices)',
+        message: 'Feature name (kebab-case, e.g. invoices)',
         placeholder: 'invoices',
         validate: (value) => {
-          if (!value || !value.trim()) return 'Il nome non può essere vuoto'
+          if (!value || !value.trim()) return 'The name cannot be empty'
           try {
             validateFeatureName(value.trim())
           } catch (error) {
@@ -192,7 +192,7 @@ export async function run(argv: string[]): Promise<void> {
     }
 
     const titleResult = await clack.text({
-      message: 'Titolo (mostrato in dashboard/menu)',
+      message: 'Title (shown in the dashboard/menu)',
       initialValue: parsed.title ?? '',
       validate: (value) => {
         try {
@@ -207,14 +207,14 @@ export async function run(argv: string[]): Promise<void> {
     title = titleResult
 
     const descriptionResult = await clack.text({
-      message: 'Descrizione',
+      message: 'Description',
       initialValue: parsed.description ?? '',
     })
     if (clack.isCancel(descriptionResult)) exitCancelled()
     description = descriptionResult
 
     const iconResult = await clack.text({
-      message: 'Icona (nome export da @quasar/extras/mdi-v7, lascia vuoto per il default)',
+      message: 'Icon (export name from @quasar/extras/mdi-v7, leave empty for the default)',
       placeholder: 'mdiViewGridOutline',
       initialValue: parsed.icon ?? '',
       validate: (value) => {
@@ -233,15 +233,15 @@ export async function run(argv: string[]): Promise<void> {
     icon = iconResult.trim() || undefined
 
     const orderResult = await clack.text({
-      message: 'Ordine nella dashboard (default 99)',
+      message: 'Order in the dashboard (default 99)',
       initialValue: parsed.order !== undefined ? String(parsed.order) : '',
-      validate: (value) => (value === '' || !Number.isNaN(Number(value)) ? undefined : 'Deve essere un numero'),
+      validate: (value) => (value === '' || !Number.isNaN(Number(value)) ? undefined : 'Must be a number'),
     })
     if (clack.isCancel(orderResult)) exitCancelled()
     order = orderResult ? Number(orderResult) : undefined
 
     const childrenResult = await clack.text({
-      message: 'Rotte figlie in kebab-case, separate da virgola (vuoto per nessuna, es. billing,reports)',
+      message: 'Child routes in kebab-case, comma-separated (empty for none, e.g. billing,reports)',
       initialValue: parsed.children ?? '',
       validate: (value) => {
         try {
@@ -257,7 +257,7 @@ export async function run(argv: string[]): Promise<void> {
   }
 
   const spinner = clack.spinner()
-  spinner.start('Scaffold in corso…')
+  spinner.start('Scaffolding…')
   let result
   try {
     result = await generateFeature({
@@ -269,9 +269,9 @@ export async function run(argv: string[]): Promise<void> {
       ...(order !== undefined && { order }),
       children,
     })
-    spinner.stop('Feature creata.')
+    spinner.stop('Feature created.')
   } catch (error) {
-    spinner.stop('Scaffold fallito.')
+    spinner.stop('Scaffolding failed.')
     if (error instanceof GenerateFeatureError) {
       clack.log.error(error.message)
     } else {
@@ -284,12 +284,12 @@ export async function run(argv: string[]): Promise<void> {
   const relFiles = result.files.map((f) => path.relative(process.cwd(), f))
   clack.outro(
     [
-      pc.green(`✔ Feature "${name}" creata in ${path.relative(process.cwd(), result.featureDir)}/`),
+      pc.green(`✔ Feature "${name}" created in ${path.relative(process.cwd(), result.featureDir)}/`),
       ...relFiles.map((f) => `  - ${f}`),
       '',
-      'Prossimo passo:',
+      'Next step:',
       '  pnpm dev',
-      `  apri http://localhost:9001/${name}`,
+      `  open http://localhost:9001/${name}`,
     ].join('\n'),
   )
 }

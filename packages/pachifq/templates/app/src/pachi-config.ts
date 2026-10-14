@@ -9,7 +9,7 @@ import type { PachiConfigInput } from '@ilpachi/pachifastquasar'
 const baseConfig: PachiConfigInput = {
   // app: { title: 'My app', gravatar: true },
   // http: { envelope: false },             // backend with PACHIFAST_ENVELOPE_ENABLED=false
-  // logo: mioLogo,                          // SVG path, 'img:<url>' or Vue component
+  // logo: myLogo,                           // SVG path, 'img:<url>' or Vue component
   // components: { layout, loginPage, errorPage },
   // menuItems: [{ label: 'Help', to: '/help', order: 80 }],
 }

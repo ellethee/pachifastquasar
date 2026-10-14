@@ -10,7 +10,7 @@ pachifq new locale fr
 pachifq new locale pt-BR
 ```
 
-Creates, starting from `en.ts` (same keys, values to translate, `TODO: traduci` comment):
+Creates, starting from `en.ts` (same keys, values to translate, `TODO: translate` comment):
 
 - `src/i18n/locales/<code>.ts` of the app. If the app has neither `en.ts` nor `it.ts` (the shell
   messages live in the package), an empty draft is created where you redefine only the shell keys to

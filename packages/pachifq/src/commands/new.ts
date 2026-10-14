@@ -10,22 +10,22 @@ const subcommands: Record<string, () => Promise<CommandModule>> = {
 }
 
 const HELP = `
-${pc.bold('pachifq new')} - Genera nuovi elementi nel progetto
+${pc.bold('pachifq new')} - Generate new elements in the project
 
 ${pc.bold('Usage')}
-  $ pachifq new <tipo> [nome] [opzioni]
+  $ pachifq new <type> [name] [options]
 
 ${pc.bold('Types')}
-  feature [f]       Genera una nuova feature in src/features/<nome>
-  locale [l]        Aggiunge una lingua (app e feature)
+  feature [f]       Generate a new feature in src/features/<name>
+  locale [l]        Add a language (app and features)
 
 ${pc.bold('Examples')}
   $ pachifq new feature invoices
-  $ pachifq new f invoices --title "Fatture" --yes
+  $ pachifq new f invoices --title "Invoices" --yes
   $ pachifq new locale fr
 
 ${pc.bold('Options')}
-  -h, --help        Mostra questo aiuto
+  -h, --help        Show this help
 `
 
 export async function run(argv: string[]): Promise<void> {
@@ -38,7 +38,7 @@ export async function run(argv: string[]): Promise<void> {
 
   const loadSub = subcommands[sub]
   if (!loadSub) {
-    console.error(`Tipo sconosciuto: "${sub}". Usa "pachifq new --help" per l'elenco.`)
+    console.error(`Unknown type: "${sub}". Run "pachifq new --help" for the list.`)
     process.exitCode = 1
     return
   }

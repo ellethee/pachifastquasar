@@ -13,37 +13,37 @@ import {
 } from '../helper/project-name.js'
 
 export const HELP = `
-${pc.bold('pachifq create')} - Genera una nuova app che dipende da @ilpachi/pachifastquasar
+${pc.bold('pachifq create')} - Generate a new app that depends on @ilpachi/pachifastquasar
 
 ${pc.bold('Usage')}
-  $ pachifq create [nome-progetto] [opzioni]
-  $ pachifq c [nome-progetto] [opzioni]
+  $ pachifq create [project-name] [options]
+  $ pachifq c [project-name] [options]
 
 ${pc.bold('Options')}
-  --yes                Salta i prompt, usa i default (proxy backend: default della shell)
-                       Le opzioni accettano anche la forma --opzione=valore.
-  --link <path>        Collega @ilpachi/pachifastquasar a una cartella locale con "link:" (sviluppo/test
-                       prima della pubblicazione). Anche i package @ilpachi/* presenti come cartelle
-                       sorelle di <path> vengono collegati; gli altri restano dal registry.
-  --locale <codice>    Lingua fissa dell'app (QCLI_APP_LOCALE, es. it): niente selettore lingua
-  --no-auto-dashboard  Disattiva la dashboard automatica per le route con figli
+  --yes                Skip the prompts, use the defaults (backend proxy: shell default)
+                       Options also accept the --option=value form.
+  --link <path>        Link @ilpachi/pachifastquasar to a local folder with "link:" (development/testing
+                       before publishing). The @ilpachi/* packages present as sibling folders of
+                       <path> are linked too; the others stay on the registry.
+  --locale <code>      Fixed app language (QCLI_APP_LOCALE, e.g. it): no language selector
+  --no-auto-dashboard  Disable the automatic dashboard for routes with children
                        (QCLI_APP_AUTO_DASHBOARD=false)
-  --no-envelope        Backend con PACHIFAST_ENVELOPE_ENABLED=false (risposte senza envelope
-                       success/message/data): scrive QCLI_HTTP_ENVELOPE=false in src/.env
-  --with <lista>       Package opzionali separati da virgola: ${Object.keys(OPTIONAL_PACKAGES).join(', ')}
-                       (settings = impostazioni utente, profile = profilo, widgets = widget dashboard)
-  --registry <url|npm> Registry dei package @ilpachi/* (default "npm" = registry pubblico, o la
-                       variabile PACHI_NPM_REGISTRY): nessun .npmrc viene scritto. Con un URL
-                       (registry privato o mirror) scrive .npmrc con lo scope @ilpachi (senza
-                       token: il login resta nel tuo ~/.npmrc).
-  --dry-run            Elenca i file che verrebbero generati e il package.json risolto, senza
-                       scrivere nulla né installare
-  --no-install          Non eseguire "pnpm install" al termine
-  --no-git              Non inizializzare un repo git
-  -h, --help            Mostra questo aiuto
+  --no-envelope        Backend with PACHIFAST_ENVELOPE_ENABLED=false (responses without the
+                       success/message/data envelope): writes QCLI_HTTP_ENVELOPE=false to src/.env
+  --with <list>       Comma-separated optional packages: ${Object.keys(OPTIONAL_PACKAGES).join(', ')}
+                       (settings = user settings, profile = profile, widgets = dashboard widgets)
+  --registry <url|npm> Registry of the @ilpachi/* packages (default "npm" = public registry, or the
+                       PACHI_NPM_REGISTRY variable): no .npmrc is written. With a URL
+                       (private registry or mirror) writes an .npmrc with the @ilpachi scope (no
+                       token: the login stays in your ~/.npmrc).
+  --dry-run            List the files that would be generated and the resolved package.json, without
+                       writing anything or installing
+  --no-install          Do not run "pnpm install" at the end
+  --no-git              Do not initialize a git repo
+  -h, --help            Show this help
 `
 
-/** Argomenti di `pachifq create` dopo il parsing. */
+/** Arguments of `pachifq create` after parsing. */
 export interface ParsedArgv {
   projectName?: string
   yes: boolean
@@ -60,26 +60,26 @@ export interface ParsedArgv {
 }
 
 /**
- * Converte il valore di `--with` (lista separata da virgola) nei package opzionali.
+ * Converts the value of `--with` (comma-separated list) into the optional packages.
  *
  * @param value - es. `settings,profile`
- * @throws ArgvError per nomi sconosciuti
+ * @throws ArgvError for unknown names
  */
 export function parseExtras(value: string): OptionalPackageKey[] {
   const keys = [...new Set(value.split(',').map((v) => v.trim()).filter(Boolean))]
   for (const key of keys) {
     if (!(key in OPTIONAL_PACKAGES)) {
-      throw new ArgvError(`Package opzionale sconosciuto: "${key}". Ammessi: ${Object.keys(OPTIONAL_PACKAGES).join(', ')}.`)
+      throw new ArgvError(`Unknown optional package: "${key}". Allowed: ${Object.keys(OPTIONAL_PACKAGES).join(', ')}.`)
     }
   }
   return keys as OptionalPackageKey[]
 }
 
 /**
- * Parsing degli argomenti di `pachifq create`.
+ * Parses the arguments of `pachifq create`.
  *
- * @param argv - argomenti dopo `create`
- * @throws ArgvError per opzioni sconosciute, valori mancanti o argomenti posizionali in più
+ * @param argv - arguments after `create`
+ * @throws ArgvError for unknown options, missing values or extra positional arguments
  */
 export function parseArgv(argv: string[]): ParsedArgv {
   const result: ParsedArgv = {
@@ -99,7 +99,7 @@ export function parseArgv(argv: string[]): ParsedArgv {
     switch (split.flag) {
       case '--ref':
       case '--template':
-        throw new ArgvError(`${split.flag} non esiste più (l'app è generata dai template del CLI, non clonata): usa --link <path> per la shell locale.`)
+        throw new ArgvError(`${split.flag} no longer exists (the app is generated from the CLI templates, not cloned): use --link <path> for the local shell.`)
       case '--link':
         result.link = cursor.value(split)
         break
@@ -137,8 +137,8 @@ export function parseArgv(argv: string[]): ParsedArgv {
         result.help = true
         break
       default:
-        if (arg.startsWith('-')) throw new ArgvError(`Opzione sconosciuta: ${arg}. Usa "pachifq create --help".`)
-        if (result.projectName !== undefined) throw new ArgvError(`Argomento inatteso: "${arg}" (il nome progetto è già "${result.projectName}").`)
+        if (arg.startsWith('-')) throw new ArgvError(`Unknown option: ${arg}. Run "pachifq create --help".`)
+        if (result.projectName !== undefined) throw new ArgvError(`Unexpected argument: "${arg}" (the project name is already "${result.projectName}").`)
         result.projectName = arg
     }
   }
@@ -146,35 +146,35 @@ export function parseArgv(argv: string[]): ParsedArgv {
 }
 
 /**
- * Istruzioni finali per i messaggi di errore del backend (`errors.codes.*`), assenti in una nuova app.
- * Il percorso del backend non è noto (il proxy è un URL, non una cartella): resta il segnaposto `<backend>`.
+ * Final instructions for the backend error messages (`errors.codes.*`), missing in a new app.
+ * The backend path is not known (the proxy is a URL, not a folder): the `<backend>` placeholder stays.
  */
 export function errorMessagesHint(): string[] {
   return [
     '',
-    pc.bold('Messaggi di errore del backend (opzionale)'),
-    '  La cartella src/i18n/generated è vuota: finché non esporti i messaggi dal backend gli errori usano',
-    '  il testo di fallback. Se usi un backend pachifast, dalla cartella dell\'app esegui:',
+    pc.bold('Backend error messages (optional)'),
+    '  The src/i18n/generated folder is empty: until you export the messages from the backend, errors use',
+    '  the fallback text. If you use a pachifast backend, run this from the app folder:',
     '',
     '    pachifast locale export --base-dir <backend> --dest-path src/i18n/generated --namespace errors.codes',
     '',
-    '  (aggiungi --check per verificare che i file non siano vecchi; <backend> = cartella del progetto backend)',
+    '  (add --check to verify the files are not outdated; <backend> = backend project folder)',
   ]
 }
 
 /**
- * Stampa l'esito di `--dry-run`: cartella di destinazione, file che verrebbero generati e `package.json`.
+ * Prints the `--dry-run` result: target folder, files that would be generated and `package.json`.
  *
- * @param targetDir - cartella di destinazione (assoluta)
- * @param cwd - cartella corrente
- * @param files - percorsi relativi dei file
- * @param packageJson - `package.json` risolto
+ * @param targetDir - target folder (absolute)
+ * @param cwd - current folder
+ * @param files - relative file paths
+ * @param packageJson - resolved `package.json`
  */
 function printDryRun(targetDir: string, cwd: string, files: string[], packageJson: Record<string, unknown>): void {
-  console.log(`\n${pc.bold('Dry run')}: in ${path.relative(cwd, targetDir) || '.'} verrebbero generati ${files.length} file\n`)
+  console.log(`\n${pc.bold('Dry run')}: ${files.length} files would be generated in ${path.relative(cwd, targetDir) || '.'}\n`)
   for (const file of files) console.log(`  ${file}`)
   console.log(`\n${pc.bold('package.json')}\n${JSON.stringify(packageJson, null, 2)}\n`)
-  clack.outro(pc.yellow('Dry run: nessun file scritto, nessuna installazione.'))
+  clack.outro(pc.yellow('Dry run: no files written, nothing installed.'))
 }
 
 export async function run(argv: string[]): Promise<void> {
@@ -230,8 +230,8 @@ export async function run(argv: string[]): Promise<void> {
   }
 
   let installed = prompted.installDeps
-  // Niente spinner: generateProject stampa i passi e `pnpm install` scrive sul terminale (stdio inherit).
-  clack.log.step(parsed.dryRun ? 'Simulazione (dry-run): nessun file verrà scritto…' : 'Scaffold in corso…')
+  // No spinner: generateProject prints the steps and `pnpm install` writes to the terminal (stdio inherit).
+  clack.log.step(parsed.dryRun ? 'Simulation (dry-run): no files will be written…' : 'Scaffolding…')
   try {
     const result = await generateProject({
       ...prompted,
@@ -245,14 +245,14 @@ export async function run(argv: string[]): Promise<void> {
       return
     }
     installed = result.installDeps
-    clack.log.success('Progetto creato.')
+    clack.log.success('Project created.')
   } catch (error) {
     if (error instanceof InstallError) {
-      clack.log.warn(`Progetto creato, ma ${error.message}`)
+      clack.log.warn(`Project created, but ${error.message}`)
       installed = false
       process.exitCode = 1
     } else {
-      clack.log.error(`Scaffold fallito: ${error instanceof GenerateError ? error.message : error instanceof Error ? error.message : String(error)}`)
+      clack.log.error(`Scaffolding failed: ${error instanceof GenerateError ? error.message : error instanceof Error ? error.message : String(error)}`)
       process.exitCode = 1
       return
     }
@@ -260,13 +260,13 @@ export async function run(argv: string[]): Promise<void> {
 
   clack.outro(
     [
-      pc.green('✔ Fatto!'),
+      pc.green('✔ Done!'),
       '',
       `  cd ${path.relative(cwd, targetDir) || '.'}`,
       installed ? '  pnpm dev' : '  pnpm install && pnpm dev',
       prompted.proxyTarget
         ? ''
-        : pc.yellow('\n⚠ Proxy backend non impostato: usa http://localhost:8000. Per cambiarlo imposta QCLI_PROXY_TARGET in src/.env.'),
+        : pc.yellow('\n⚠ Backend proxy not set: using http://localhost:8000. To change it set QCLI_PROXY_TARGET in src/.env.'),
       ...errorMessagesHint(),
     ]
       .filter(Boolean)

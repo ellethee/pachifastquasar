@@ -28,7 +28,7 @@ async function main(): Promise<void> {
 
   const loadCommand = commands[cmd]
   if (!loadCommand) {
-    console.error(`Comando sconosciuto: "${cmd}". Usa "pachifq --help" per l'elenco dei comandi.`)
+    console.error(`Unknown command: "${cmd}". Run "pachifq --help" for the list of commands.`)
     process.exitCode = 1
     return
   }

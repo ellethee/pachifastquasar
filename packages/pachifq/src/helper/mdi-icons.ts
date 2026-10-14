@@ -2,14 +2,14 @@ import { readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import path from 'node:path'
 
-/** Specifier del sotto-percorso con le icone mdi. */
+/** Specifier of the sub-path with the mdi icons. */
 const MDI_SPECIFIER = '@quasar/extras/mdi-v7'
 
 /**
- * Estrae i nomi degli export `mdi*` dal sorgente di `@quasar/extras/mdi-v7`.
+ * Extracts the names of the `mdi*` exports from the source of `@quasar/extras/mdi-v7`.
  *
- * @param source - contenuto di `index.js` del sotto-percorso mdi-v7
- * @returns elenco dei nomi esportati
+ * @param source - contents of the `index.js` of the mdi-v7 sub-path
+ * @returns list of exported names
  */
 export function parseMdiExports(source: string): string[] {
   const names: string[] = []
@@ -18,11 +18,11 @@ export function parseMdiExports(source: string): string[] {
 }
 
 /**
- * Carica i nomi delle icone di `@quasar/extras/mdi-v7`, risolvendo il pacchetto
- * dall'app corrente e, in alternativa, da node_modules del CLI.
+ * Loads the icon names of `@quasar/extras/mdi-v7`, resolving the package
+ * from the current app and, as an alternative, from the CLI's node_modules.
  *
- * @param cwd - radice dell'app
- * @returns insieme dei nomi, oppure `null` se il pacchetto non è risolvibile
+ * @param cwd - app root
+ * @returns set of names, or `null` if the package cannot be resolved
  */
 export function loadMdiIconNames(cwd: string): Set<string> | null {
   const bases = [path.join(cwd, 'package.json'), import.meta.url]
@@ -32,13 +32,13 @@ export function loadMdiIconNames(cwd: string): Set<string> | null {
       const names = parseMdiExports(readFileSync(file, 'utf-8'))
       if (names.length > 0) return new Set(names)
     } catch {
-      // prova la base successiva
+      // try the next base
     }
   }
   return null
 }
 
-/** Distanza di Levenshtein tra due stringhe. */
+/** Levenshtein distance between two strings. */
 function editDistance(a: string, b: string): number {
   let prev = Array.from({ length: b.length + 1 }, (_, i) => i)
   for (let i = 1; i <= a.length; i++) {
@@ -52,12 +52,12 @@ function editDistance(a: string, b: string): number {
 }
 
 /**
- * Suggerisce icone simili a un nome non valido (sottostringa e distanza di edit).
+ * Suggests icons similar to an invalid name (substring and edit distance).
  *
- * @param icon - nome inserito dall'utente
- * @param names - icone disponibili
- * @param max - numero massimo di suggerimenti (default 5)
- * @returns nomi ordinati per somiglianza
+ * @param icon - name entered by the user
+ * @param names - available icons
+ * @param max - maximum number of suggestions (default 5)
+ * @returns names sorted by similarity
  */
 export function suggestIcons(icon: string, names: Iterable<string>, max = 5): string[] {
   const needle = icon.toLowerCase()

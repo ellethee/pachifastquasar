@@ -1,27 +1,27 @@
 import path from 'node:path'
 
-/** Package `@ilpachi/*` opzionali selezionabili con `--with` (nome breve → package e range). */
+/** Optional `@ilpachi/*` packages selectable with `--with` (short name → package and range). */
 export const OPTIONAL_PACKAGES = {
-  settings: { name: '@ilpachi/fastquasar-settings', range: '^0.1.0', label: 'Impostazioni utente' },
-  profile: { name: '@ilpachi/fastquasar-profile', range: '^0.1.0', label: 'Profilo utente' },
-  widgets: { name: '@ilpachi/fastquasar-dashboard-widgets', range: '^0.1.0', label: 'Widget dashboard (attività/sistema)' },
+  settings: { name: '@ilpachi/fastquasar-settings', range: '^0.1.0', label: 'User settings' },
+  profile: { name: '@ilpachi/fastquasar-profile', range: '^0.1.0', label: 'User profile' },
+  widgets: { name: '@ilpachi/fastquasar-dashboard-widgets', range: '^0.1.0', label: 'Dashboard widgets (activity/system)' },
 } as const
 
-/** Nome breve di un package opzionale. */
+/** Short name of an optional package. */
 export type OptionalPackageKey = keyof typeof OPTIONAL_PACKAGES
 
-/** Package della shell. */
+/** Shell package. */
 export const SHELL_PACKAGE = '@ilpachi/pachifastquasar'
-/** Range della shell nelle app generate (0.x: la minor è il limite di compatibilità). */
+/** Shell range in the generated apps (0.x: the minor is the compatibility limit). */
 export const SHELL_RANGE = '^0.1.0'
 
-/** Package `@ilpachi/*` sempre presenti (peer della shell) con il loro range. */
+/** `@ilpachi/*` packages that are always present (shell peers) with their range. */
 export const BASE_PACKAGES: Record<string, string> = {
   '@ilpachi/pachi-i18n': '^0.1.0',
   '@ilpachi/use-alova': '^2.1.1',
 }
 
-/** Dipendenze di terze parti dell'app (peer della shell e toolchain Quasar). */
+/** Third-party dependencies of the app (shell peers and Quasar toolchain). */
 const THIRD_PARTY_DEPENDENCIES: Record<string, string> = {
   '@quasar/extras': '^2.0.1',
   alova: '^3.3.0',
@@ -44,27 +44,27 @@ const THIRD_PARTY_DEV_DEPENDENCIES: Record<string, string> = {
   'vue-tsc': '^3.3.13',
 }
 
-/** Valori per scrivere il `package.json` dell'app. */
+/** Values to write the app's `package.json`. */
 export interface AppPackageInput {
   packageName: string
   productName: string
   description: string
   author: string
-  /** Package opzionali scelti. */
+  /** Chosen optional packages. */
   extras: readonly OptionalPackageKey[]
-  /** Se presente: cartella locale della shell (`link:`); le dipendenze `@ilpachi/*` sorelle vengono collegate. */
+  /** If present: local folder of the shell (`link:`); the sibling `@ilpachi/*` dependencies are linked. */
   linkDir?: string
-  /** Cartella del progetto (serve a rendere relativi i `link:`). */
+  /** Project folder (used to make the `link:` paths relative). */
   targetDir: string
-  /** Nomi dei package `@ilpachi/*` per cui esiste una cartella sorella da collegare (solo con `linkDir`). */
+  /** Names of the `@ilpachi/*` packages that have a sibling folder to link (only with `linkDir`). */
   linkedSiblings?: readonly string[]
 }
 
 /**
- * Percorso `link:` relativo (con `/`) dalla cartella del progetto a una cartella locale.
+ * Relative `link:` path (with `/`) from the project folder to a local folder.
  *
- * @param targetDir - cartella del progetto
- * @param dir - cartella da collegare
+ * @param targetDir - project folder
+ * @param dir - folder to link
  */
 export function linkSpec(targetDir: string, dir: string): string {
   const rel = path.relative(targetDir, dir).split(path.sep).join('/')
@@ -72,10 +72,10 @@ export function linkSpec(targetDir: string, dir: string): string {
 }
 
 /**
- * Dipendenze `@ilpachi/*` dell'app (ordinate per nome), con `link:` per la shell e per i package sorelle
- * indicati in `linkedSiblings` quando si usa `--link`.
+ * `@ilpachi/*` dependencies of the app (sorted by name), with `link:` for the shell and for the sibling packages
+ * listed in `linkedSiblings` when `--link` is used.
  *
- * @param input - valori dell'app
+ * @param input - app values
  */
 export function buildScopedDependencies(input: AppPackageInput): Record<string, string> {
   const ranges: Record<string, string> = { [SHELL_PACKAGE]: SHELL_RANGE, ...BASE_PACKAGES }
@@ -91,9 +91,9 @@ export function buildScopedDependencies(input: AppPackageInput): Record<string, 
 }
 
 /**
- * `package.json` dell'app generata (privato, ESM, script `dev`/`build`/`typecheck`).
+ * `package.json` of the generated app (private, ESM, `dev`/`build`/`typecheck` scripts).
  *
- * @param input - valori dell'app
+ * @param input - app values
  */
 export function buildAppPackageJson(input: AppPackageInput): Record<string, unknown> {
   const dependencies = Object.fromEntries(

@@ -1,8 +1,8 @@
 /**
- * Formatta un valore per un file `.env` (dotenv di Vite): i newline diventano spazi (i valori sono su una
- * riga), e se contiene spazi iniziali/finali, `#`, apici, `$` o backslash viene racchiuso tra apici.
+ * Formats a value for an `.env` file (Vite dotenv): newlines become spaces (values are on a single
+ * line), and if it contains leading/trailing spaces, `#`, quotes, `$` or backslashes it is wrapped in quotes.
  *
- * @param value - valore grezzo
+ * @param value - raw value
  */
 export function envValue(value: string): string {
   const single = value.replace(/\r?\n|\r/g, ' ').trim()

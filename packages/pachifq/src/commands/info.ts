@@ -10,44 +10,44 @@ import { readConfiguredProxy, readEnvValue, resolvePachiOptions } from '../helpe
 import { SHELL_PACKAGE } from '../helper/app-package.js'
 
 const HELP = `
-${pc.bold('pachifq info')} - Mostra informazioni diagnostiche sul progetto corrente
+${pc.bold('pachifq info')} - Show diagnostic information about the current project
 
 ${pc.bold('Usage')}
   $ pachifq info [--json]
   $ pachifq i [--json]
 
 ${pc.bold('Options')}
-  --json       Output leggibile da macchina
-  -h, --help   Mostra questo aiuto
+  --json       Machine-readable output
+  -h, --help   Show this help
 `
 
-/** Target del proxy backend usato se QCLI_PROXY_TARGET non è impostato. */
+/** Backend proxy target used if QCLI_PROXY_TARGET is not set. */
 export const DEFAULT_PROXY_TARGET = 'http://localhost:8000'
 
-/** Stato di un package `@ilpachi/*` del progetto. */
+/** Status of an `@ilpachi/*` package of the project. */
 export interface PachiPackageStatus {
   name: string
   range: string
   /**
-   * Versione installata, `workspace` (il package è in `packages/` del progetto: un progetto può averne di
-   * propri) oppure `NON installato`.
+   * Installed version, `workspace` (the package is in the project's `packages/`: a project can have its
+   * own) or `NOT installed`.
    */
   status: string
 }
 
 /**
- * Auth abilitata salvo che QCLI_AUTH_ENABLED o VITE_AUTH_ENABLED siano `false`.
- * Per ciascuna chiave vale la precedenza process.env > .env.local > .env.
+ * Auth is enabled unless QCLI_AUTH_ENABLED or VITE_AUTH_ENABLED are `false`.
+ * For each key the precedence is process.env > .env.local > .env.
  */
 function isAuthEnabled(cwd: string): boolean {
   return readEnvValue(cwd, 'QCLI_AUTH_ENABLED') !== 'false' && readEnvValue(cwd, 'VITE_AUTH_ENABLED') !== 'false'
 }
 
 /**
- * Legge la versione installata di un package da node_modules.
+ * Reads the installed version of a package from node_modules.
  *
- * @param cwd - root del progetto
- * @param name - nome del package
+ * @param cwd - project root
+ * @param name - package name
  */
 function readInstalledVersion(cwd: string, name: string): string | undefined {
   try {
@@ -59,10 +59,10 @@ function readInstalledVersion(cwd: string, name: string): string | undefined {
 }
 
 /**
- * Elenca le dipendenze `@ilpachi/*` del progetto con range e stato di installazione.
+ * Lists the project's `@ilpachi/*` dependencies with range and installation status.
  *
- * @param cwd - root del progetto
- * @param ctx - contesto del progetto
+ * @param cwd - project root
+ * @param ctx - project context
  */
 function resolvePachiPackages(cwd: string, ctx: ProjectContext): PachiPackageStatus[] {
   const deps = { ...ctx.pkg.dependencies, ...ctx.pkg.devDependencies }
@@ -73,22 +73,22 @@ function resolvePachiPackages(cwd: string, ctx: ProjectContext): PachiPackageSta
       const dirName = name.split('/').pop() ?? name
       const inWorkspace = existsSync(path.join(cwd, 'packages', dirName, 'package.json'))
       const installed = readInstalledVersion(cwd, name)
-      const status = inWorkspace ? 'workspace' : (installed ?? 'NON installato')
+      const status = inWorkspace ? 'workspace' : (installed ?? 'NOT installed')
       return { name, range, status }
     })
 }
 
 function resolveQuasarVersion(cwd: string, ctx: ProjectContext | undefined): string {
   const installed = readInstalledVersion(cwd, 'quasar')
-  if (installed) return `${installed} (installata)`
+  if (installed) return `${installed} (installed)`
   const declared = ctx?.pkg.dependencies?.quasar ?? ctx?.pkg.devDependencies?.quasar
-  return declared ? `non installata (range dichiarato ${declared})` : 'non trovata'
+  return declared ? `not installed (declared range ${declared})` : 'not found'
 }
 
 /**
- * Codici lingua dei file `<codice>.json` di una cartella.
+ * Language codes of the `<code>.json` files in a folder.
  *
- * @param dir - cartella (es. `src/i18n/generated`)
+ * @param dir - folder (e.g. `src/i18n/generated`)
  */
 function listJsonCodes(dir: string): string[] {
   if (!existsSync(dir)) return []
@@ -96,9 +96,9 @@ function listJsonCodes(dir: string): string[] {
 }
 
 /**
- * Comando `pachifq info`: diagnostica del progetto corrente.
+ * `pachifq info` command: diagnostics for the current project.
  *
- * @param argv - argomenti dopo il nome del comando
+ * @param argv - arguments after the command name
  */
 export async function run(argv: string[]): Promise<void> {
   if (argv.includes('--help') || argv.includes('-h')) {
@@ -113,7 +113,7 @@ export async function run(argv: string[]): Promise<void> {
     ctx = assertPachiProject(cwd)
   } catch (error) {
     if (!(error instanceof NotAPachiProjectError)) throw error
-    // info resta utile anche fuori da un progetto pachifastquasar: continua senza ctx
+    // info is still useful outside a pachifastquasar project: continue without ctx
   }
 
   const pm = identifyPackageManager(cwd, ctx?.pkg ?? {})
@@ -159,33 +159,33 @@ export async function run(argv: string[]): Promise<void> {
     `Node            ${process.version}`,
     `Package mgr     ${pm}`,
     `Quasar          ${quasarVersion}`,
-    `Auth abilitata  ${authEnabled ? 'sì' : 'no'} (process.env > .env.local > .env)`,
-    `Proxy backend   ${proxyTarget}`,
+    `Auth enabled    ${authEnabled ? 'yes' : 'no'} (process.env > .env.local > .env)`,
+    `Backend proxy   ${proxyTarget}`,
     `OS/Arch         ${process.platform}/${process.arch}`,
   ]
 
   if (!ctx) {
-    lines.push('', pc.yellow(`Attenzione: "${cwd}" non sembra un progetto pachifastquasar (info parziali).`))
+    lines.push('', pc.yellow(`Warning: "${cwd}" does not look like a pachifastquasar project (partial info).`))
   } else {
     lines.push(
       '',
       shell
         ? `Shell            ${SHELL_PACKAGE} ${shell.range} (${shell.status})`
-        : pc.yellow(`Shell            ${SHELL_PACKAGE} non è una dipendenza (app derivata dal vecchio boilerplate?)`),
+        : pc.yellow(`Shell            ${SHELL_PACKAGE} is not a dependency (app derived from the old boilerplate?)`),
     )
     if (shell) {
-      lines.push('', 'Opzioni QCLI_* (grassetto = impostate; le altre sono i default della shell)')
-      for (const o of options) lines.push(`  ${o.set ? pc.bold(o.key.padEnd(31)) : o.key.padEnd(31)} ${o.value === '' ? '(vuoto)' : o.value}`)
+      lines.push('', 'QCLI_* options (bold = set; the others are the shell defaults)')
+      for (const o of options) lines.push(`  ${o.set ? pc.bold(o.key.padEnd(31)) : o.key.padEnd(31)} ${o.value === '' ? '(empty)' : o.value}`)
     }
-    lines.push('', `Pacchetti @ilpachi (${packages.length})`)
-    if (packages.length === 0) lines.push('  (nessuno)')
+    lines.push('', `@ilpachi packages (${packages.length})`)
+    if (packages.length === 0) lines.push('  (none)')
     for (const pkg of packages) {
-      const status = pkg.status === 'NON installato' ? pc.yellow(pkg.status) : pkg.status
+      const status = pkg.status === 'NOT installed' ? pc.yellow(pkg.status) : pkg.status
       lines.push(`  - ${pkg.name.padEnd(36)} ${pkg.range.padEnd(12)} ${status}`)
     }
-    lines.push('', `Lingue dell'app (src/i18n/locales)  ${locales.length > 0 ? locales.join(', ') : '(nessuna: solo it/en della shell)'}`)
-    lines.push(`Lingue generate (src/i18n/generated)  ${generatedLocales.length > 0 ? generatedLocales.join(', ') : '(nessuna)'}`)
-    lines.push('', `Feature trovate in src/features/ (${features.length})`, ...formatFeatureLines(features))
+    lines.push('', `App languages (src/i18n/locales)  ${locales.length > 0 ? locales.join(', ') : '(none: only the shell it/en)'}`)
+    lines.push(`Generated languages (src/i18n/generated)  ${generatedLocales.length > 0 ? generatedLocales.join(', ') : '(none)'}`)
+    lines.push('', `Features found in src/features/ (${features.length})`, ...formatFeatureLines(features))
   }
 
   console.log(lines.join('\n'))

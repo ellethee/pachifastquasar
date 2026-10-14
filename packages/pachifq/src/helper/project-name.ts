@@ -1,18 +1,18 @@
 import path from 'node:path'
 
-/** Nome pacchetto ammesso: minuscole, cifre e trattini (come nei prompt di `pachifq create`). */
+/** Allowed package name: lowercase letters, digits and hyphens (as in the `pachifq create` prompts). */
 export const PACKAGE_NAME_RE = /^[a-z0-9][a-z0-9-]*$/
 
-/** Lunghezza massima di un nome pacchetto npm. */
+/** Maximum length of an npm package name. */
 export const PACKAGE_NAME_MAX = 214
 
-/** Errore di validazione del nome progetto/pacchetto. */
+/** Project/package name validation error. */
 export class ProjectNameError extends Error {}
 
 /**
- * Trasforma un testo libero in uno slug (minuscole, cifre e trattini).
+ * Turns free text into a slug (lowercase letters, digits and hyphens).
  *
- * @param input - nome progetto
+ * @param input - project name
  */
 export function slugify(input: string): string {
   return input
@@ -23,9 +23,9 @@ export function slugify(input: string): string {
 }
 
 /**
- * Trasforma uno slug in un nome leggibile ("my-app" -> "My App").
+ * Turns a slug into a readable name ("my-app" -> "My App").
  *
- * @param input - nome progetto
+ * @param input - project name
  */
 export function humanize(input: string): string {
   return input
@@ -36,58 +36,58 @@ export function humanize(input: string): string {
 }
 
 /**
- * Verifica il nome del pacchetto (`package.json#name` e nome cartella).
+ * Checks the package name (`package.json#name` and folder name).
  *
- * @param value - nome da validare
- * @returns il messaggio d'errore, oppure `undefined` se valido
+ * @param value - name to validate
+ * @returns the error message, or `undefined` if valid
  */
 export function packageNameError(value: string): string | undefined {
-  if (!value || !PACKAGE_NAME_RE.test(value)) return 'Usa solo minuscole, cifre e trattini'
-  if (value.length > PACKAGE_NAME_MAX) return `Al massimo ${PACKAGE_NAME_MAX} caratteri`
+  if (!value || !PACKAGE_NAME_RE.test(value)) return 'Use only lowercase letters, digits and hyphens'
+  if (value.length > PACKAGE_NAME_MAX) return `At most ${PACKAGE_NAME_MAX} characters`
   return undefined
 }
 
 /**
- * Valida il nome progetto passato come argomento: non può essere un percorso (separatori, `.`, `..`),
- * perché la cartella deve essere creata nella directory corrente.
+ * Validates the project name passed as an argument: it cannot be a path (separators, `.`, `..`),
+ * because the folder must be created in the current directory.
  *
- * @param name - argomento posizionale
- * @throws ProjectNameError se contiene separatori o segmenti `.`/`..`
+ * @param name - positional argument
+ * @throws ProjectNameError if it contains separators or `.`/`..` segments
  */
 export function assertPlainProjectName(name: string): void {
   if (/[\\/]/.test(name) || name === '.' || name === '..' || name.split(/[\\/]/).includes('..')) {
     throw new ProjectNameError(
-      `Nome progetto non valido: "${name}". Indica solo un nome (la cartella viene creata nella directory corrente), non un percorso.`,
+      `Invalid project name: "${name}". Give only a name (the folder is created in the current directory), not a path.`,
     )
   }
-  if (name.trim() === '') throw new ProjectNameError('Il nome del progetto non può essere vuoto.')
+  if (name.trim() === '') throw new ProjectNameError('The project name cannot be empty.')
 }
 
 /**
- * Ricava il nome pacchetto dal nome progetto (modalità `--yes`): slug validato come nei prompt.
+ * Derives the package name from the project name (`--yes` mode): slug validated as in the prompts.
  *
- * @param projectName - nome progetto (già controllato con {@link assertPlainProjectName})
- * @throws ProjectNameError se lo slug è vuoto o non valido
+ * @param projectName - project name (already checked with {@link assertPlainProjectName})
+ * @throws ProjectNameError if the slug is empty or invalid
  */
 export function packageNameFromProject(projectName: string): string {
   const slug = slugify(projectName)
   const error = packageNameError(slug)
-  if (error) throw new ProjectNameError(`Impossibile ricavare un nome pacchetto valido da "${projectName}": ${error}.`)
+  if (error) throw new ProjectNameError(`Unable to derive a valid package name from "${projectName}": ${error}.`)
   return slug
 }
 
 /**
- * Cartella di destinazione: deve essere figlia diretta di `cwd`.
+ * Target folder: it must be a direct child of `cwd`.
  *
- * @param cwd - directory corrente
- * @param packageName - nome pacchetto/cartella
- * @throws ProjectNameError se il percorso esce da `cwd`
+ * @param cwd - current directory
+ * @param packageName - package/folder name
+ * @throws ProjectNameError if the path leaves `cwd`
  */
 export function resolveTargetDir(cwd: string, packageName: string): string {
   const targetDir = path.resolve(cwd, packageName)
   const relative = path.relative(cwd, targetDir)
   if (!relative || relative.startsWith('..') || path.isAbsolute(relative) || relative.includes(path.sep)) {
-    throw new ProjectNameError(`La cartella "${packageName}" deve restare dentro la directory corrente.`)
+    throw new ProjectNameError(`The folder "${packageName}" must stay inside the current directory.`)
   }
   return targetDir
 }

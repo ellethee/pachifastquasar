@@ -17,41 +17,41 @@ export const mdiFileDocumentOutline = 'M5 5'
 const KNOWN = new Set(parseMdiExports(SOURCE))
 
 describe('parseMdiExports', () => {
-  it('estrae i nomi degli export', () => {
+  it('extracts the export names', () => {
     expect([...KNOWN]).toEqual(['mdiApi', 'mdiLan', 'mdiLanCheck', 'mdiLanConnect', 'mdiWebSync', 'mdiFileDocumentOutline'])
   })
 })
 
-describe('validateIcon con elenco reale', () => {
-  it('accetta un export esistente', () => {
+describe('validateIcon with the real list', () => {
+  it('accepts an existing export', () => {
     expect(() => validateIcon('mdiLan', KNOWN)).not.toThrow()
   })
 
-  it('rifiuta mdiLanApi con suggerimenti', () => {
+  it('rejects mdiLanApi with suggestions', () => {
     expect(() => validateIcon('mdiLanApi', KNOWN)).toThrow(GenerateFeatureError)
-    expect(() => validateIcon('mdiLanApi', KNOWN)).toThrow(/inesistente.*mdiLanApi.*Forse intendevi:.*mdiLan/)
+    expect(() => validateIcon('mdiLanApi', KNOWN)).toThrow(/does not exist.*mdiLanApi.*Did you mean:.*mdiLan/)
   })
 
-  it('senza elenco resta solo sintattica', () => {
+  it('without a list it stays syntactic only', () => {
     expect(() => validateIcon('mdiLanApi', null)).not.toThrow()
     expect(() => validateIcon('foo', null)).toThrow()
   })
 })
 
 describe('suggestIcons', () => {
-  it('limita a 5 e ordina per somiglianza', () => {
+  it('limits to 5 and sorts by similarity', () => {
     const many = Array.from({ length: 20 }, (_, i) => `mdiLan${i}`)
     expect(suggestIcons('mdiLanX', many)).toHaveLength(5)
     expect(suggestIcons('mdiLanApi', KNOWN)).toContain('mdiLan')
   })
 
-  it('nessun suggerimento se nulla è simile', () => {
+  it('no suggestion if nothing is similar', () => {
     expect(suggestIcons('mdiZzzzzzzzzzz', KNOWN)).toEqual([])
   })
 })
 
 describe('loadMdiIconNames / generateFeature', () => {
-  it('risolve il pacchetto dall\'app e blocca la generazione se l\'icona non esiste', async () => {
+  it('resolves the package from the app and blocks generation if the icon does not exist', async () => {
     const dir = mkdtempSync(path.join(tmpdir(), 'pachifq-mdi-'))
     try {
       const pkgDir = path.join(dir, 'node_modules', '@quasar', 'extras')
@@ -69,7 +69,7 @@ describe('loadMdiIconNames / generateFeature', () => {
       const featuresDir = path.join(dir, 'src', 'features')
       await expect(
         generateFeature({ featuresDir, name: 'api', title: 'Api', description: '', icon: 'mdiLanApi', iconNames: names }),
-      ).rejects.toThrow(/inesistente/)
+      ).rejects.toThrow(/does not exist/)
       const ok = await generateFeature({ featuresDir, name: 'api', title: 'Api', description: '', icon: 'mdiLan', iconNames: names })
       expect(ok.files.length).toBeGreaterThan(0)
     } finally {

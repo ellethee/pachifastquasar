@@ -11,22 +11,22 @@ export interface ProjectContext {
 }
 
 /**
- * Dipendenze che identificano un'app Pachi: la shell `@ilpachi/pachifastquasar` e, per le app derivate dal
- * vecchio boilerplate (copia dei sorgenti), i package HTTP (`use-alova`, o il legacy `httpachi`) e i18n.
+ * Dependencies that identify a Pachi app: the `@ilpachi/pachifastquasar` shell and, for apps derived from the
+ * old boilerplate (source copy), the HTTP packages (`use-alova`, or the legacy `httpachi`) and i18n.
  */
 const PACHI_MARKER_DEPS = ['@ilpachi/pachifastquasar', '@ilpachi/use-alova', '@ilpachi/httpachi', '@ilpachi/pachi-i18n']
 
 /**
- * Verifica che cwd sia un'app Pachi. Basta uno di questi segni: la dipendenza `@ilpachi/pachifastquasar`
- * (modello attuale), la cartella `src/features`, la dipendenza `@ilpachi/use-alova`, `@ilpachi/httpachi` (legacy) o `@ilpachi/pachi-i18n`, oppure
- * `src/router/use-routes-finder.ts` (app derivate dal vecchio boilerplate). La sola dipendenza `quasar` NON
- * basta (qualunque app Quasar la ha).
+ * Checks that cwd is a Pachi app. Any one of these signs is enough: the `@ilpachi/pachifastquasar` dependency
+ * (current model), the `src/features` folder, the `@ilpachi/use-alova`, `@ilpachi/httpachi` (legacy) or
+ * `@ilpachi/pachi-i18n` dependency, or `src/router/use-routes-finder.ts` (apps derived from the old
+ * boilerplate). The `quasar` dependency alone is NOT enough (any Quasar app has it).
  */
 export function assertPachiProject(cwd: string): ProjectContext {
   const pkgPath = path.join(cwd, 'package.json')
   if (!existsSync(pkgPath)) {
     throw new NotAPachiProjectError(
-      `Nessun package.json trovato in "${cwd}". Esegui "pachifq" dalla root di un'app basata su @ilpachi/pachifastquasar.`,
+      `No package.json found in "${cwd}". Run "pachifq" from the root of an app based on @ilpachi/pachifastquasar.`,
     )
   }
 
@@ -38,9 +38,9 @@ export function assertPachiProject(cwd: string): ProjectContext {
 
   if (!hasRoutesFinder && !hasFeaturesDir && !hasMarkerDep) {
     throw new NotAPachiProjectError(
-      `"${cwd}" non sembra un'app basata su @ilpachi/pachifastquasar ` +
-        `(mancano src/features e le dipendenze ${PACHI_MARKER_DEPS.join(' / ')}).\n` +
-        `Esegui "pachifq" dalla root dell'app (si crea con "pachifq create").`,
+      `"${cwd}" does not look like an app based on @ilpachi/pachifastquasar ` +
+        `(missing src/features and the ${PACHI_MARKER_DEPS.join(' / ')} dependencies).\n` +
+        `Run "pachifq" from the app root (create one with "pachifq create").`,
     )
   }
 
@@ -54,9 +54,9 @@ export interface FeatureInfo {
 }
 
 /**
- * Elenca le feature in src/features/*. Il "title" è estratto con una regex
- * leggera sul contenuto di routes.ts (non un vero parser TS): sufficiente
- * per un elenco diagnostico, prende il primo match nel file.
+ * Lists the features in src/features/*. The "title" is extracted with a light
+ * regex on the contents of routes.ts (not a real TS parser): enough for a
+ * diagnostic listing, it takes the first match in the file.
  */
 export function listFeatures(featuresDir: string): FeatureInfo[] {
   if (!existsSync(featuresDir)) return []

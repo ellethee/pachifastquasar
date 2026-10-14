@@ -1,18 +1,18 @@
-/** Esito di {@link mergeNpmrc}. */
+/** Result of {@link mergeNpmrc}. */
 export interface NpmrcMerge {
-  /** Nuovo contenuto, oppure `null` se il file va rimosso/non scritto. */
+  /** New contents, or `null` if the file must be removed/not written. */
   content: string | null
-  /** `created` (nuovo), `updated` (modificato un file esistente), `removed` (file esistente da togliere), `none`. */
+  /** `created` (new), `updated` (an existing file was modified), `removed` (existing file to remove), `none`. */
   action: 'created' | 'updated' | 'removed' | 'none'
 }
 
 const SCOPE_LINE_RE = /^\s*@ilpachi:registry\s*=/
 
 /**
- * Calcola il `.npmrc` del progetto per lo scope `@ilpachi` senza perdere le righe già presenti.
+ * Computes the project's `.npmrc` for the `@ilpachi` scope without losing the lines already present.
  *
- * @param existing - contenuto attuale (`undefined` se il file non esiste)
- * @param registry - URL del registry, oppure `undefined` per il registry pubblico (nessuna riga)
+ * @param existing - current contents (`undefined` if the file does not exist)
+ * @param registry - registry URL, or `undefined` for the public registry (no line)
  */
 export function mergeNpmrc(existing: string | undefined, registry: string | undefined): NpmrcMerge {
   const lines = (existing ?? '').split(/\r?\n/).filter((line) => line.trim() !== '' && !SCOPE_LINE_RE.test(line))

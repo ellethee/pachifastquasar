@@ -7,21 +7,21 @@ import { suggestIcons } from './helper/mdi-icons.js'
 export class GenerateFeatureError extends Error {}
 
 export interface GenerateFeatureOptions {
-  /** Directory <cwd>/src/features del progetto target. */
+  /** Directory <cwd>/src/features of the target project. */
   featuresDir: string
-  /** Nome feature in kebab-case, es. "invoices". */
+  /** Feature name in kebab-case, e.g. "invoices". */
   name: string
   title: string
   description: string
-  /** Nome export da @quasar/extras/mdi-v7, es. "mdiFileDocumentOutline". */
+  /** Export name from @quasar/extras/mdi-v7, e.g. "mdiFileDocumentOutline". */
   icon?: string
-  /** Nomi reali degli export di `@quasar/extras/mdi-v7` per validare `icon` (se assente, solo controllo sintattico). */
+  /** Real export names of `@quasar/extras/mdi-v7` to validate `icon` (if absent, syntactic check only). */
   iconNames?: ReadonlySet<string> | null
   order?: number
   /**
-   * Rotte figlie in kebab-case (es. ["billing", "reports"]). Se presenti, la
-   * feature non genera una pagina indice unica ma diventa una sezione con
-   * una card per figlio (dashboard), ognuno con una pagina vuota di default.
+   * Child routes in kebab-case (e.g. ["billing", "reports"]). If present, the
+   * feature does not generate a single index page but becomes a section with
+   * one card per child (dashboard), each with an empty default page.
    */
   children?: string[]
 }
@@ -33,12 +33,12 @@ export interface GeneratedFeatureResult {
 
 const KEBAB_CASE_RE = /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/
 
-/** Nomi di feature riservati: rotte radice della shell (`/auth/login`, ...) che la feature oscurerebbe. */
+/** Reserved feature names: root routes of the shell (`/auth/login`, ...) that the feature would shadow. */
 export const RESERVED_FEATURE_NAMES: readonly string[] = ['auth', 'login']
 
 /**
- * Chiavi i18n già usate a livello di namespace dalla feature generata: un figlio con la stessa chiave
- * (es. `title`) produrrebbe una chiave duplicata nei locali.
+ * i18n keys already used at namespace level by the generated feature: a child with the same key
+ * (e.g. `title`) would produce a duplicate key in the locales.
  */
 export const RESERVED_LOCALE_KEYS: readonly string[] = [
   'title',
@@ -53,73 +53,73 @@ export const RESERVED_LOCALE_KEYS: readonly string[] = [
   'placeholderDescription',
 ]
 
-/** Esporta identificatori mdi di `@quasar/extras/mdi-v7`: `mdi` + PascalCase/cifre. */
+/** Export identifiers of `@quasar/extras/mdi-v7`: `mdi` + PascalCase/digits. */
 const ICON_RE = /^mdi[A-Z][A-Za-z0-9]*$/
 
 function assertKebab(name: string, what: string): void {
   if (!KEBAB_CASE_RE.test(name)) {
-    throw new GenerateFeatureError(`Nome ${what} non valido: "${name}". Usa kebab-case (es. "invoices", "time-tracking").`)
+    throw new GenerateFeatureError(`Invalid ${what} name: "${name}". Use kebab-case (e.g. "invoices", "time-tracking").`)
   }
 }
 
 /**
- * Valida il nome di una feature: kebab-case e non riservato.
+ * Validates a feature name: kebab-case and not reserved.
  *
- * @param name - nome feature
- * @throws GenerateFeatureError se non valido
+ * @param name - feature name
+ * @throws GenerateFeatureError if invalid
  */
 export function validateFeatureName(name: string): void {
   assertKebab(name, 'feature')
   if (RESERVED_FEATURE_NAMES.includes(name)) {
-    throw new GenerateFeatureError(`Nome feature riservato: "${name}" (rotta della shell). Scegline un altro.`)
+    throw new GenerateFeatureError(`Reserved feature name: "${name}" (shell route). Choose another one.`)
   }
 }
 
 /**
- * Valida le rotte figlie: kebab-case, senza duplicati e senza collisioni con le chiavi i18n della feature.
+ * Validates the child routes: kebab-case, no duplicates and no collisions with the feature i18n keys.
  *
- * @param children - nomi dei figli
- * @throws GenerateFeatureError se non valide
+ * @param children - names of the children
+ * @throws GenerateFeatureError if invalid
  */
 export function validateChildren(children: readonly string[]): void {
   const seen = new Set<string>()
   for (const child of children) {
-    assertKebab(child, 'rotta figlia')
-    if (seen.has(child)) throw new GenerateFeatureError(`Rotta figlia duplicata: "${child}".`)
+    assertKebab(child, 'child route')
+    if (seen.has(child)) throw new GenerateFeatureError(`Duplicate child route: "${child}".`)
     seen.add(child)
     const key = camelCase(child)
     if (RESERVED_LOCALE_KEYS.includes(key)) {
-      throw new GenerateFeatureError(`Nome di rotta figlia non ammesso: "${child}" (la chiave i18n "${key}" è già usata dalla feature).`)
+      throw new GenerateFeatureError(`Child route name not allowed: "${child}" (the i18n key "${key}" is already used by the feature).`)
     }
   }
 }
 
 /**
- * Valida il titolo (non vuoto).
+ * Validates the title (non-empty).
  *
- * @param title - titolo della feature
- * @throws GenerateFeatureError se vuoto
+ * @param title - feature title
+ * @throws GenerateFeatureError if empty
  */
 export function validateTitle(title: string): void {
-  if (!title.trim()) throw new GenerateFeatureError('Il titolo non può essere vuoto.')
+  if (!title.trim()) throw new GenerateFeatureError('The title cannot be empty.')
 }
 
 /**
- * Valida il nome dell'icona: identificatore `mdi...` (viene scritto in un `import { ... }`) e,
- * se si conosce l'elenco reale, export esistente di `@quasar/extras/mdi-v7`.
+ * Validates the icon name: `mdi...` identifier (it is written in an `import { ... }`) and,
+ * if the real list is known, an existing export of `@quasar/extras/mdi-v7`.
  *
- * @param icon - nome export di `@quasar/extras/mdi-v7`
- * @param known - nomi reali degli export; se omesso o `null` la validazione è solo sintattica
- * @throws GenerateFeatureError se non valida (con suggerimenti simili quando disponibili)
+ * @param icon - export name of `@quasar/extras/mdi-v7`
+ * @param known - real export names; if omitted or `null` the validation is syntactic only
+ * @throws GenerateFeatureError if invalid (with similar suggestions when available)
  */
 export function validateIcon(icon: string, known?: ReadonlySet<string> | null): void {
   if (!ICON_RE.test(icon)) {
-    throw new GenerateFeatureError(`Icona non valida: "${icon}". Usa il nome di un export di @quasar/extras/mdi-v7 (es. "mdiFileDocumentOutline").`)
+    throw new GenerateFeatureError(`Invalid icon: "${icon}". Use the name of an export of @quasar/extras/mdi-v7 (e.g. "mdiFileDocumentOutline").`)
   }
   if (known && !known.has(icon)) {
     const similar = suggestIcons(icon, known)
-    const hint = similar.length > 0 ? ` Forse intendevi: ${similar.join(', ')}.` : ''
-    throw new GenerateFeatureError(`Icona inesistente in @quasar/extras/mdi-v7: "${icon}".${hint}`)
+    const hint = similar.length > 0 ? ` Did you mean: ${similar.join(', ')}.` : ''
+    throw new GenerateFeatureError(`Icon does not exist in @quasar/extras/mdi-v7: "${icon}".${hint}`)
   }
 }
 
@@ -131,13 +131,13 @@ function pascalCase(name: string): string {
     .join('')
 }
 
-/** "billing-info" -> "billingInfo" (namespace i18n della feature) */
+/** "billing-info" -> "billingInfo" (feature i18n namespace) */
 function camelCase(name: string): string {
   const pascal = pascalCase(name)
   return pascal.charAt(0).toLowerCase() + pascal.slice(1)
 }
 
-/** Stringa TS tra apici singoli (escape di backslash, apici, newline e separatori di riga Unicode). */
+/** TS string between single quotes (escapes backslash, quotes, newline and Unicode line separators). */
 export function tsString(value: string): string {
   const escaped = value
     .replace(/\\/g, '\\\\')
@@ -149,7 +149,7 @@ export function tsString(value: string): string {
   return `'${escaped}'`
 }
 
-/** Testo come messaggio vue-i18n: i caratteri speciali `{ } @ | $` diventano letterali. */
+/** Text as a vue-i18n message: the special characters `{ } @ | $` become literals. */
 export function msg(value: string): string {
   return tsString(value.replace(/[{}@|$]/g, (ch) => `{'${ch}'}`))
 }
@@ -173,7 +173,7 @@ export async function generateFeature(options: GenerateFeatureOptions): Promise<
   const featureDir = path.join(featuresDir, name)
   if (existsSync(featureDir)) {
     throw new GenerateFeatureError(
-      `La cartella "${featureDir}" esiste già. Scegli un altro nome o rimuovi la feature esistente prima di rigenerarla.`,
+      `The folder "${featureDir}" already exists. Choose another name or remove the existing feature before regenerating it.`,
     )
   }
 
@@ -230,7 +230,7 @@ function routesTemplate({
 }: {
   name: string
   Name: string
-  /** Namespace i18n della feature (nome in camelCase). */
+  /** Feature i18n namespace (name in camelCase). */
   ns: string
   title: string
   description: string
@@ -240,8 +240,8 @@ function routesTemplate({
 }): string {
   const iconImport = icon ? `\nimport { ${icon} } from '@quasar/extras/mdi-v7'` : ''
   const iconLine = icon ? `\n      icon: ${icon},` : ''
-  // `titleKey`/`descriptionKey` (i18n, reattivi al cambio lingua) hanno la precedenza; `title`/`description`
-  // letterali restano come fallback (e li legge `pachifq list`).
+  // `titleKey`/`descriptionKey` (i18n, reactive to language changes) take precedence; the literal `title`/`description`
+  // remain as a fallback (and are read by `pachifq list`).
   const keyLines = `\n      titleKey: '${ns}.title',${description ? `\n      descriptionKey: '${ns}.description',` : ''}`
 
   if (children.length === 0) {
@@ -290,7 +290,7 @@ export default [
       // permissions: ['${name}.view'],
       // requireStaff: true,
     },
-    // Nessun "component": la sezione mostra automaticamente una card per figlio (dashboard).
+    // No "component": the section automatically shows one card per child (dashboard).
     children: [
 ${childrenBlock}
     ],
@@ -360,7 +360,7 @@ onMounted(reload)
 `
 }
 
-/** Pagina di default per una rotta figlia: solo titolo + empty state, nessuna logica. */
+/** Default page for a child route: title + empty state only, no logic. */
 function blankPageSource({ ns, key }: { ns: string; key: string }): string {
   return `<template>
   <div class="q-pa-md">
@@ -384,7 +384,7 @@ const { t } = useI18n()
 `
 }
 
-/** Sorgenti `locales/it.ts` (riferimento) e `locales/en.ts` (tipizzato come it) della feature. */
+/** Sources of the feature's `locales/it.ts` (reference) and `locales/en.ts` (typed like it). */
 function localeSources({
   ns,
   title,
@@ -402,7 +402,7 @@ function localeSources({
   const build = (strings: Record<string, string>, enTodo: boolean): string => {
     const entries: [string, string][] = Object.entries(strings).map(([k, v]) => [k, msg(v)])
     const childBlocks = children.map((c) => `    ${c.key}: {\n      title: ${msg(c.title)},\n    },`)
-    const todo = enTodo ? '    // TODO: traduci i valori (titoli inclusi)\n' : ''
+    const todo = enTodo ? '    // TODO: translate the values (titles included)\n' : ''
     return `${todo}${lines(entries, '    ')}${childBlocks.length ? `\n${childBlocks.join('\n')}` : ''}`
   }
 
@@ -445,7 +445,7 @@ function localeSources({
         }
 
   return {
-    it: `/** Messaggi italiani della feature (lingua di riferimento). */
+    it: `/** Italian messages of the feature (reference language). */
 export default {
   ${ns}: {
 ${build(itStrings, false)}
@@ -471,9 +471,9 @@ function storeSource({ name, Name }: { name: string; Name: string }): string {
   return `import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
-// Se serve persistere lo stato lato client, aggiungi:
+// If you need to persist the state on the client, add:
 //   import 'pinia-plugin-persistedstate'
-// e passa { persist: true } come terzo argomento di defineStore.
+// and pass { persist: true } as the third argument of defineStore.
 export const use${Name}Store = defineStore('${name}', () => {
   const lastLoadedAt = ref<number | null>(null)
 
@@ -494,9 +494,9 @@ function serviceSource({ name, Name }: { name: string; Name: string }): string {
 import type { I${Name}, IPaginated${Name} } from '../types/${name}'
 
 /**
- * Client HTTP dell'app (@ilpachi/use-alova, cablato da createPachiApp in src/boot/pachi.ts): Authorization, refresh del
- * token, spinner e messaggi di errore sono già gestiti. Risolto a ogni chiamata, così non dipende
- * dall'ordine di inizializzazione dei boot.
+ * The app's HTTP client (@ilpachi/use-alova, wired by createPachiApp in src/boot/pachi.ts): Authorization, token
+ * refresh, spinner and error messages are already handled. Resolved on every call, so it does not depend
+ * on the boot initialization order.
  */
 function http() {
   return getUseAlovaInstance()({ url: '/api/${name}' }).alova
@@ -527,7 +527,7 @@ export async function remove${Name}(id: string | number): Promise<void> {
 function typesTemplate({ Name }: { Name: string }): string {
   return `export interface I${Name} {
   id: string | number
-  // TODO: definisci i campi reali del modello ${Name}
+  // TODO: define the real fields of the model ${Name}
 }
 
 export interface IPaginated${Name} {

@@ -1,28 +1,28 @@
 import pc from 'picocolors'
 
 export const GLOBAL_HELP = `
-${pc.bold('pachifq')} - CLI di scaffold app e feature per @ilpachi/pachifastquasar
+${pc.bold('pachifq')} - scaffolding CLI for apps and features of @ilpachi/pachifastquasar
 
 ${pc.bold('Example usage')}
-  $ pachifq create nome-progetto
-  $ pachifq new feature nome-feature
-  $ pachifq new f nome-feature --title "Titolo" --icon mdiViewGridOutline
+  $ pachifq create project-name
+  $ pachifq new feature feature-name
+  $ pachifq new f feature-name --title "Title" --icon mdiViewGridOutline
   $ pachifq new locale fr
   $ pachifq list [--json]
   $ pachifq info [--json]
 
 ${pc.bold('Help for a command')}
-  $ pachifq <comando> -h
+  $ pachifq <command> -h
 
 ${pc.bold('Options')}
-  -h, --help        Mostra questo aiuto
-  -v, --version     Mostra la versione installata
-      --no-color    Disabilita i colori nell'output
+  -h, --help        Show this help
+  -v, --version     Show the installed version
+      --no-color    Disable colors in the output
 
 ${pc.bold('Commands')}
-  create [c]        Genera una nuova app che dipende da @ilpachi/pachifastquasar
-  new [n]           Genera nuovi elementi (feature, locale; in futuro page/component/store)
-  info [i]          Mostra informazioni diagnostiche sul progetto corrente
-  list              Elenca le feature già presenti in src/features
-  help [h]          Mostra questo aiuto
+  create [c]        Generate a new app that depends on @ilpachi/pachifastquasar
+  new [n]           Generate new elements (feature, locale; page/component/store in the future)
+  info [i]          Show diagnostic information about the current project
+  list              List the features already present in src/features
+  help [h]          Show this help
 `

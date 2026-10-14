@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- CLI output, help, prompts and generated file comments are now in English.
+
 ## [0.1.1] - 2026-10-14
 
 ### Changed
@@ -16,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Le app generate usano `@quasar/app-vite` `^3.10.2` (Vite 8) e `@quasar/vite-plugin` `^2.0.2`.
+- Generated apps use `@quasar/app-vite` `^3.10.2` (Vite 8) and `@quasar/vite-plugin` `^2.0.2`.
 
 ## [0.1.0] - 2026-10-14
 

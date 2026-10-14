@@ -10,7 +10,7 @@ pachifq i [--json]
 Prints Node version, package manager, Quasar version, auth state, backend proxy, the shell
 (range and installed version), all `QCLI_*` options with their effective value (precedence
 `process.env` > `src/.env.local` > `src/.env` > `.env.local` > `.env`), the `@ilpachi/*`
-dependencies (installed version, `workspace`, or `NON installato`), the app and generated
+dependencies (installed version, `workspace`, or `NOT installed`), the app and generated
 languages and the features. `--json` returns the same data (`shell`, `options`, `packages`,
 `locales`, `generatedLocales`, `features`, ...).
 
@@ -21,7 +21,7 @@ pachifq list [--json]
 ```
 
 ```text
-Feature in src/features/ (1)
+Features in src/features/ (1)
   - invoices         ✓  title: "Invoices"
 ```
 

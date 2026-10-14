@@ -12,7 +12,7 @@ import { buildAppPackageJson, OPTIONAL_PACKAGES, SHELL_PACKAGE, BASE_PACKAGES, t
 import { validateLocaleCode } from './helper/locales.js'
 import { USE_SHELL } from './helper/process.js'
 
-/** Valore di `--registry` (e default) che seleziona il registry npm pubblico: nessun `.npmrc` generato. */
+/** Value of `--registry` (and default) that selects the public npm registry: no `.npmrc` is generated. */
 export const PUBLIC_REGISTRY_KEYWORD = 'npm'
 
 export interface AuthMenuOptions {
@@ -29,33 +29,33 @@ export interface GenerateOptions {
   author: string
   authEnabled: boolean
   authMenu: AuthMenuOptions
-  /** URL del backend per il proxy dev; vuoto = non impostato (default della shell, `http://localhost:8000`). */
+  /** Backend URL for the dev proxy; empty = not set (shell default, `http://localhost:8000`). */
   proxyTarget: string
-  /** Lingua fissa (`QCLI_APP_LOCALE`, es. `it`); vuoto = rilevamento automatico e selettore lingua. */
+  /** Fixed language (`QCLI_APP_LOCALE`, e.g. `it`); empty = automatic detection and language selector. */
   locale: string
-  /** Dashboard automatica per le route con figli (`QCLI_APP_AUTO_DASHBOARD`). */
+  /** Automatic dashboard for routes with children (`QCLI_APP_AUTO_DASHBOARD`). */
   autoDashboard: boolean
-  /** Envelope delle risposte del backend (`QCLI_HTTP_ENVELOPE`); `false` = backend con `PACHIFAST_ENVELOPE_ENABLED=false`. */
+  /** Backend response envelope (`QCLI_HTTP_ENVELOPE`); `false` = backend with `PACHIFAST_ENVELOPE_ENABLED=false`. */
   envelope: boolean
-  /** Package `@ilpachi/*` opzionali (settings/profile/widgets). */
+  /** Optional `@ilpachi/*` packages (settings/profile/widgets). */
   extras: readonly OptionalPackageKey[]
-  /** Cartella locale di `@ilpachi/pachifastquasar` da collegare con `link:` (sviluppo/test prima della pubblicazione). */
+  /** Local folder of `@ilpachi/pachifastquasar` to link with `link:` (development/testing before publishing). */
   linkDir?: string
   gitInit: boolean
   installDeps: boolean
-  /** Registry dei package `@ilpachi/*` (default: registry pubblico npm); `npm` = registry pubblico. */
+  /** Registry of the `@ilpachi/*` packages (default: public npm registry); `npm` = public registry. */
   registry?: string
-  /** Simulazione: calcola file e `package.json` senza scrivere nulla né installare. */
+  /** Simulation: computes files and `package.json` without writing or installing anything. */
   dryRun?: boolean
 }
 
-/** Esito di {@link generateProject}. */
+/** Result of {@link generateProject}. */
 export interface GenerateResult {
-  /** `pnpm install` eseguito (sempre `false` in dry-run). */
+  /** `pnpm install` was run (always `false` in dry-run). */
   installDeps: boolean
-  /** Solo in dry-run: percorsi relativi dei file che verrebbero generati (ordinati). */
+  /** Dry-run only: relative paths of the files that would be generated (sorted). */
   files?: string[]
-  /** Solo in dry-run: `package.json` risolto. */
+  /** Dry-run only: resolved `package.json`. */
   packageJson?: Record<string, unknown>
 }
 
@@ -63,20 +63,20 @@ export { buildEnvContent, buildEnvExample }
 
 export class GenerateError extends Error {}
 
-/** `pnpm install` fallito: il progetto è stato creato e resta sul disco. */
+/** `pnpm install` failed: the project was created and stays on disk. */
 export class InstallError extends GenerateError {}
 
 /**
- * URL del registry da usare per `@ilpachi`, oppure `undefined` per il registry pubblico di npm.
+ * Registry URL to use for `@ilpachi`, or `undefined` for the public npm registry.
  *
- * @param requested - valore di `--registry` (se assente: `PACHI_NPM_REGISTRY`, poi il registry pubblico npm)
- * @throws GenerateError se il valore non è `npm` né un URL http(s)
+ * @param requested - value of `--registry` (if absent: `PACHI_NPM_REGISTRY`, then the public npm registry)
+ * @throws GenerateError if the value is neither `npm` nor an http(s) URL
  */
 export function resolveRegistry(requested?: string): string | undefined {
   const value = (requested ?? process.env.PACHI_NPM_REGISTRY ?? PUBLIC_REGISTRY_KEYWORD).trim()
   if (value === PUBLIC_REGISTRY_KEYWORD || value === '') return undefined
   if (!/^https?:\/\/[^\s]+$/.test(value)) {
-    throw new GenerateError(`Registry non valido: "${value}". Usa un URL http(s) oppure "${PUBLIC_REGISTRY_KEYWORD}" per il registry pubblico.`)
+    throw new GenerateError(`Invalid registry: "${value}". Use an http(s) URL or "${PUBLIC_REGISTRY_KEYWORD}" for the public registry.`)
   }
   return value
 }
@@ -86,33 +86,33 @@ function log(message: string): void {
 }
 
 /**
- * Scrive il `.npmrc` del progetto: con un registry la riga dello scope `@ilpachi` (senza token), con
- * `--registry npm` nessun file.
+ * Writes the project's `.npmrc`: with a registry, the `@ilpachi` scope line (no token), with
+ * `--registry npm` no file.
  */
 async function writeNpmrc(targetDir: string, registry: string | undefined): Promise<void> {
   const { content } = mergeNpmrc(undefined, registry)
   if (content !== null) await writeFile(path.join(targetDir, '.npmrc'), content, 'utf-8')
 }
 
-/** Scrive una stringa come letterale TypeScript con apici singoli. */
+/** Writes a string as a TypeScript literal with single quotes. */
 function tsLiteral(value: string): string {
   return `'${value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`
 }
 
 /**
- * Secondo argomento di `definePachiQuasarConfig` in `quasar.config.ts`: con un proxy impostato lo scrive
- * (la variabile `QCLI_PROXY_TARGET` dell'ambiente ha comunque la precedenza), altrimenti nulla (default della shell).
+ * Second argument of `definePachiQuasarConfig` in `quasar.config.ts`: with a proxy set it writes it
+ * (the `QCLI_PROXY_TARGET` environment variable still takes precedence), otherwise nothing (shell default).
  *
- * @param proxyTarget - URL del backend, vuoto se non impostato
+ * @param proxyTarget - backend URL, empty if not set
  */
 export function buildPresetOptions(proxyTarget: string): string {
   return proxyTarget ? `, { proxyTarget: process.env.QCLI_PROXY_TARGET ?? ${tsLiteral(proxyTarget)} }` : ''
 }
 
-/** Preambolo e override di `quasar.config.ts` con `--link`: una sola copia dei singleton per il typecheck. */
-const LINK_CONFIG_PREAMBLE = `// Sviluppo con --link: la shell è una cartella esterna con le proprie node_modules, quindi TypeScript vedrebbe
-// due copie dei singleton (tipi incompatibili). Si puntano tutti alle dipendenze dell'app; con il package
-// installato dal registry tutto questo non serve e si può togliere.
+/** Preamble and overrides of `quasar.config.ts` with `--link`: a single copy of the singletons for the typecheck. */
+const LINK_CONFIG_PREAMBLE = `// Development with --link: the shell is an external folder with its own node_modules, so TypeScript would see
+// two copies of the singletons (incompatible types). They all point to the app's dependencies; with the package
+// installed from the registry none of this is needed and it can be removed.
 const SINGLETONS = ['vue', 'vue-router', 'vue-i18n', 'pinia', 'quasar', 'alova', '@quasar/extras', '@ilpachi/use-alova', '@ilpachi/pachi-i18n']
 
 `
@@ -132,9 +132,9 @@ const LINK_CONFIG_OVERRIDES = `{
 }`
 
 /**
- * Valori dei segnaposto dei template dell'app.
+ * Values of the placeholders of the app templates.
  *
- * @param options - opzioni di generazione
+ * @param options - generation options
  */
 export function buildTemplateVars(options: GenerateOptions): Record<string, string> {
   return {
@@ -149,9 +149,9 @@ export function buildTemplateVars(options: GenerateOptions): Record<string, stri
 }
 
 /**
- * Valida le opzioni che non dipendono dal filesystem.
+ * Validates the options that do not depend on the filesystem.
  *
- * @throws GenerateError se non valide
+ * @throws GenerateError if invalid
  */
 function validateOptions(options: GenerateOptions): void {
   if (options.locale) {
@@ -164,10 +164,10 @@ function validateOptions(options: GenerateOptions): void {
 }
 
 /**
- * Package `@ilpachi/*` per cui con `--link` esiste una cartella sorella di quella della shell.
+ * `@ilpachi/*` packages for which, with `--link`, a sibling folder of the shell's exists.
  *
- * @param linkDir - cartella locale della shell
- * @param names - nomi completi dei package cercati
+ * @param linkDir - local folder of the shell
+ * @param names - full names of the packages searched for
  */
 function findLinkableSiblings(linkDir: string, names: readonly string[]): string[] {
   const parent = path.dirname(linkDir)
@@ -175,28 +175,28 @@ function findLinkableSiblings(linkDir: string, names: readonly string[]): string
 }
 
 /**
- * Verifica che `--link` punti a una cartella con il package della shell.
+ * Checks that `--link` points to a folder with the shell package.
  *
- * @param linkDir - percorso assoluto
- * @throws GenerateError se manca o non è `@ilpachi/pachifastquasar`
+ * @param linkDir - absolute path
+ * @throws GenerateError if it is missing or is not `@ilpachi/pachifastquasar`
  */
 async function assertShellDir(linkDir: string): Promise<void> {
   try {
     const pkg = JSON.parse(await readFile(path.join(linkDir, 'package.json'), 'utf-8')) as { name?: string }
     if (pkg.name === SHELL_PACKAGE) return
-    throw new GenerateError(`"${linkDir}" non è il package ${SHELL_PACKAGE} (name: "${pkg.name ?? '?'}").`)
+    throw new GenerateError(`"${linkDir}" is not the ${SHELL_PACKAGE} package (name: "${pkg.name ?? '?'}").`)
   } catch (error) {
     if (error instanceof GenerateError) throw error
-    throw new GenerateError(`--link: nessun package.json leggibile in "${linkDir}".`)
+    throw new GenerateError(`--link: no readable package.json in "${linkDir}".`)
   }
 }
 
 /**
- * Verifica in sola lettura che i package `@ilpachi/*` richiesti siano sul registry.
+ * Checks, read-only, that the required `@ilpachi/*` packages are on the registry.
  *
- * @param packages - dipendenze `@ilpachi/*` del progetto
- * @param registry - registry da interrogare
- * @returns i nomi non disponibili
+ * @param packages - `@ilpachi/*` dependencies of the project
+ * @param registry - registry to query
+ * @returns the unavailable names
  */
 async function findUnpublished(packages: { name: string; range: string }[], registry?: string): Promise<string[]> {
   const checks = await Promise.all(
@@ -214,27 +214,27 @@ function tryGitInit(targetDir: string): void {
   try {
     execFileSync('git', ['init'], { cwd: targetDir, stdio: 'ignore' })
     execFileSync('git', ['add', '-A'], { cwd: targetDir, stdio: 'ignore' })
-    execFileSync('git', ['commit', '-m', 'chore: scaffold con pachifq (@ilpachi/pachifastquasar)'], {
+    execFileSync('git', ['commit', '-m', 'chore: scaffold with pachifq (@ilpachi/pachifastquasar)'], {
       cwd: targetDir,
       stdio: 'ignore',
     })
   } catch {
-    log('⚠ git init/commit saltato (git non configurato o non disponibile). Puoi farlo a mano dopo.')
+    log('⚠ git init/commit skipped (git not configured or not available). You can do it by hand later.')
   }
 }
 
 async function installDependencies(targetDir: string): Promise<void> {
   await new Promise<void>((resolve, reject) => {
     const child = spawn('pnpm', ['install'], { cwd: targetDir, stdio: 'inherit', shell: USE_SHELL })
-    child.on('error', (error) => reject(new InstallError(`Impossibile eseguire "pnpm install": ${error.message}. Eseguilo a mano nella cartella del progetto.`)))
+    child.on('error', (error) => reject(new InstallError(`Unable to run "pnpm install": ${error.message}. Run it by hand in the project folder.`)))
     child.on('exit', (code) => {
       if (code === 0) resolve()
-      else reject(new InstallError(`"pnpm install" terminato con codice ${code}. Eseguilo a mano nella cartella del progetto.`))
+      else reject(new InstallError(`"pnpm install" exited with code ${code}. Run it by hand in the project folder.`))
     })
   })
 }
 
-/** Rimuove ciò che questo run ha creato in `targetDir` (la cartella intera, o il solo contenuto se preesistente e vuota). */
+/** Removes what this run created in `targetDir` (the whole folder, or only the contents if it pre-existed and was empty). */
 async function cleanupTarget(targetDir: string, createdDir: boolean): Promise<void> {
   try {
     if (createdDir) {
@@ -243,21 +243,21 @@ async function cleanupTarget(targetDir: string, createdDir: boolean): Promise<vo
       for (const entry of await readdir(targetDir)) await rm(path.join(targetDir, entry), { recursive: true, force: true })
     }
   } catch {
-    // pulizia best effort: l'errore originale resta quello da mostrare
+    // best-effort cleanup: the original error is the one to show
   }
 }
 
 /**
- * Genera una nuova app dai template embedded (`templates/app`): file statici con segnaposto, `package.json`
- * con la dipendenza `@ilpachi/pachifastquasar` (range dal registry o `link:` con `--link`), `pnpm-workspace.yaml`,
- * `.npmrc` (solo con un registry diverso da quello pubblico, senza token) e `src/.env`.
- * Se qualcosa fallisce dopo la creazione dei file, la cartella creata da questo run viene rimossa
- * (non succede per un errore di `pnpm install`: il progetto resta e va installato a mano).
+ * Generates a new app from the embedded templates (`templates/app`): static files with placeholders, `package.json`
+ * with the `@ilpachi/pachifastquasar` dependency (registry range or `link:` with `--link`), `pnpm-workspace.yaml`,
+ * `.npmrc` (only with a registry other than the public one, without a token) and `src/.env`.
+ * If something fails after the files are created, the folder created by this run is removed
+ * (this does not happen for a `pnpm install` error: the project stays and must be installed by hand).
  *
- * Con `dryRun` non scrive né installa nulla: restituisce l'elenco dei file e il `package.json` risolto.
+ * With `dryRun` it writes and installs nothing: it returns the list of files and the resolved `package.json`.
  *
- * @returns `installDeps`: se `pnpm install` è stato eseguito (false anche se i package non sono pubblicati)
- * @throws InstallError se `pnpm install` fallisce (progetto già creato)
+ * @returns `installDeps`: whether `pnpm install` was run (false also if the packages are not published)
+ * @throws InstallError if `pnpm install` fails (project already created)
  */
 export async function generateProject(options: GenerateOptions): Promise<GenerateResult> {
   const registry = resolveRegistry(options.registry)
@@ -267,12 +267,12 @@ export async function generateProject(options: GenerateOptions): Promise<Generat
 
   const targetStat = await stat(options.targetDir).catch(() => undefined)
   if (targetStat && !targetStat.isDirectory()) {
-    throw new GenerateError(`"${options.targetDir}" esiste già ed è un file, non una cartella: scegli un altro nome.`)
+    throw new GenerateError(`"${options.targetDir}" already exists and is a file, not a folder: choose another name.`)
   }
   if (targetStat) {
     const contents = await readdir(options.targetDir)
     if (contents.length > 0) {
-      throw new GenerateError(`La cartella "${options.targetDir}" esiste già e non è vuota.`)
+      throw new GenerateError(`The folder "${options.targetDir}" already exists and is not empty.`)
     }
   }
   const createdDir = targetStat === undefined
@@ -303,24 +303,24 @@ export async function generateProject(options: GenerateOptions): Promise<Generat
 
   try {
     await mkdir(options.targetDir, { recursive: true })
-    log('📦 Scrittura dei file dell\'app dai template…')
+    log('📦 Writing the app files from the templates…')
     await writeTemplates(appTemplateDir(), options.targetDir, buildTemplateVars(options))
 
-    log('✏️  Scrittura package.json, pnpm-workspace.yaml, .npmrc, src/.env…')
+    log('✏️  Writing package.json, pnpm-workspace.yaml, .npmrc, src/.env…')
     const pkg = buildPkg()
     await writeFile(path.join(options.targetDir, 'package.json'), JSON.stringify(pkg, null, 2) + '\n', 'utf-8')
     await writeFile(path.join(options.targetDir, 'pnpm-workspace.yaml'), buildPnpmWorkspace(), 'utf-8')
     await writeNpmrc(options.targetDir, registry)
     await writeEnvFiles(options.targetDir, options)
 
-    // Solo i package da registry (i `link:` sono locali) vanno verificati.
+    // Only registry packages (`link:` ones are local) need to be checked.
     const scoped = readScopedDependencies(pkg).filter((dep) => !dep.range.startsWith('link:'))
-    if (linkDir) log(`🔗 ${SHELL_PACKAGE} collegato a ${linkDir}`)
+    if (linkDir) log(`🔗 ${SHELL_PACKAGE} linked to ${linkDir}`)
     if (scoped.length > 0) {
-      log(`🔎 Verifica sul registry (sola lettura) di ${scoped.length} package @ilpachi/*…`)
+      log(`🔎 Checking ${scoped.length} @ilpachi/* packages on the registry (read-only)…`)
       const missing = await findUnpublished(scoped, registry)
       if (missing.length > 0) {
-        log(`⚠️  Non ancora pubblicati sul registry: ${missing.join(', ')}. Salto "pnpm install": controlla il registry (--registry) o usa --link, poi esegui "pnpm install".`)
+        log(`⚠️  Not yet published on the registry: ${missing.join(', ')}. Skipping "pnpm install": check the registry (--registry) or use --link, then run "pnpm install".`)
         options = { ...options, installDeps: false }
       }
     }
@@ -335,7 +335,7 @@ export async function generateProject(options: GenerateOptions): Promise<Generat
   }
 
   if (options.installDeps) {
-    log('📥 pnpm install (può richiedere qualche minuto)…')
+    log('📥 pnpm install (may take a few minutes)…')
     await installDependencies(options.targetDir)
   }
   return { installDeps: options.installDeps }

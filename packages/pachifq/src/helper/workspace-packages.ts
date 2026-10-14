@@ -5,22 +5,22 @@ import { shellArg, USE_SHELL } from './process.js'
 
 const execFileAsync = promisify(execFile)
 
-/** Scope dei package del boilerplate. */
+/** Scope of the boilerplate packages. */
 export const PACKAGE_SCOPE = '@ilpachi/'
 
-/** Timeout (ms) della verifica di disponibilità su registry. */
+/** Timeout (ms) of the registry availability check. */
 export const REGISTRY_CHECK_TIMEOUT_MS = 5000
 
-/** Dipendenza `@ilpachi/*` dichiarata dal progetto con il suo range. */
+/** `@ilpachi/*` dependency declared by the project with its range. */
 export interface ScopedDependency {
   name: string
   range: string
 }
 
 /**
- * Elenca le dipendenze `@ilpachi/*` (dependencies, devDependencies, optionalDependencies) di un package.json.
+ * Lists the `@ilpachi/*` dependencies (dependencies, devDependencies, optionalDependencies) of a package.json.
  *
- * @param pkg - package.json del progetto
+ * @param pkg - project package.json
  */
 export function readScopedDependencies(pkg: Record<string, unknown>): ScopedDependency[] {
   const result = new Map<string, string>()
@@ -34,13 +34,13 @@ export function readScopedDependencies(pkg: Record<string, unknown>): ScopedDepe
 }
 
 /**
- * Verifica in sola lettura (`npm view <nome>@<range> version`) se sul registry esiste una versione
- * compatibile con il range richiesto. Qualunque errore, timeout o assenza di rete equivale a
- * "non disponibile".
+ * Checks, read-only (`npm view <name>@<range> version`), whether the registry has a version
+ * compatible with the requested range. Any error, timeout or lack of network counts as
+ * "not available".
  *
- * @param name - nome completo del package
- * @param range - range semver richiesto (es. `^0.1.0`); se assente si verifica solo il nome
- * @param registry - URL del registry da interrogare; se assente si usa la configurazione npm dell'utente
+ * @param name - full package name
+ * @param range - requested semver range (e.g. `^0.1.0`); if absent only the name is checked
+ * @param registry - registry URL to query; if absent the user's npm configuration is used
  */
 export async function isPublishedOnRegistry(name: string, range?: string, registry?: string): Promise<boolean> {
   try {

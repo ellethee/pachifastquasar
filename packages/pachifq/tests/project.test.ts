@@ -18,26 +18,26 @@ import {
 import { parseArgv as parseCreate, errorMessagesHint } from '../src/commands/create.js'
 import { parseArgv as parseFeature } from '../src/commands/new/feature.js'
 
-describe('slugify / nome progetto', () => {
-  it('produce slug validi', () => {
+describe('slugify / project name', () => {
+  it('produces valid slugs', () => {
     expect(slugify('  My Cool App! ')).toBe('my-cool-app')
-    expect(slugify('Città__Nuova')).toBe('citt-nuova')
+    expect(slugify('Café__New')).toBe('caf-new')
     expect(slugify('---')).toBe('')
   })
 
-  it('packageNameFromProject valida lo slug', () => {
+  it('packageNameFromProject validates the slug', () => {
     expect(packageNameFromProject('My App')).toBe('my-app')
     expect(() => packageNameFromProject('!!!')).toThrow(ProjectNameError)
   })
 
-  it('rifiuta percorsi', () => {
+  it('rejects paths', () => {
     for (const bad of ['..', '.', '../x', 'a/b', 'a\\b', '/abs']) {
       expect(() => assertPlainProjectName(bad)).toThrow(ProjectNameError)
     }
     expect(() => assertPlainProjectName('my-app')).not.toThrow()
   })
 
-  it('resolveTargetDir resta dentro cwd', () => {
+  it('resolveTargetDir stays inside cwd', () => {
     expect(resolveTargetDir('/work', 'my-app')).toBe('/work/my-app')
     expect(() => resolveTargetDir('/work', '..')).toThrow(ProjectNameError)
     expect(() => resolveTargetDir('/work', 'a/b')).toThrow(ProjectNameError)
@@ -45,7 +45,7 @@ describe('slugify / nome progetto', () => {
 })
 
 describe('buildPnpmWorkspace', () => {
-  it('consente i build script, esclude @ilpachi dal release age e non ha packages/overrides', () => {
+  it('allows build scripts, excludes @ilpachi from the release age and has no packages/overrides', () => {
     const out = buildPnpmWorkspace()
     expect(out).toContain('allowBuilds:')
     expect(out).toContain('esbuild: true')
@@ -57,14 +57,14 @@ describe('buildPnpmWorkspace', () => {
 })
 
 describe('resolveRegistry', () => {
-  it('default, npm e URL', () => {
+  it('default, npm and URL', () => {
     delete process.env.PACHI_NPM_REGISTRY
-    expect(resolveRegistry()).toBeUndefined() // default: registry pubblico npm
+    expect(resolveRegistry()).toBeUndefined() // default: public npm registry
     expect(resolveRegistry('npm')).toBeUndefined()
     expect(resolveRegistry(' https://r.example/npm/ ')).toBe('https://r.example/npm/')
   })
 
-  it('usa PACHI_NPM_REGISTRY e rifiuta valori non URL', () => {
+  it('uses PACHI_NPM_REGISTRY and rejects non-URL values', () => {
     process.env.PACHI_NPM_REGISTRY = 'https://env.example/'
     expect(resolveRegistry()).toBe('https://env.example/')
     process.env.PACHI_NPM_REGISTRY = 'npm'
@@ -75,7 +75,7 @@ describe('resolveRegistry', () => {
 })
 
 describe('mergeNpmrc', () => {
-  it('crea, aggiorna e non scrive con registry pubblico', () => {
+  it('creates, updates and does not write with the public registry', () => {
     expect(mergeNpmrc(undefined, 'https://r/')).toEqual({ content: '@ilpachi:registry=https://r/\n', action: 'created' })
     expect(mergeNpmrc(undefined, undefined)).toEqual({ content: null, action: 'none' })
     expect(mergeNpmrc('a=b\n@ilpachi:registry=old\n', 'https://r')).toEqual({
@@ -88,16 +88,16 @@ describe('mergeNpmrc', () => {
 })
 
 describe('envValue / buildEnvContent', () => {
-  it('quota solo quando serve', () => {
+  it('quotes only when needed', () => {
     expect(envValue('My App')).toBe('My App')
     expect(envValue('')).toBe('')
     expect(envValue('a # b')).toBe('"a # b"')
-    expect(envValue('riga1\nriga2')).toBe('riga1 riga2')
+    expect(envValue('line1\nline2')).toBe('line1 line2')
     expect(envValue('say "hi"')).toBe("'say \"hi\"'")
     expect(envValue('cost $5')).toBe('"cost \\$5"')
   })
 
-  it('scrive QCLI_PROXY_TARGET solo se impostato', () => {
+  it('writes QCLI_PROXY_TARGET only if set', () => {
     const base = {
       targetDir: '/x',
       packageName: 'x',
@@ -133,7 +133,7 @@ describe('envValue / buildEnvContent', () => {
 })
 
 describe('buildEnvExample', () => {
-  it('documenta tutte le variabili con il default in commento', () => {
+  it('documents all the variables with the default in a comment', () => {
     const example = buildEnvExample()
     expect(example).toContain('# QCLI_AUTH_ENABLED=true\n')
     expect(example).toContain('# QCLI_PROXY_TARGET=http://localhost:8000\n')
@@ -144,7 +144,7 @@ describe('buildEnvExample', () => {
 })
 
 describe('parseArgv create', () => {
-  it('legge opzioni e nome', () => {
+  it('reads options and name', () => {
     const r = parseCreate(['my-app', '--registry=npm', '--yes', '--no-git'])
     expect(r).toMatchObject({ projectName: 'my-app', registry: 'npm', yes: true, git: false, install: true, autoDashboard: true, envelope: true, extras: [] })
   })
@@ -158,47 +158,47 @@ describe('parseArgv create', () => {
     expect(parseCreate(['a', '--no-envelope'])).toMatchObject({ envelope: false })
   })
 
-  it('legge --link, --locale, --no-auto-dashboard e --with', () => {
+  it('reads --link, --locale, --no-auto-dashboard and --with', () => {
     const r = parseCreate(['a', '--link', '../shell', '--locale=it', '--no-auto-dashboard', '--with', 'settings,profile,settings'])
     expect(r).toMatchObject({ link: '../shell', locale: 'it', autoDashboard: false, extras: ['settings', 'profile'] })
-    expect(() => parseCreate(['--with', 'foo'])).toThrow(/sconosciuto/)
+    expect(() => parseCreate(['--with', 'foo'])).toThrow(/Unknown/)
   })
 
-  it('--ref e --template non esistono più', () => {
-    expect(() => parseCreate(['--ref', 'dev'])).toThrow(/non esiste più/)
-    expect(() => parseCreate(['--template=x'])).toThrow(/non esiste più/)
+  it('--ref and --template no longer exist', () => {
+    expect(() => parseCreate(['--ref', 'dev'])).toThrow(/no longer exists/)
+    expect(() => parseCreate(['--template=x'])).toThrow(/no longer exists/)
   })
 
-  it('segnala errori chiari', () => {
+  it('reports clear errors', () => {
     expect(() => parseCreate(['--link', '--yes'])).toThrow(ArgvError)
-    expect(() => parseCreate(['--link'])).toThrow(/richiede un valore/)
-    expect(() => parseCreate(['--bogus'])).toThrow(/sconosciuta/)
-    expect(() => parseCreate(['a', 'b'])).toThrow(/inatteso/)
+    expect(() => parseCreate(['--link'])).toThrow(/requires a value/)
+    expect(() => parseCreate(['--bogus'])).toThrow(/Unknown/)
+    expect(() => parseCreate(['a', 'b'])).toThrow(/Unexpected/)
   })
 })
 
 describe('parseArgv new feature', () => {
-  it('legge opzioni', () => {
-    const r = parseFeature(['invoices', '--title', 'Fatture', '--order', '10', '--icon=mdiX', '--yes'])
-    expect(r).toMatchObject({ name: 'invoices', title: 'Fatture', order: 10, icon: 'mdiX', yes: true })
+  it('reads options', () => {
+    const r = parseFeature(['invoices', '--title', 'Invoices', '--order', '10', '--icon=mdiX', '--yes'])
+    expect(r).toMatchObject({ name: 'invoices', title: 'Invoices', order: 10, icon: 'mdiX', yes: true })
   })
 
-  it('--title --yes non consuma --yes', () => {
-    expect(() => parseFeature(['a', '--title', '--yes'])).toThrow(/--title richiede un valore/)
+  it('--title --yes does not consume --yes', () => {
+    expect(() => parseFeature(['a', '--title', '--yes'])).toThrow(/--title option requires a value/)
   })
 
-  it('--order non numerico è un errore', () => {
+  it('non-numeric --order is an error', () => {
     expect(() => parseFeature(['a', '--order', 'abc'])).toThrow(/--order/)
     expect(() => parseFeature(['a', '--order'])).toThrow(ArgvError)
   })
 
-  it('permette valori che iniziano con "-" con la forma =', () => {
+  it('allows values that start with "-" with the = form', () => {
     expect(parseFeature(['a', '--title=-x']).title).toBe('-x')
   })
 })
 
 describe('errorMessagesHint', () => {
-  it('indica il comando di export dei messaggi del backend', () => {
+  it('shows the backend messages export command', () => {
     const text = errorMessagesHint().join('\n')
     expect(text).toContain('pachifast locale export --base-dir <backend> --dest-path src/i18n/generated --namespace errors.codes')
     expect(text).toContain('--check')
@@ -206,15 +206,15 @@ describe('errorMessagesHint', () => {
   })
 })
 
-describe('assertPachiProject (riconoscimento dipendenze)', () => {
-  /** Crea una cartella con il solo `package.json` indicato. */
+describe('assertPachiProject (dependency detection)', () => {
+  /** Creates a folder with only the given `package.json`. */
   function projectWith(deps: Record<string, string>): string {
     const dir = mkdtempSync(path.join(tmpdir(), 'pachifq-ctx-'))
     writeFileSync(path.join(dir, 'package.json'), JSON.stringify({ dependencies: deps }))
     return dir
   }
 
-  it.each([['@ilpachi/pachifastquasar'], ['@ilpachi/use-alova'], ['@ilpachi/httpachi'], ['@ilpachi/pachi-i18n']])('riconosce %s', (name) => {
+  it.each([['@ilpachi/pachifastquasar'], ['@ilpachi/use-alova'], ['@ilpachi/httpachi'], ['@ilpachi/pachi-i18n']])('recognizes %s', (name) => {
     const dir = projectWith({ [name]: '^1.0.0' })
     try {
       expect(assertPachiProject(dir).cwd).toBe(dir)
@@ -223,7 +223,7 @@ describe('assertPachiProject (riconoscimento dipendenze)', () => {
     }
   })
 
-  it('la sola dipendenza quasar non basta', () => {
+  it('the quasar dependency alone is not enough', () => {
     const dir = projectWith({ quasar: '^2.0.0' })
     try {
       expect(() => assertPachiProject(dir)).toThrow(NotAPachiProjectError)

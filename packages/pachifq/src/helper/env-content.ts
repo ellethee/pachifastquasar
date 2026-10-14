@@ -3,25 +3,25 @@ import { PACHI_OPTIONS } from './pachi-options.js'
 import type { GenerateOptions } from '../generate-project.js'
 
 /**
- * Contenuto di `src/.env.example`: tutte le variabili `QCLI_*` documentate con il default della shell in
- * commento (decommentare solo ciò che si vuole cambiare: ogni variabile impostata sovrascrive la base di
- * `definePachiConfig`).
+ * Contents of `src/.env.example`: all the `QCLI_*` variables documented with the shell default in a
+ * comment (uncomment only what you want to change: every variable that is set overrides the
+ * `definePachiConfig` base).
  */
 export function buildEnvExample(): string {
   return (
-    '# Opzioni dell\'app (precedenza: process.env > src/.env.local > src/.env).\n' +
-    '# Ogni variabile impostata (e non vuota) sovrascrive la base di definePachiConfig in src/pachi-config.ts;\n' +
-    '# quelle commentate qui mostrano il default della shell.\n' +
+    '# App options (precedence: process.env > src/.env.local > src/.env).\n' +
+    '# Every variable that is set (and non-empty) overrides the definePachiConfig base in src/pachi-config.ts;\n' +
+    '# the ones commented out here show the shell default.\n' +
     PACHI_OPTIONS.map((o) => `# ${o.key}=${o.defaultValue}\n`).join('')
   )
 }
 
 /**
- * Contenuto di `src/.env`: SOLO le variabili scelte dall'utente (titolo, descrizione, lingua fissa,
- * dashboard automatica disattivata, auth disattivata, voci di menu disattivate, proxy); il resto resta ai
- * default della shell e alla base di `src/pachi-config.ts`.
+ * Contents of `src/.env`: ONLY the variables chosen by the user (title, description, fixed language,
+ * automatic dashboard disabled, auth disabled, menu entries disabled, proxy); the rest is left to the
+ * shell defaults and the `src/pachi-config.ts` base.
  *
- * @param options - opzioni di generazione
+ * @param options - generation options
  */
 export function buildEnvContent(options: GenerateOptions): string {
   const lines: string[] = []
@@ -36,8 +36,8 @@ export function buildEnvContent(options: GenerateOptions): string {
   if (!options.authMenu.home) lines.push('QCLI_AUTH_MENU_HOME=false')
   if (options.proxyTarget) lines.push(`QCLI_PROXY_TARGET=${envValue(options.proxyTarget)}`)
   return (
-    '# Solo le opzioni scelte alla creazione. Le altre (vedi .env.example) usano i default della shell\n' +
-    '# o la base di src/pachi-config.ts.\n' +
+    '# Only the options chosen at creation. The others (see .env.example) use the shell defaults\n' +
+    '# or the src/pachi-config.ts base.\n' +
     lines.map((l) => `${l}\n`).join('')
   )
 }

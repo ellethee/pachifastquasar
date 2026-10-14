@@ -10,8 +10,8 @@ export interface PackageJsonLike {
 }
 
 /**
- * Rileva il package manager del progetto: prima dal campo "packageManager",
- * poi dal lockfile presente, altrimenti npm come fallback.
+ * Detects the project's package manager: first from the "packageManager" field,
+ * then from the lockfile found, otherwise npm as a fallback.
  */
 export function identifyPackageManager(cwd: string, pkg: PackageJsonLike): PackageManager {
   if (pkg.packageManager?.startsWith('pnpm')) return 'pnpm'

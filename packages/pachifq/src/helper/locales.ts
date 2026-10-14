@@ -3,27 +3,27 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { PACKAGE_SCOPE } from './workspace-packages.js'
 
-/** Codice lingua ammesso: BCP 47 semplificato (`fr`, `pt-BR`, `zh-Hans`). */
+/** Allowed language code: simplified BCP 47 (`fr`, `pt-BR`, `zh-Hans`). */
 const LOCALE_CODE_RE = /^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$/
 
-/** Errore di validazione/generazione delle lingue. */
+/** Language validation/generation error. */
 export class LocaleError extends Error {}
 
 /**
- * Verifica che il codice lingua sia valido.
+ * Checks that the language code is valid.
  *
- * @param code - codice (es. `fr`, `pt-BR`)
+ * @param code - code (e.g. `fr`, `pt-BR`)
  */
 export function validateLocaleCode(code: string): void {
   if (!LOCALE_CODE_RE.test(code)) {
-    throw new LocaleError(`Codice lingua non valido: "${code}". Esempi: fr, de, pt-BR.`)
+    throw new LocaleError(`Invalid language code: "${code}". Examples: fr, de, pt-BR.`)
   }
 }
 
 /**
- * Elenca i codici lingua (nome file senza estensione) di una cartella `locales`.
+ * Lists the language codes (file name without extension) of a `locales` folder.
  *
- * @param localesDir - cartella con i file `<codice>.ts`
+ * @param localesDir - folder with the `<code>.ts` files
  */
 export function listLocaleCodes(localesDir: string): string[] {
   if (!existsSync(localesDir)) return []
@@ -34,35 +34,35 @@ export function listLocaleCodes(localesDir: string): string[] {
 }
 
 /**
- * Trasforma un file lingua sorgente (`en.ts`) in una bozza per una nuova lingua: stesse chiavi,
- * valori da tradurre, commento TODO.
+ * Turns a source language file (`en.ts`) into a draft for a new language: same keys,
+ * values to translate, TODO comment.
  *
- * @param source - contenuto del file sorgente
- * @param code - codice della nuova lingua
+ * @param source - contents of the source file
+ * @param code - code of the new language
  */
 export function toLocaleDraft(source: string, code: string): string {
-  const todo = `/** Messaggi "${code}". TODO: traduci i valori (le chiavi devono restare identiche a it.ts). */`
+  const todo = `/** "${code}" messages. TODO: translate the values (the keys must stay identical to it.ts). */`
   const body = source
     .replace(/\/\*\*[\s\S]*?\*\//, todo)
     .replace(/\bconst en\b/, 'const messages')
     .replace(/export default en\b/, 'export default messages')
-  return body.includes('TODO: traduci') ? body : `${todo}\n${body}`
+  return body.includes('TODO: translate') ? body : `${todo}\n${body}`
 }
 
-/** Esito della creazione di un file lingua. */
+/** Result of creating a language file. */
 export interface LocaleFileResult {
-  /** Percorso assoluto del file. */
+  /** Absolute path of the file. */
   file: string
-  /** `created` se scritto, `exists` se già presente (non sovrascritto). */
+  /** `created` if written, `exists` if already present (not overwritten). */
   status: 'created' | 'exists'
 }
 
 /**
- * Crea `<localesDir>/<code>.ts` partendo da `en.ts` (o `it.ts`) della stessa cartella, senza sovrascrivere.
- * Restituisce `undefined` se nella cartella non c'è un sorgente da cui partire.
+ * Creates `<localesDir>/<code>.ts` starting from `en.ts` (or `it.ts`) in the same folder, without overwriting.
+ * Returns `undefined` if the folder has no source to start from.
  *
- * @param localesDir - cartella `locales`
- * @param code - codice della nuova lingua
+ * @param localesDir - `locales` folder
+ * @param code - code of the new language
  */
 export async function createLocaleFile(localesDir: string, code: string): Promise<LocaleFileResult | undefined> {
   const target = path.join(localesDir, `${code}.ts`)
@@ -75,20 +75,20 @@ export async function createLocaleFile(localesDir: string, code: string): Promis
 }
 
 /**
- * Bozza minima della lingua dell'app quando non esiste ancora né `en.ts` né `it.ts`: i messaggi della shell
- * (namespace `app`, `auth`, `menu`, `dashboard`, `errors`, `common`) vivono nel pacchetto e ripiegano su `en`;
- * l'app aggiunge qui solo ciò che vuole tradurre o ridefinire.
+ * Minimal draft of the app language when neither `en.ts` nor `it.ts` exists yet: the shell messages
+ * (namespaces `app`, `auth`, `menu`, `dashboard`, `errors`, `common`) live in the package and fall back to `en`;
+ * the app only adds here what it wants to translate or redefine.
  *
- * @param code - codice della nuova lingua
+ * @param code - code of the new language
  */
 export function appLocaleStub(code: string): string {
   return `/**
- * Messaggi "${code}" dell'app. TODO: traduci.
- * Sono sovrapposti a quelli di @ilpachi/pachifastquasar (namespace \`app\`, \`auth\`, \`menu\`, \`dashboard\`,
- * \`errors\`, \`common\`): ridefinisci qui le chiavi che vuoi tradurre, le altre ripiegano su "en".
+ * App "${code}" messages. TODO: translate.
+ * They are layered over those of @ilpachi/pachifastquasar (namespaces \`app\`, \`auth\`, \`menu\`, \`dashboard\`,
+ * \`errors\`, \`common\`): redefine here the keys you want to translate, the others fall back to "en".
  */
 const messages = {
-  // auth: { login: { heading: 'TODO: traduci' } },
+  // auth: { login: { heading: 'TODO: translate' } },
 }
 
 export default messages
@@ -96,10 +96,10 @@ export default messages
 }
 
 /**
- * Crea `<localesDir>/<code>.ts` con {@link appLocaleStub} (senza sovrascrivere).
+ * Creates `<localesDir>/<code>.ts` with {@link appLocaleStub} (without overwriting).
  *
- * @param localesDir - cartella `locales` dell'app
- * @param code - codice della nuova lingua
+ * @param localesDir - app `locales` folder
+ * @param code - code of the new language
  */
 async function createAppLocaleStub(localesDir: string, code: string): Promise<LocaleFileResult> {
   await mkdir(localesDir, { recursive: true })
@@ -108,23 +108,23 @@ async function createAppLocaleStub(localesDir: string, code: string): Promise<Lo
   return { file: target, status: 'created' }
 }
 
-/** Risultato di {@link addLocale}. */
+/** Result of {@link addLocale}. */
 export interface AddLocaleResult {
   app: LocaleFileResult
   features: LocaleFileResult[]
   packages: LocaleFileResult[]
-  /** Package `@ilpachi/*` in node_modules con messaggi propri: non vengono modificati. */
+  /** `@ilpachi/*` packages in node_modules with their own messages: they are not modified. */
   externalPackages: string[]
 }
 
 /**
- * Aggiunge una lingua al progetto: app (`src/i18n/locales`, con una bozza vuota se l'app non ha ancora
- * `en.ts`/`it.ts`), feature (`src/features/*\/locales`) e package workspace in `packages/*` che hanno
- * `src/locales` (solo le app con package propri: se manca la cartella il passo è saltato). I package in
- * node_modules (shell compresa) non vengono toccati.
+ * Adds a language to the project: app (`src/i18n/locales`, with an empty draft if the app has no
+ * `en.ts`/`it.ts` yet), features (`src/features/*\/locales`) and workspace packages in `packages/*` that have
+ * `src/locales` (only apps with their own packages: if the folder is missing the step is skipped). Packages in
+ * node_modules (shell included) are not touched.
  *
- * @param cwd - root del progetto
- * @param code - codice della nuova lingua
+ * @param cwd - project root
+ * @param code - code of the new language
  */
 export async function addLocale(cwd: string, code: string): Promise<AddLocaleResult> {
   validateLocaleCode(code)

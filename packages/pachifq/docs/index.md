@@ -22,4 +22,4 @@ pachifq new locale fr
 | `pachifq new locale` | `new l` | [new locale](commands/new-locale.md) |
 | `pachifq info`, `pachifq list` | `i` | [info and list](commands/info-list.md) |
 
-Global flags: `-h`/`--help`, `-v`/`--version`, `--no-color`. The CLI output is in Italian.
+Global flags: `-h`/`--help`, `-v`/`--version`, `--no-color`.

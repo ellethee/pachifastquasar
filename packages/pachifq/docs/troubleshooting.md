@@ -5,5 +5,5 @@
 - **`pnpm install` skipped**: a dependency was not found on the registry; check `--registry` / `PACHI_NPM_REGISTRY` or recreate the app with `--link`.
 - **Old `@ilpachi/*` versions with pnpm 11**: recent versions are ignored for 24 hours; the generated workspace file excludes `@ilpachi/*`.
 - **Icon rejected**: choose one of the suggestions.
-- **"Nessun package.json trovato"**: run the command from the app root.
+- **"No package.json found"**: run the command from the app root.
 - **Private registry login**: put credentials in your user `~/.npmrc`; the CLI never writes or publishes tokens.

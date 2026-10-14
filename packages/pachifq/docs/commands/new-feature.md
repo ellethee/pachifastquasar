@@ -45,5 +45,5 @@ pachifq new f reports --title "Reports" --children billing,archive --yes
 - Name: kebab-case; `auth` and `login` are reserved.
 - Duplicate child routes, or children colliding with the feature i18n keys (such as `title`), are rejected.
 - Icon: an unknown export (for example `mdiLanApi`) is rejected with similar suggestions
-  (`Forse intendevi: mdiApi, mdiLan, ...`) and nothing is written. If `@quasar/extras` cannot be
+  (`Did you mean: mdiApi, mdiLan, ...`) and nothing is written. If `@quasar/extras` cannot be
   resolved from the app (dependencies not installed yet) only the `mdi...` syntax is checked and a warning is printed.

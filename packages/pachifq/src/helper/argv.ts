@@ -1,16 +1,16 @@
-/** Errore di sintassi degli argomenti da riga di comando. */
+/** Command-line argument syntax error. */
 export class ArgvError extends Error {}
 
-/** Flag con il nome e l'eventuale valore inline (`--flag=valore`). */
+/** Flag with its name and the optional inline value (`--flag=value`). */
 export interface SplitFlag {
   flag: string
   inline?: string
 }
 
 /**
- * Separa `--flag=valore` in flag e valore; gli argomenti senza `--` o senza `=` restano invariati.
+ * Splits `--flag=value` into flag and value; arguments without `--` or without `=` stay unchanged.
  *
- * @param arg - argomento grezzo
+ * @param arg - raw argument
  */
 export function splitFlag(arg: string): SplitFlag {
   if (!arg.startsWith('--')) return { flag: arg }
@@ -20,39 +20,39 @@ export function splitFlag(arg: string): SplitFlag {
 }
 
 /**
- * Cursore sugli argomenti: restituisce il valore di un flag (inline o argomento successivo).
- * Il valore successivo non può iniziare con `-` (si userebbe per sbaglio un altro flag): per valori
- * che iniziano con `-` si usa la forma `--flag=valore`.
+ * Cursor over the arguments: returns the value of a flag (inline or next argument).
+ * The next value cannot start with `-` (another flag would be used by mistake): for values
+ * that start with `-` use the `--flag=value` form.
  */
 export class ArgvCursor {
   index = 0
 
   constructor(readonly argv: readonly string[]) {}
 
-  /** `true` finché ci sono argomenti da leggere. */
+  /** `true` while there are arguments left to read. */
   get hasNext(): boolean {
     return this.index < this.argv.length
   }
 
-  /** Legge l'argomento corrente e avanza. */
+  /** Reads the current argument and advances. */
   next(): string {
     return this.argv[this.index++] as string
   }
 
   /**
-   * Valore del flag corrente.
+   * Value of the current flag.
    *
-   * @param split - flag già separato da {@link splitFlag}
-   * @throws ArgvError se il valore manca o sembra un altro flag
+   * @param split - flag already split by {@link splitFlag}
+   * @throws ArgvError if the value is missing or looks like another flag
    */
   value(split: SplitFlag): string {
     if (split.inline !== undefined) {
-      if (split.inline === '') throw new ArgvError(`L'opzione ${split.flag} richiede un valore.`)
+      if (split.inline === '') throw new ArgvError(`The ${split.flag} option requires a value.`)
       return split.inline
     }
     const candidate = this.argv[this.index]
     if (candidate === undefined || candidate.startsWith('-')) {
-      throw new ArgvError(`L'opzione ${split.flag} richiede un valore (usa ${split.flag}=<valore> se inizia con "-").`)
+      throw new ArgvError(`The ${split.flag} option requires a value (use ${split.flag}=<value> if it starts with "-").`)
     }
     this.index++
     return candidate
@@ -60,13 +60,13 @@ export class ArgvCursor {
 }
 
 /**
- * Converte il valore di `--order` in numero finito.
+ * Converts the value of `--order` to a finite number.
  *
- * @param value - testo ricevuto
- * @throws ArgvError se non è un numero
+ * @param value - received text
+ * @throws ArgvError if it is not a number
  */
 export function parseOrder(value: string): number {
   const parsed = value.trim() === '' ? Number.NaN : Number(value)
-  if (!Number.isFinite(parsed)) throw new ArgvError(`Valore non valido per --order: "${value}" (atteso un numero).`)
+  if (!Number.isFinite(parsed)) throw new ArgvError(`Invalid value for --order: "${value}" (a number was expected).`)
   return parsed
 }

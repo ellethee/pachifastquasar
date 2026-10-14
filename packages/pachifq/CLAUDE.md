@@ -1,36 +1,36 @@
 # CLAUDE.md
 
-Guida per Claude Code in questo repo (CLI `@ilpachi/pachifq`).
+Guide for Claude Code in this repo (`@ilpachi/pachifq` CLI).
 
-## Cos'è
+## What it is
 
-CLI di scaffold per le app basate su `@ilpachi/pachifastquasar` (nel monorepo: `packages/pachifastquasar`, pacchetto npm, e `playground/` in radice). `create` NON clona più il boilerplate: genera l'app dai template embedded in `templates/app/` (derivati da `playground/` della radice del monorepo), con `package.json` che dipende dal pacchetto.
+Scaffolding CLI for apps based on `@ilpachi/pachifastquasar` (in the monorepo: `packages/pachifastquasar`, the npm package, and `playground/` at the root). `create` no longer clones the boilerplate: it generates the app from the templates embedded in `templates/app/` (derived from the monorepo root `playground/`), with a `package.json` that depends on the package.
 
-## Comandi
+## Commands
 
 ```bash
 pnpm typecheck && pnpm test && pnpm build
 ```
 
-Mai `publish`/tag senza ordine esplicito (per la pubblicazione `npm`, non pnpm).
+Never `publish`/tag without an explicit order (to publish use `npm`, not pnpm).
 
-## Architettura
+## Architecture
 
-- `src/commands/{create,info,list}.ts`, `src/commands/new/{feature,locale}.ts`: comandi (parsing argomenti in `src/helper/argv.ts`).
-- `src/generate-project.ts`: `generateProject` (template → file, `package.json`, `pnpm-workspace.yaml`, `.npmrc` (solo con `--registry <url>`; default registry pubblico npm), `src/.env`/`.env.example`, verifica `npm view` in sola lettura, `git init`, `pnpm install`). `--link` → `linkDir`; `--dry-run` → `dryRun` (elenco file + package.json, nessuna scrittura).
-- `src/helper/app-package.ts`: range delle dipendenze `@ilpachi/*` (shell, base, opzionali `settings|profile|widgets`) e `buildAppPackageJson`. I range sono costanti da aggiornare quando i package cambiano major/minor.
-- `src/helper/template.ts`: lettura/rendering dei template (`{{segnaposto}}`, `_gitignore` → `.gitignore`). `templates/app/` va tenuto allineato al playground del pacchetto (anche `public/`: favicon della mascotte Pachi; i `.png`/`.ico` sono copiati come binari).
-- `src/helper/env-content.ts`: `.env` con SOLO le scelte dell'utente, `.env.example` con tutte le `QCLI_*` in commento (la shell ≥1.1.0 fa sovrascrivere la base solo alle variabili impostate: non scrivere mai i default in `.env`).
-- `src/helper/boot-blocks.ts`: blocchi condizionali di `templates/app/src/boot/pachi.ts` (`{{bootShellImports}}`, `{{bootImports}}`, `{{bootSetup}}`) per i package `--with` (oggi `profile` → `setPachiProfileUser`). Nuove iniezioni necessarie a un package vanno aggiunte lì.
-- `create` stampa a fine run il comando `pachifast locale export` per i messaggi `errors.codes` (`errorMessagesHint` in `src/commands/create.ts`).
-- `src/helper/pachi-options.ts`: opzioni `QCLI_*` e default (per `info`, inclusa `QCLI_HTTP_ENVELOPE`; `--no-envelope` di `create` la scrive in `.env`); l'`envDir` dell'app è `src/`.
-- `src/generate-feature.ts`: `new feature` (importa i componenti di stato da `@ilpachi/pachifastquasar`, HTTP da `@ilpachi/use-alova`; `@ilpachi/httpachi` resta solo come riconoscimento legacy in `project-context.ts`).
-- `src/helper/locales.ts`: `new locale` (app, feature, `packages/*`; per i package in `node_modules` non scrive; bozza vuota per l'app se manca `en.ts`/`it.ts`).
+- `src/commands/{create,info,list}.ts`, `src/commands/new/{feature,locale}.ts`: commands (argument parsing in `src/helper/argv.ts`).
+- `src/generate-project.ts`: `generateProject` (template → files, `package.json`, `pnpm-workspace.yaml`, `.npmrc` (only with `--registry <url>`; default is the public npm registry), `src/.env`/`.env.example`, read-only `npm view` check, `git init`, `pnpm install`). `--link` → `linkDir`; `--dry-run` → `dryRun` (file list + package.json, nothing written).
+- `src/helper/app-package.ts`: ranges of the `@ilpachi/*` dependencies (shell, base, optional `settings|profile|widgets`) and `buildAppPackageJson`. The ranges are constants to update when the packages change major/minor.
+- `src/helper/template.ts`: reading/rendering of the templates (`{{placeholder}}`, `_gitignore` → `.gitignore`). `templates/app/` must be kept aligned with the package playground (also `public/`: favicons of the Pachi mascot; `.png`/`.ico` are copied as binaries).
+- `src/helper/env-content.ts`: `.env` with ONLY the user's choices, `.env.example` with all the `QCLI_*` commented out (shell ≥1.1.0 lets only the variables that are set override the base: never write the defaults into `.env`).
+- `src/helper/boot-blocks.ts`: conditional blocks of `templates/app/src/boot/pachi.ts` (`{{bootShellImports}}`, `{{bootImports}}`, `{{bootSetup}}`) for the `--with` packages (today `profile` → `setPachiProfileUser`). New injections a package needs must be added there.
+- `create` prints at the end the `pachifast locale export` command for the `errors.codes` messages (`errorMessagesHint` in `src/commands/create.ts`).
+- `src/helper/pachi-options.ts`: `QCLI_*` options and defaults (for `info`, including `QCLI_HTTP_ENVELOPE`; `create --no-envelope` writes it to `.env`); the app `envDir` is `src/`.
+- `src/generate-feature.ts`: `new feature` (imports the state components from `@ilpachi/pachifastquasar`, HTTP from `@ilpachi/use-alova`; `@ilpachi/httpachi` remains only as legacy detection in `project-context.ts`).
+- `src/helper/locales.ts`: `new locale` (app, features, `packages/*`; it does not write to packages in `node_modules`; empty draft for the app if `en.ts`/`it.ts` is missing).
 
-## Stile
+## Style
 
-Niente punto e virgola finale, apici singoli, 100 colonne, JSDoc su funzioni ed export, ES modules, messaggi in italiano. Test in `tests/` (Vitest); i test della generazione simulano `isPublishedOnRegistry` (nessuna rete).
+No trailing semicolons, single quotes, 100 columns, JSDoc on functions and exports, ES modules, messages in English. Tests in `tests/` (Vitest); the generation tests mock `isPublishedOnRegistry` (no network).
 
-## Prove end-to-end
+## End-to-end checks
 
-In una cartella sotto `/tmp`: `node dist/index.js create demo --yes --no-git --no-install --link <path pachifastquasar>`, poi `pnpm install`, `pnpm typecheck`, `QCLI_AUTH_ENABLED=false pnpm build`. Cancellare la cartella a fine prova.
+In a folder under `/tmp`: `node dist/index.js create demo --yes --no-git --no-install --link <pachifastquasar path>`, then `pnpm install`, `pnpm typecheck`, `QCLI_AUTH_ENABLED=false pnpm build`. Delete the folder afterwards.

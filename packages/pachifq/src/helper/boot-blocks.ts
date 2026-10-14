@@ -1,22 +1,22 @@
 import type { OptionalPackageKey } from './app-package.js'
 
-/** Blocchi di codice di `src/boot/pachi.ts` per un package opzionale (vuoti se non serve iniezione). */
+/** Code blocks of `src/boot/pachi.ts` for an optional package (empty if no injection is needed). */
 interface BootBlock {
-  /** Nomi aggiunti all'import di `@ilpachi/pachifastquasar` (con virgola iniziale). */
+  /** Names added to the `@ilpachi/pachifastquasar` import (with a leading comma). */
   shellImports: string
-  /** Righe di `import` aggiunte dopo l'import della shell. */
+  /** `import` lines added after the shell import. */
   imports: string
-  /** Istruzioni aggiunte in coda alla funzione di boot (indentate di 2 spazi). */
+  /** Statements appended to the boot function (indented by 2 spaces). */
   setup: string
 }
 
 /**
- * Iniezioni necessarie al funzionamento dei package opzionali.
+ * Injections needed for the optional packages to work.
  *
- * - `profile`: la route `/user/profile` mostra solo uno scheletro finché l'app non chiama
- *   `setPachiProfileUser` (il package non conosce l'auth dell'app).
- * - `settings` e `widgets`: nessuna iniezione, usano la factory `useAlova` che la shell fornisce con
- *   `createPachiApp` (auth, refresh del token ed errori inclusi).
+ * - `profile`: the `/user/profile` route only shows a skeleton until the app calls
+ *   `setPachiProfileUser` (the package does not know the app's auth).
+ * - `settings` e `widgets`: no injection, they use the `useAlova` factory that the shell provides with
+ *   `createPachiApp` (auth, token refresh and errors included).
  */
 const BOOT_BLOCKS: Partial<Record<OptionalPackageKey, BootBlock>> = {
   profile: {
@@ -24,8 +24,8 @@ const BOOT_BLOCKS: Partial<Record<OptionalPackageKey, BootBlock>> = {
     imports: "import { setPachiProfileUser } from '@ilpachi/fastquasar-profile'\n",
     setup:
       '\n' +
-      '  // Profilo: la pagina legge l\'utente da qui (reattivo: lo store dell\'auth). Con auth disattivata\n' +
-      '  // o senza sessione l\'utente è null e la pagina resta vuota.\n' +
+      '  // Profile: the page reads the user from here (reactive: the auth store). With auth disabled\n' +
+      '  // or without a session the user is null and the page stays empty.\n' +
       '  setPachiProfileUser(() => {\n' +
       '    const user = AuthManager.getInstance().userInfo\n' +
       '    return user ? { ...user, email: user.email ?? \'\' } : null\n' +
@@ -34,9 +34,9 @@ const BOOT_BLOCKS: Partial<Record<OptionalPackageKey, BootBlock>> = {
 }
 
 /**
- * Valori dei segnaposto `{{bootShellImports}}`, `{{bootImports}}` e `{{bootSetup}}` di `src/boot/pachi.ts` per i package scelti.
+ * Values of the `{{bootShellImports}}`, `{{bootImports}}` e `{{bootSetup}}` placeholders of `src/boot/pachi.ts` for the chosen packages.
  *
- * @param extras - package opzionali selezionati
+ * @param extras - selected optional packages
  */
 export function buildBootBlocks(extras: readonly OptionalPackageKey[]): { bootShellImports: string; bootImports: string; bootSetup: string } {
   const blocks = extras.map((key) => BOOT_BLOCKS[key]).filter((block): block is BootBlock => block !== undefined)

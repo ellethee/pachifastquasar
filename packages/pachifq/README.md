@@ -4,8 +4,6 @@ Scaffolding CLI for apps and features built on [`@ilpachi/pachifastquasar`](http
 
 > **Status: beta.** Scaffold CLI for frontends of pachifast (Python backend by the same author). API and generated layout may change between releases (0.x). Provided "as is", without warranty of any kind (see [LICENSE](./LICENSE)). Not recommended for production use without pinning versions and testing against your pachifast backend.
 
-> The CLI output and `--help` texts are currently in Italian. Command names, options and generated code are documented here in English.
-
 ## Installation
 
 ```bash
@@ -99,11 +97,11 @@ pachifq new locale fr
 pachifq new locale pt-BR
 ```
 
-Creates `src/i18n/locales/<code>.ts` (copied from `en.ts`/`it.ts` with `TODO: traduci` markers; if the app has neither, an empty draft where you redefine only the shell keys you want to translate, the rest falls back to `en`), `src/features/*/locales/<code>.ts` for every feature and, only if the app has its own `packages/` folder, `packages/*/src/locales/<code>.ts`. Packages in `node_modules` (the shell included) are never modified: the command prints how to extend them (add the keys with the same namespace in `src/i18n/locales/<code>.ts`). Existing files are never overwritten.
+Creates `src/i18n/locales/<code>.ts` (copied from `en.ts`/`it.ts` with `TODO: translate` markers; if the app has neither, an empty draft where you redefine only the shell keys you want to translate, the rest falls back to `en`), `src/features/*/locales/<code>.ts` for every feature and, only if the app has its own `packages/` folder, `packages/*/src/locales/<code>.ts`. Packages in `node_modules` (the shell included) are never modified: the command prints how to extend them (add the keys with the same namespace in `src/i18n/locales/<code>.ts`). Existing files are never overwritten.
 
 ### `pachifq info` and `pachifq list`
 
-`info` prints Node version, detected package manager, Quasar version, auth state, the effective `QCLI_*` options (precedence `process.env` > `src/.env.local` > `src/.env` > `.env.local` > `.env`), the backend proxy, the shell version, the `@ilpachi/*` dependencies with their installed version (or `workspace` / `NON installato`), the app and generated languages and the features. `list` prints the features of `src/features/`. Both accept `--json` for machine-readable output (`list --json` is an array of `{ name, hasRoutes, title? }`).
+`info` prints Node version, detected package manager, Quasar version, auth state, the effective `QCLI_*` options (precedence `process.env` > `src/.env.local` > `src/.env` > `.env.local` > `.env`), the backend proxy, the shell version, the `@ilpachi/*` dependencies with their installed version (or `workspace` / `NOT installed`), the app and generated languages and the features. `list` prints the features of `src/features/`. Both accept `--json` for machine-readable output (`list --json` is an array of `{ name, hasRoutes, title? }`).
 
 ## Configuration of generated apps
 

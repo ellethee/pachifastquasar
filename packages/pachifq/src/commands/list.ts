@@ -3,20 +3,20 @@ import { assertPachiProject, listFeatures, NotAPachiProjectError } from '../proj
 import { formatFeatureLines } from '../helper/features-format.js'
 
 const HELP = `
-${pc.bold('pachifq list')} - Elenca le feature presenti in src/features
+${pc.bold('pachifq list')} - List the features present in src/features
 
 ${pc.bold('Usage')}
   $ pachifq list [--json]
 
 ${pc.bold('Options')}
-  --json       Output leggibile da macchina (array JSON di { name, hasRoutes, title? })
-  -h, --help   Mostra questo aiuto
+  --json       Machine-readable output (JSON array of { name, hasRoutes, title? })
+  -h, --help   Show this help
 `
 
 /**
- * Comando `pachifq list`: elenca le feature in `src/features`.
+ * `pachifq list` command: lists the features in `src/features`.
  *
- * @param argv - argomenti dopo il nome del comando
+ * @param argv - arguments after the command name
  */
 export async function run(argv: string[]): Promise<void> {
   if (argv.includes('--help') || argv.includes('-h')) {
@@ -43,8 +43,8 @@ export async function run(argv: string[]): Promise<void> {
     return
   }
   if (features.length === 0) {
-    console.log('Nessuna feature trovata in src/features/.\nUsa "pachifq new feature <nome>" per crearne una.')
+    console.log('No features found in src/features/.\nUse "pachifq new feature <name>" to create one.')
     return
   }
-  console.log([`Feature in src/features/ (${features.length})`, ...formatFeatureLines(features)].join('\n'))
+  console.log([`Features in src/features/ (${features.length})`, ...formatFeatureLines(features)].join('\n'))
 }

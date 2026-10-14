@@ -1,14 +1,14 @@
 import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 
-/** Opzione `QCLI_*` della shell con il suo default (vedi README di `@ilpachi/pachifastquasar`). */
+/** `QCLI_*` option of the shell with its default (see the README of `@ilpachi/pachifastquasar`). */
 export interface PachiOption {
   key: string
-  /** Default della shell quando la variabile non è impostata (`''` = vuoto). */
+  /** Shell default when the variable is not set (`''` = empty). */
   defaultValue: string
 }
 
-/** Variabili d'ambiente lette da `pachiConfigFromEnv` e dal preset Quasar, con i default della shell. */
+/** Environment variables read by `pachiConfigFromEnv` and by the Quasar preset, with the shell defaults. */
 export const PACHI_OPTIONS: readonly PachiOption[] = [
   { key: 'QCLI_AUTH_ENABLED', defaultValue: 'true' },
   { key: 'QCLI_AUTH_STORAGE', defaultValue: 'local' },
@@ -33,14 +33,14 @@ export const PACHI_OPTIONS: readonly PachiOption[] = [
   { key: 'QCLI_PROXY_TARGET', defaultValue: 'http://localhost:8000' },
 ]
 
-/** File `.env` consultati, in ordine di precedenza: `src/` è l'`envDir` del preset, la root vale per le app vecchie. */
+/** `.env` files consulted, in order of precedence: `src/` is the preset's `envDir`, the root is for old apps. */
 const ENV_FILES = ['src/.env.local', 'src/.env', '.env.local', '.env']
 
 /**
- * Legge una variabile con precedenza `process.env` > `src/.env.local` > `src/.env` > `.env.local` > `.env`.
+ * Reads a variable with precedence `process.env` > `src/.env.local` > `src/.env` > `.env.local` > `.env`.
  *
- * @param cwd - root del progetto
- * @param key - nome variabile
+ * @param cwd - project root
+ * @param key - variable name
  */
 export function readEnvValue(cwd: string, key: string): string | undefined {
   const fromProcess = process.env[key]
@@ -55,9 +55,9 @@ export function readEnvValue(cwd: string, key: string): string | undefined {
 }
 
 /**
- * Proxy backend scritto in `quasar.config.ts` (`proxyTarget: process.env.QCLI_PROXY_TARGET ?? '<url>'`).
+ * Backend proxy written in `quasar.config.ts` (`proxyTarget: process.env.QCLI_PROXY_TARGET ?? '<url>'`).
  *
- * @param cwd - root del progetto
+ * @param cwd - project root
  */
 export function readConfiguredProxy(cwd: string): string | undefined {
   const file = path.join(cwd, 'quasar.config.ts')
@@ -65,18 +65,18 @@ export function readConfiguredProxy(cwd: string): string | undefined {
   return readFileSync(file, 'utf-8').match(/proxyTarget:\s*(?:process\.env\.\w+\s*\?\?\s*)?['"]([^'"]+)['"]/)?.[1]
 }
 
-/** Valore effettivo di un'opzione e da dove arriva. */
+/** Effective value of an option and where it comes from. */
 export interface ResolvedOption {
   key: string
   value: string
-  /** `true` se impostata (env/file), `false` se è il default della shell. */
+  /** `true` if set (env/file), `false` if it is the shell default. */
   set: boolean
 }
 
 /**
- * Valori effettivi delle opzioni `QCLI_*` del progetto (impostate o di default).
+ * Effective values of the project's `QCLI_*` options (set or default).
  *
- * @param cwd - root del progetto
+ * @param cwd - project root
  */
 export function resolvePachiOptions(cwd: string): ResolvedOption[] {
   return PACHI_OPTIONS.map(({ key, defaultValue }) => {
