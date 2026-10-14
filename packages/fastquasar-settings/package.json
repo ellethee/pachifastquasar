@@ -1,6 +1,6 @@
 {
   "name": "@ilpachi/fastquasar-settings",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Backend-schema-driven user settings page for Vue 3 + Quasar, with an Appearance section (theme, accent, density) and a Pinia manager/store.",
   "author": {
     "name": "ilPachi",
