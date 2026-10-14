@@ -1,0 +1,7 @@
+export { default as FieldsSection } from './components/FieldsSection.vue'
+export { default as DynamicField } from './components/DynamicField.vue'
+export { useRemoteSelect } from './composables/use-remote-select'
+export type { IRemoteSelectApi } from './composables/use-remote-select'
+export type { IFieldDef, IFieldRow, IFieldType, IFieldsState } from './types'
+export { setPachiFieldsHttp, getPachiFieldsHttp } from './helpers/http'
+export type { IPachiFieldsHttp } from './helpers/http'

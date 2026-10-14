@@ -1,0 +1,17 @@
+{
+  "name": "ilpachi-e2e",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "End-to-end suite (Playwright) of the playground against a real pachifast backend (see README.md)",
+  "scripts": {
+    "e2e": "playwright test",
+    "e2e:install": "playwright install chromium"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.10.0",
+    "@playwright/test": "^1.55.0",
+    "@types/node": "^20.19.41",
+    "typescript": "^5.9.3"
+  }
+}

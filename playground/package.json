@@ -1,0 +1,45 @@
+{
+  "name": "pachifastquasar-playground",
+  "version": "0.0.0",
+  "description": "App Quasar di sviluppo e test di @ilpachi/pachifastquasar (non pubblicata)",
+  "productName": "Pachi Fast Quasar Playground",
+  "author": "ilPachi",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --filter @ilpachi/pachifastquasar build:node && quasar dev",
+    "build": "quasar build",
+    "typecheck": "pnpm --filter @ilpachi/pachifastquasar build:node && quasar prepare && vue-tsc --noEmit",
+    "build:dist": "pnpm --filter @ilpachi/pachifastquasar build && PACHI_PLAYGROUND_DIST=true quasar build"
+  },
+  "dependencies": {
+    "@ilpachi/use-alova": "^2.1.1",
+    "@ilpachi/pachi-i18n": "workspace:*",
+    "@ilpachi/pachifastquasar": "workspace:*",
+    "@quasar/extras": "^2.0.1",
+    "alova": "^3.3.0",
+    "pinia": "^3.0.4",
+    "pinia-plugin-persistedstate": "^4.7.1",
+    "quasar": "^2.20.0",
+    "vue": "^3.5.35",
+    "vue-i18n": "^11.4.4",
+    "vue-router": "^5.1.0"
+  },
+  "devDependencies": {
+    "@quasar/app-vite": "^3.10.2",
+    "@quasar/vite-plugin": "^2.0.2",
+    "@types/node": "^20.19.41",
+    "autoprefixer": "^10.5.0",
+    "esbuild": "^0.27.7",
+    "typescript": "^5.9.3",
+    "vue-tsc": "^3.3.2",
+    "@ilpachi/fastquasar-settings": "workspace:*",
+    "@ilpachi/fastquasar-profile": "workspace:*",
+    "@ilpachi/fastquasar-admin": "workspace:*",
+    "vite": "^8.3.4"
+  },
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=10"
+  }
+}

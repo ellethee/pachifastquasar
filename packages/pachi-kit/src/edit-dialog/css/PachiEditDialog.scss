@@ -1,0 +1,65 @@
+.pachi-edit-dialog {
+  position: absolute;
+  display: flex !important;
+  flex-direction: column !important;
+
+  &.pachi-rounded { border-radius: var(--pachi-card-r); }
+  &.pachi-shaped {
+    border-top-left-radius: var(--pachi-card-r);
+    border-bottom-right-radius: var(--pachi-card-r);
+  }
+
+  &.pachi-blueprint-card {
+    .body--dark & { background-color: var(--q-dark) !important; }
+    .body--light & { background-color: var(--pachi-body-bg, #f0f4f8) !important; }
+  }
+
+  // ── Split body ──────────────────────────────────────────────────────────────
+  .pachi-dialog-body-split {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    overflow: hidden;
+  }
+
+  .pachi-dialog-editor-area {
+    flex: 1;
+    min-width: 0;
+    overflow-y: auto;
+  }
+
+  .pachi-dialog-side-panel {
+    width: 320px;
+    flex-shrink: 0;
+    overflow-y: auto;
+    border-left: 1px solid var(--pachi-border);
+    background: var(--pachi-surface);
+  }
+
+  // azioni allineate a destra (con o senza etichette)
+  .pachi-dialog-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  // ── Footer ─────────────────────────────────────────────────────────────────
+  .pachi-dialog-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 8px 16px;
+    border-top: 1px solid var(--pachi-border);
+    min-height: 52px;
+    flex-shrink: 0;
+  }
+
+  .pachi-dialog-footer__saved {
+    font-family: var(--pachi-mono);
+    font-size: 11px;
+    color: var(--pachi-accent);
+    margin-right: auto;
+  }
+}

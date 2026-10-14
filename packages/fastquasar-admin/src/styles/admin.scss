@@ -1,0 +1,211 @@
+// Stili del package: classi `pachi-admin*`, variabili `--pachi-*` (default a specificità zero in theme-defaults.scss)
+
+.pachi-admin {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 16px;
+  padding: 16px;
+  width: 100%;
+  align-content: start;
+  // il layout della shell è alto un viewport e non scrolla: la pagina scrolla da sé entro lo spazio utile
+  // (`--pachi-page-height` è definita dalla shell; senza, nessun limite)
+  max-height: var(--pachi-page-height, none);
+  overflow-y: auto;
+  color: var(--pachi-ink);
+  font-family: var(--pachi-font);
+
+  &__models {
+    position: sticky;
+    top: 0;
+    align-self: start;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    background: var(--pachi-surface);
+    border: 1px solid var(--pachi-border);
+    border-radius: var(--pachi-card-r);
+    padding: 10px;
+  }
+
+  &__models-title {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--pachi-muted);
+    padding: 4px 8px 8px;
+  }
+
+  &__model {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1px;
+    width: 100%;
+    padding: 8px 10px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--pachi-ink-2);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+
+    &:hover { background: var(--pachi-surface-2); }
+
+    &--active {
+      background: var(--pachi-accent-soft);
+      color: var(--pachi-ink);
+      box-shadow: inset 3px 0 0 var(--pachi-accent);
+    }
+  }
+
+  &__model-name { font-weight: 600; }
+  &__model-app { font-size: 11px; color: var(--pachi-muted); font-family: var(--pachi-mono); }
+
+  &__main {
+    min-width: 0;
+    background: var(--pachi-surface);
+    border: 1px solid var(--pachi-border);
+    border-radius: var(--pachi-card-r);
+    padding: var(--pachi-pad);
+  }
+}
+
+@media (max-width: 760px) {
+  .pachi-admin { grid-template-columns: 1fr; }
+  .pachi-admin__models { position: static; flex-direction: row; flex-wrap: wrap; }
+}
+
+.pachi-admin-model {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  &__head { display: flex; align-items: center; gap: 12px; }
+  &__title { margin: 0; font-size: 20px; font-weight: 650; font-family: var(--pachi-title-font); }
+}
+
+.pachi-admin-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  &__search { min-width: 240px; }
+  &__selected { color: var(--pachi-ink-2); font-size: 13px; }
+}
+
+.pachi-admin-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  background: var(--pachi-surface-2);
+  border-radius: 8px;
+
+  &__item { width: 200px; }
+}
+
+.pachi-admin-table {
+  background: transparent;
+  color: var(--pachi-ink);
+
+  tbody tr { cursor: pointer; }
+}
+
+.pachi-admin-cell {
+  &__text {
+    display: inline-block;
+    max-width: 320px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: middle;
+  }
+  &--num { font-variant-numeric: tabular-nums; }
+}
+
+.pachi-admin-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 40px 16px;
+  text-align: center;
+  color: var(--pachi-muted);
+
+  &__title { color: var(--pachi-ink); font-weight: 600; }
+  &--small { padding: 12px; }
+}
+
+.pachi-admin-banner {
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  border: 1px solid var(--pachi-border);
+  margin-bottom: 8px;
+
+  &--ok { background: var(--pachi-accent-soft); color: var(--pachi-accent-ink); }
+  &--error { background: var(--pachi-red-soft); color: var(--pachi-red); border-color: var(--pachi-red); }
+  &--info { background: var(--pachi-blue-soft); color: var(--pachi-blue); }
+}
+
+.pachi-admin-dialog {
+  width: 760px;
+  max-width: 96vw;
+  background: var(--pachi-surface);
+  color: var(--pachi-ink);
+
+  &__head { display: flex; align-items: center; }
+  &__title { font-size: 17px; font-weight: 650; }
+  // il contenuto alto scrolla dentro il dialogo: le azioni restano sempre raggiungibili
+  &__body { max-height: 62vh; overflow-y: auto; }
+  &__actions { border-top: 1px solid var(--pachi-border); padding: 8px 16px; }
+}
+
+.pachi-admin-confirm { min-width: 320px; max-width: 92vw; background: var(--pachi-surface); color: var(--pachi-ink); }
+
+.pachi-admin-form {
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px 14px;
+  }
+  &__wide { grid-column: 1 / -1; }
+}
+
+@media (max-width: 600px) {
+  .pachi-admin-form__grid { grid-template-columns: 1fr; }
+}
+
+.pachi-admin-field {
+  &__error { color: var(--pachi-red); font-size: 12px; }
+  &--toggle { padding: 6px 0; }
+}
+
+.pachi-admin-mono { font-family: var(--pachi-mono); font-size: 12.5px; }
+
+.pachi-admin-history {
+  &__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  &__entry { border: 1px solid var(--pachi-border); border-radius: 8px; padding: 8px 12px; }
+  &__head { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+  &__who { color: var(--pachi-ink-2); font-size: 13px; }
+  &__time { margin-left: auto; color: var(--pachi-muted); font-size: 12px; font-family: var(--pachi-mono); }
+  &__changes { list-style: none; margin: 8px 0 0; padding: 0; display: flex; flex-direction: column; gap: 3px; font-size: 13px;
+    li { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; } }
+  &__field { color: var(--pachi-muted); min-width: 120px; }
+  &__old { color: var(--pachi-red); text-decoration: line-through; font-family: var(--pachi-mono); }
+  &__new { color: var(--pachi-green); font-family: var(--pachi-mono); }
+  &__badge { background: var(--pachi-surface-3); color: var(--pachi-ink); }
+  &__badge--add { background: var(--pachi-accent-soft); color: var(--pachi-accent-ink); }
+  &__badge--change { background: var(--pachi-amber-soft); color: var(--pachi-amber); }
+  &__badge--delete { background: var(--pachi-red-soft); color: var(--pachi-red); }
+  &__pager { display: flex; justify-content: center; padding-top: 10px; }
+}
+
+.pachi-admin-th--sortable { cursor: pointer; user-select: none; &:hover { color: var(--pachi-ink); } }
+.pachi-admin-th__prio { font-size: 10px; color: var(--pachi-accent-ink); margin-left: 1px; }
+.pachi-admin-confirm__labels { margin: 0 0 4px; padding-left: 18px; color: var(--pachi-ink-2); font-size: 13px; }
+.pachi-admin-confirm__more { color: var(--pachi-muted); list-style: none; margin-left: -18px; }
+.pachi-admin-history__empty { margin-top: 6px; color: var(--pachi-muted); font-size: 13px; }

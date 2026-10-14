@@ -1,0 +1,43 @@
+{
+  "name": "ilpachi-monorepo",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Monorepo of the @ilpachi frontend packages (Vue 3 / Quasar): application shell, generic components, pachifast-driven pages and scaffolding CLI",
+  "author": {
+    "name": "ilPachi",
+    "url": "https://github.com/ellethee"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ellethee/pachifastquasar.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ellethee/pachifastquasar/issues"
+  },
+  "homepage": "https://github.com/ellethee/pachifastquasar#readme",
+  "type": "module",
+  "packageManager": "pnpm@11.25.0",
+  "scripts": {
+    "dev": "pnpm -C playground dev",
+    "typecheck": "pnpm -r --workspace-concurrency=1 typecheck",
+    "test": "pnpm -r test",
+    "build": "pnpm -r --filter './packages/*' build",
+    "build:playground": "pnpm -C playground build:dist",
+    "typecheck:playground": "pnpm -C playground typecheck",
+    "check": "pnpm typecheck && pnpm test && pnpm build",
+    "check:changed": "pnpm --filter \"...[origin/main]\" typecheck && pnpm --filter \"...[origin/main]\" test && pnpm --filter \"...[origin/main]\" build",
+    "e2e": "pnpm -C e2e e2e",
+    "release": "node scripts/release.mjs",
+    "docs:build": "uvx --with \"mkdocs>=1.6,<2\" --with mkdocs-material --with mkdocs-monorepo-plugin mkdocs build --strict",
+    "docs:serve": "uvx --with \"mkdocs>=1.6,<2\" --with mkdocs-material --with mkdocs-monorepo-plugin mkdocs serve"
+  },
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=10"
+  },
+  "devDependencies": {
+    "@vue/test-utils": "^2.5.1",
+    "happy-dom": "^20.14.5"
+  }
+}

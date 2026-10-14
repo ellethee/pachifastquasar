@@ -1,0 +1,142 @@
+{
+  "name": "@ilpachi/pachi-kit",
+  "version": "0.1.0",
+  "description": "Generic Vue 3 / Quasar component kit: UI building blocks, dialogs, section-based edit dialogs with declarative fields, server-side table with CRUD and file uploader. Tree-shakeable sub-path entries.",
+  "author": {
+    "name": "ilPachi",
+    "url": "https://github.com/ellethee"
+  },
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    "./ui": {
+      "types": "./dist/ui/index.d.ts",
+      "import": "./dist/ui/index.js",
+      "default": "./dist/ui/index.js"
+    },
+    "./ui/PachiPopupEdit.vue": {
+      "types": "./dist/ui/PachiPopupEdit.vue.d.ts",
+      "import": "./dist/ui/PachiPopupEdit.js",
+      "default": "./dist/ui/PachiPopupEdit.js"
+    },
+    "./dialog": {
+      "types": "./dist/dialog/index.d.ts",
+      "import": "./dist/dialog/index.js",
+      "default": "./dist/dialog/index.js"
+    },
+    "./dialog/composables/usePachiDialogToolbar": {
+      "types": "./dist/dialog/composables/usePachiDialogToolbar.d.ts",
+      "import": "./dist/dialog/composables/usePachiDialogToolbar.js",
+      "default": "./dist/dialog/composables/usePachiDialogToolbar.js"
+    },
+    "./dialog/composables/editor-defaults": {
+      "types": "./dist/dialog/composables/editor-defaults.d.ts",
+      "import": "./dist/dialog/composables/editor-defaults.js",
+      "default": "./dist/dialog/composables/editor-defaults.js"
+    },
+    "./edit-dialog": {
+      "types": "./dist/edit-dialog/index.d.ts",
+      "import": "./dist/edit-dialog/index.js",
+      "default": "./dist/edit-dialog/index.js"
+    },
+    "./fields": {
+      "types": "./dist/fields/index.d.ts",
+      "import": "./dist/fields/index.js",
+      "default": "./dist/fields/index.js"
+    },
+    "./table": {
+      "types": "./dist/table/index.d.ts",
+      "import": "./dist/table/index.js",
+      "default": "./dist/table/index.js"
+    },
+    "./uploader": {
+      "types": "./dist/uploader/index.d.ts",
+      "import": "./dist/uploader/index.js",
+      "default": "./dist/uploader/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "build": "vite build && node scripts/emit-table-dts.mjs && pnpm run typecheck:consumer",
+    "typecheck": "vue-tsc --noEmit -p tsconfig.json",
+    "prepublishOnly": "pnpm typecheck && pnpm test && pnpm build",
+    "test": "vitest run",
+    "typecheck:consumer": "vue-tsc --noEmit -p tests/consumer/tsconfig.json"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "peerDependencies": {
+    "@ilpachi/pachi-i18n": ">=0.1.0 <1.0.0",
+    "@ilpachi/use-alova": "^2.1.1",
+    "@quasar/extras": "^2.0.0",
+    "alova": "^3.3.0",
+    "quasar": "^2.20.0",
+    "vue": "^3.5.0",
+    "vue-i18n": "^11.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@ilpachi/use-alova": {
+      "optional": true
+    },
+    "alova": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@ilpachi/pachi-i18n": "workspace:^",
+    "@ilpachi/use-alova": "^2.1.1",
+    "@quasar/extras": "^2.0.1",
+    "@quasar/vite-plugin": "^2.0.2",
+    "@types/node": "^20.19.41",
+    "@vitejs/plugin-vue": "^6.0.0",
+    "@vue/language-core": "~2.2.12",
+    "alova": "^3.3.0",
+    "quasar": "^2.20.0",
+    "sass-embedded": "^1.90.0",
+    "typescript": "^5.9.3",
+    "vite": "^8.3.4",
+    "vite-plugin-css-injected-by-js": "^5.0.2",
+    "vite-plugin-dts": "^5.1.2",
+    "vitest": "^5.0.3",
+    "vue": "^3.5.35",
+    "vue-i18n": "^11.4.4",
+    "vue-tsc": "^3.3.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ellethee/pachifastquasar.git",
+    "directory": "packages/pachi-kit"
+  },
+  "bugs": {
+    "url": "https://github.com/ellethee/pachifastquasar/issues"
+  },
+  "homepage": "https://github.com/ellethee/pachifastquasar/tree/main/packages/pachi-kit#readme",
+  "keywords": [
+    "vue",
+    "vue3",
+    "quasar",
+    "typescript",
+    "pachifast",
+    "ilpachi",
+    "components",
+    "dialog",
+    "edit-dialog",
+    "table",
+    "server-side-table",
+    "date-picker",
+    "popup-edit",
+    "upload",
+    "file-upload"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "sideEffects": true
+}

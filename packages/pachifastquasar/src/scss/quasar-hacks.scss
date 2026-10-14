@@ -1,0 +1,336 @@
+// ── Quasar component overrides ───────────────────────────────────────────────
+// Rebrand: Pachi Fast Quasar "Densità Operativa · Dark"
+
+// ── Hover effects (dashboard card scale, rubber-band su titoli) ─────────────
+// Attivi di default; disabilitabili con appConfig.app.hoverEffectsEnabled
+// (env QCLI_APP_HOVER_EFFECTS=false), che aggiunge .pachi-hover-fx-disabled su
+// <body> (vedi src/App.vue). Componenti consumano queste due custom
+// properties invece di scrivere transform/animation a mano, così il toggle
+// li spegne tutti in un colpo solo.
+:root {
+  --pachi-hover-fx-transform: scale(1.03);
+  --pachi-hover-fx-animation: rubber-band 0.8s;
+}
+
+body.pachi-hover-fx-disabled {
+  --pachi-hover-fx-transform: none;
+  --pachi-hover-fx-animation: none;
+}
+
+// Chi chiede meno movimento: niente trasformazioni/animazioni hover né transizioni delle card
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --pachi-hover-fx-transform: none;
+    --pachi-hover-fx-animation: none;
+  }
+
+  .pachi-bento-card,
+  .pachi-blueprint-card {
+    transition: none;
+  }
+}
+
+@keyframes rubber-band {
+  0% {
+    transform: scale3d(1, 1, 1);
+  }
+
+  30% {
+    transform: scale3d(1.25, 0.75, 1);
+  }
+
+  40% {
+    transform: scale3d(0.75, 1.25, 1);
+  }
+
+  50% {
+    transform: scale3d(1.15, 0.85, 1);
+  }
+
+  65% {
+    transform: scale3d(0.95, 1.05, 1);
+  }
+
+  75% {
+    transform: scale3d(1.05, 0.95, 1);
+  }
+
+  100% {
+    transform: scale3d(1, 1, 1);
+  }
+}
+
+// Animazioni del titolo delle card (`app.titleAnimation`, `meta.titleAnimation`): vedi core/dashboard/helpers/title-animation.ts
+@keyframes pachi-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+}
+
+@keyframes pachi-shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
+@keyframes pachi-wobble {
+  // spostamenti in px (non %): il titolo è a larghezza piena e una percentuale sposterebbe il testo di decine di pixel
+  0%, 100% { transform: translateX(0) rotate(0); }
+  15% { transform: translateX(-4px) rotate(-1.5deg); }
+  30% { transform: translateX(3px) rotate(1deg); }
+  45% { transform: translateX(-2px) rotate(-0.8deg); }
+  60% { transform: translateX(1px) rotate(0.4deg); }
+  75% { transform: translateX(-1px) rotate(-0.2deg); }
+}
+
+@keyframes pachi-tada {
+  0% { transform: scale(1); }
+  10%, 20% { transform: scale(0.92) rotate(-3deg); }
+  30%, 50%, 70% { transform: scale(1.1) rotate(3deg); }
+  40%, 60% { transform: scale(1.1) rotate(-3deg); }
+  80%, 100% { transform: scale(1) rotate(0); }
+}
+
+@keyframes pachi-bounce {
+  0%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-10px); }
+  50% { transform: translateY(0); }
+  70% { transform: translateY(-4px); }
+}
+
+// ── Topbar ───────────────────────────────────────────────────────────────────
+:where(.q-layout) {
+  // la barra contiene il logo: cresce con `--pachi-app-logo-size` (nessun taglio dell'elmo)
+  --pachi-appbar-height: max(52px, calc(var(--pachi-app-logo-size, 36px) + 16px));
+}
+
+:where(.q-layout.pachi-layout--logo-overlap) {
+  // `logoOverlap`: barra fissa, il logo pende sotto
+  --pachi-appbar-height: 52px;
+}
+
+.q-toolbar.pachi-app-bar {
+  height: var(--pachi-appbar-height, 52px);
+  min-height: var(--pachi-appbar-height, 52px);
+  border-bottom: 1px solid var(--pachi-border);
+  background: var(--pachi-bg);
+  padding: 0 24px;
+}
+
+// ── Inputs ───────────────────────────────────────────────────────────────────
+.q-field--outlined .q-field__control {
+  border-radius: 7px;
+
+  &::before {
+    border-color: var(--pachi-border);
+  }
+
+  &:hover::before {
+    border-color: var(--pachi-border-hi);
+  }
+}
+
+// Override della prop "rounded": usa sempre 7px invece degli angoli a pillola
+.q-field--outlined.q-field--rounded .q-field__control {
+  border-radius: 7px !important;
+}
+
+.q-field--focused.q-field--outlined .q-field__control::before {
+  border-color: var(--pachi-accent);
+}
+
+input.q-field__native {
+  padding-left: 10px !important;
+  padding-right: 10px !important;
+}
+
+// Label e hint
+.q-field__label {
+  font-family: var(--pachi-font);
+  font-size: 13px;
+}
+
+.q-field__messages {
+  font-family: var(--pachi-font);
+  font-size: 11px;
+}
+
+// ── Tables ───────────────────────────────────────────────────────────────────
+.q-table {
+  font-size: 12px;
+  font-family: var(--pachi-font);
+
+  thead tr th {
+    background: var(--pachi-surface-2);
+    border-bottom: 1px solid var(--pachi-border);
+    color: var(--pachi-muted);
+    font-size: 10px;
+    font-family: var(--pachi-font);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 9px 12px;
+  }
+
+  tbody tr {
+    height: var(--pachi-row-h);
+    border-bottom: 1px solid var(--pachi-border);
+
+    &:hover td {
+      background: var(--pachi-surface-3);
+    }
+  }
+
+  tbody td {
+    padding: 0 12px;
+
+    // border-bottom: none;
+    color: var(--pachi-ink);
+  }
+
+  .q-table__bottom {
+    background: var(--pachi-surface-2);
+    border-top: 1px solid var(--pachi-border);
+    font-family: var(--pachi-mono);
+    font-size: 11px;
+    color: var(--pachi-muted);
+    min-height: 40px;
+  }
+}
+
+// ── Tabs ─────────────────────────────────────────────────────────────────────
+.q-tab {
+  font-family: var(--pachi-font);
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  padding: 8px 14px 10px;
+}
+
+.q-tab__label {
+  font-family: var(--pachi-font);
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+}
+
+.q-tabs__content {
+  border-bottom: 1px solid var(--pachi-border);
+}
+
+// ── Toggle ───────────────────────────────────────────────────────────────────
+.q-toggle {
+  .q-toggle__inner {
+    font-size: 16px; // controlla la scala
+    min-width: 28px;
+    width: 28px;
+  }
+
+  .q-toggle__track {
+    border-radius: 8px;
+    opacity: 0.38;
+  }
+
+  .q-toggle__thumb::after {
+    background: white;
+    box-shadow: 0 1px 3px rgb(0 0 0 / 40%);
+  }
+
+  // ON → teal track opaco
+  &.q-toggle--truthy,
+  &.q-toggle--indeterminate {
+    .q-toggle__track {
+      background: var(--pachi-accent);
+      opacity: 1;
+    }
+  }
+}
+
+// Quando il colore è "primary" (usato da color="primary" nei toggle)
+.q-toggle--truthy .q-toggle__track {
+  background: var(--pachi-accent) !important;
+  opacity: 1 !important;
+}
+
+.q-toggle__label {
+  font-family: var(--pachi-font);
+  font-size: 12px;
+  color: var(--pachi-ink-2);
+}
+
+// ── Buttons ──────────────────────────────────────────────────────────────────
+.q-btn {
+  border-radius: 7px;
+
+  &.q-btn--round {
+    border-radius: 50%;
+  }
+}
+
+// ── Cards ────────────────────────────────────────────────────────────────────
+.q-card {
+  border-radius: var(--pachi-card-r);
+}
+
+// ── Dialog ───────────────────────────────────────────────────────────────────
+.q-dialog__inner > .q-card {
+  border-radius: var(--pachi-card-r);
+  box-shadow: 0 24px 60px rgb(0 0 0 / 50%);
+}
+
+// ── Select / Menu ─────────────────────────────────────────────────────────────
+.q-menu {
+  border-radius: 8px;
+  border: 1px solid var(--pachi-border);
+  background: var(--pachi-surface-2);
+}
+
+.q-item {
+  font-family: var(--pachi-font);
+  font-size: 13px;
+}
+
+// ── Tooltip ───────────────────────────────────────────────────────────────────
+.q-tooltip {
+  font-family: var(--pachi-font);
+  font-size: 12px;
+  border-radius: 5px;
+  background: var(--pachi-surface-3);
+  color: var(--pachi-ink);
+  border: 1px solid var(--pachi-border-hi);
+}
+
+// ── Scrollbar ─────────────────────────────────────────────────────────────────
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--pachi-border-hi);
+  border-radius: 3px;
+
+  &:hover {
+    background: var(--pachi-faint);
+  }
+}
+
+// ── Light mode adjustments ───────────────────────────────────────────────────
+body.body--light {
+  .q-toolbar.pachi-app-bar {
+    background: var(--pachi-surface);
+  }
+
+  .q-table thead tr th {
+    background: var(--pachi-surface-2);
+  }
+
+  .q-table tbody tr:hover td {
+    background: var(--pachi-surface-3);
+  }
+}

@@ -1,0 +1,7 @@
+dist/
+node_modules/
+*.tgz
+.env*
+.DS_Store
+.vscode/
+/site

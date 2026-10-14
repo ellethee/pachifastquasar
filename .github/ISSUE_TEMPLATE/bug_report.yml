@@ -1,0 +1,51 @@
+name: Bug report
+description: Report something that does not work as expected
+labels: [bug]
+body:
+  - type: dropdown
+    id: package
+    attributes:
+      label: Package
+      options:
+        - pachifastquasar
+        - pachifq
+        - pachi-i18n
+        - pachi-kit
+        - fastquasar-settings
+        - fastquasar-profile
+        - fastquasar-admin
+        - fastquasar-dashboard-widgets
+        - other / not sure
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Package version
+      placeholder: "0.1.0"
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Node, pnpm, Vue, Quasar, browser and pachifast versions.
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: Describe the bug and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      description: A minimal reproduction (repository or snippet) helps a lot.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or screenshots
+      description: Remove any token or secret before pasting.

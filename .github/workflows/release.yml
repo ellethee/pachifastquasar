@@ -1,0 +1,109 @@
+# Release per-pacchetto: un tag `<nome>@<versione>` (es. fastquasar-profile@0.4.2) builda e pubblica SOLO quel pacchetto.
+# Il tag si crea con `pnpm release <nome> <patch|minor|major|x.y.z>` (scripts/release.mjs) e si spinge con
+# `git push --follow-tags`. Il publish usa `npm` (non pnpm) sul tarball creato da `pnpm pack`, che riscrive `workspace:*`.
+# Trusted publishing (OIDC) su npmjs: nessun token nel repository. Setup una tantum PER OGNI package su npmjs:
+# Settings > Trusted publisher > GitHub Actions (repository ellethee/pachifastquasar, workflow release.yml).
+# Richiede npm >= 11.5.1. La pubblicazione salta se la versione esiste gia' (rerun sicuro).
+# Manuale ("Run workflow"): publish-check = dry-run, senza pubblicare.
+name: Release
+
+on:
+  push:
+    tags: ['*@*']
+  workflow_dispatch:
+    inputs:
+      package:
+        description: 'Nome del pacchetto per il publish-check (es. fastquasar-profile)'
+        required: true
+
+permissions:
+  contents: read
+  id-token: write
+
+# nessuna cancellazione: una release a meta' non va interrotta; i tag diversi non si bloccano a vicenda
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          cache: pnpm
+      - name: npm >= 11.5.1 (richiesto dal trusted publishing)
+        run: |
+          set -eu
+          if ! node -e "const [a,b,c]=process.argv[1].split('.').map(Number);process.exit(a>11||(a===11&&(b>5||(b===5&&c>=1)))?0:1)" "$(npm --version)"; then
+            npm install -g npm@latest
+          fi
+          npm --version
+      - name: Pacchetto e versione dal tag
+        id: ref
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_PACKAGE: ${{ github.event.inputs.package }}
+        run: |
+          set -eu
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            NAME="$INPUT_PACKAGE"
+          else
+            NAME="${GITHUB_REF_NAME%@*}"
+            VER_TAG="${GITHUB_REF_NAME##*@}"
+          fi
+          case "$NAME" in ""|*/*|*..*|.*) echo "Nome pacchetto non valido: '$NAME'"; exit 1;; esac
+          test -f "packages/$NAME/package.json" || { echo "packages/$NAME non esiste"; exit 1; }
+          VER="$(node -p "require('./packages/$NAME/package.json').version")"
+          if [ -n "${VER_TAG:-}" ] && [ "$VER_TAG" != "$VER" ]; then
+            echo "Il tag ($VER_TAG) non coincide con la versione di packages/$NAME ($VER)"; exit 1
+          fi
+          echo "name=$NAME" >> "$GITHUB_OUTPUT"
+          echo "version=$VER" >> "$GITHUB_OUTPUT"
+      - name: Build e publish (salta se la versione esiste gia')
+        env:
+          NAME: ${{ steps.ref.outputs.name }}
+          VER: ${{ steps.ref.outputs.version }}
+          DRY: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          set -eu
+          PKG="$(node -p "require('./packages/$NAME/package.json').name")"
+          if [ "$DRY" != "true" ]; then
+            # si pubblica solo codice che e' su main (un tag spinto da un ramo non rilasciato non passa)
+            git merge-base --is-ancestor "$GITHUB_SHA" origin/main || {
+              echo "Il commit del tag non e' contenuto in origin/main: rilascio rifiutato."; exit 1; }
+            RC=0
+            OUT="$(npm view "${PKG}@${VER}" version 2>&1)" || RC=$?
+            if [ "$RC" -eq 0 ] && [ "$OUT" = "${VER}" ]; then
+              echo "::warning::${PKG}@${VER} e' gia' pubblicato: pubblicazione saltata."
+              exit 0
+            fi
+            # un errore diverso da "versione inesistente" (404) e' di rete: non si prosegue alla cieca
+            if [ "$RC" -ne 0 ] && ! printf '%s' "$OUT" | grep -q "E404"; then
+              echo "npm view ha fallito (non 404): $OUT"; exit 1
+            fi
+          fi
+          # installa solo il pacchetto e le sue dipendenze di workspace
+          pnpm install --frozen-lockfile --filter "${PKG}..."
+          # prima build di dipendenze di workspace e pacchetto (i tipi/dist degli altri servono al typecheck)
+          pnpm --filter "${PKG}..." build
+          pnpm --filter "./packages/$NAME" typecheck
+          pnpm --filter "./packages/$NAME" --if-present test
+          PACK_DIR="${RUNNER_TEMP}/pack"
+          mkdir -p "$PACK_DIR"
+          pnpm --filter "./packages/$NAME" pack --pack-destination "$PACK_DIR"
+          TARBALL="$(ls "$PACK_DIR"/*.tgz)"
+          # le pre-release (1.2.0-beta.1) vanno sul dist-tag "next" invece di "latest"
+          case "$VER" in *-*) TAG_ARGS="--tag next" ;; *) TAG_ARGS="" ;; esac
+          if [ "$DRY" = "true" ]; then
+            npm publish "$TARBALL" --dry-run --ignore-scripts --access public ${TAG_ARGS}
+          else
+            npm publish "$TARBALL" --provenance --access public --ignore-scripts ${TAG_ARGS}
+          fi

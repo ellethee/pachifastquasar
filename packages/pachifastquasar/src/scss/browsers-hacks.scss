@@ -1,0 +1,38 @@
+/* Firefox autofill (QInput -> .q-field__native è l'input reale) */
+.q-field__native:-moz-autofill,
+.q-field__native:-moz-autofill-preview,
+input:-moz-autofill,
+input:-moz-autofill-preview,
+textarea:-moz-autofill,
+textarea:-moz-autofill-preview {
+  /* forza il colore di sfondo che vuoi */
+  box-shadow: 0 0 0 1000px #0b1220 inset !important; /* <-- tuo bg */
+  background-color: #0b1220 !important;
+  background-image: none !important;
+
+  /* colore testo/caret coerente col dark */
+  -moz-text-fill-color: #e5e7eb !important;
+  caret-color: #e5e7eb !important;
+}
+
+:-moz-autofilli-background {
+  /* fallback per altri browser che supportano :autofill ma non le estensioni specifiche */
+  box-shadow: 0 0 0 1000px #0b1220 inset !important; /* <-- tuo bg */
+  background-color: #0b1220 !important;
+  background-image: none !important;
+  -moz-text-fill-color: #e5e7eb !important;
+  caret-color: #e5e7eb !important;
+}
+
+input:autofill {
+  background: black !important; /* or any other */
+}
+
+/* WebKit autofill (Chrome/Edge/Safari) */
+input:-webkit-autofill,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-text-fill-color: inherit !important;
+  box-shadow: 0 0 0 1000px transparent inset !important; /* o colore tuo */
+  transition: background-color 999999s ease-out 0s;
+}
