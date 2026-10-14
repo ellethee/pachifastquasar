@@ -1,6 +1,6 @@
 {
   "name": "@ilpachi/fastquasar-profile",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "User profile page for Vue 3 + Quasar (identity, badges, personal data, security/MFA), receiving the user via props.",
   "author": {
     "name": "ilPachi",
