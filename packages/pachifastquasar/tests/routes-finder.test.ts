@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest'
+import { RouterView } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 import {
   collectFeatureRoutes,
   collectPackageRoutes,
+  ensureNavigableRoutes,
   enabledPackageEntries,
   extractPackageName,
   getFilteredRoutes,
@@ -91,5 +93,37 @@ describe('buildPachiRoutes', () => {
       {}
     )
     expect(entries).toEqual([['a', 'dist'], ['b', 'b']])
+  })
+})
+
+describe('ensureNavigableRoutes', () => {
+  const page = { render: () => null }
+  it('aggiunge un RouterView al padre con figli e senza component', () => {
+    const input = [{ path: '/inv', children: [{ path: 'a', component: page }] }] as RouteRecordRaw[]
+    const [out] = ensureNavigableRoutes(input)
+    expect((out as { component?: unknown }).component).toBe(RouterView)
+    expect((input[0] as { component?: unknown }).component).toBeUndefined()
+  })
+  it('non tocca component, redirect e route senza figli', () => {
+    const input = [
+      { path: '/a', component: page, children: [{ path: 'x', component: page }] },
+      { path: '/b', redirect: '/a', children: [{ path: 'x', component: page }] },
+      { path: '/c', component: page }
+    ] as RouteRecordRaw[]
+    const out = ensureNavigableRoutes(input) as { component?: unknown }[]
+    expect(out[0]?.component).toBe(page)
+    expect(out[1]?.component).toBeUndefined()
+    expect(out[2]?.component).toBe(page)
+  })
+  it('il padre senza component si risolve (non cade nel catch-all)', async () => {
+    const { createRouter, createMemoryHistory } = await import('vue-router')
+    const routes = ensureNavigableRoutes([
+      { path: '/inv', children: [{ path: 'a', component: page }] }
+    ] as RouteRecordRaw[])
+    const router = createRouter({
+      history: createMemoryHistory(),
+      routes: [...routes, { path: '/:catchAll(.*)*', component: page }]
+    })
+    expect(router.resolve('/inv').matched.map(r => r.path)).toEqual(['/inv'])
   })
 })

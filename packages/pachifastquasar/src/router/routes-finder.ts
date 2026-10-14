@@ -1,3 +1,4 @@
+import { RouterView } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 import type { PachiEnv } from '../core/config'
 
@@ -18,6 +19,28 @@ export function getFilteredRoutes(routes: RouteRecordRaw[]): RouteRecordRaw[] {
       (i1?.meta?.order !== undefined ? i1.meta.order : 99) -
       (i2?.meta?.order !== undefined ? i2.meta.order : 99)
   )
+}
+
+/**
+ * Rende navigabili le route con figli ma senza `component`, `components` o `redirect`: vue-router non
+ * registra un padre cosi' (l'URL del padre cadrebbe nel catch-all 404), mentre qui devono aprire la
+ * dashboard automatica dei figli. Ricorsivo, non muta l'input.
+ *
+ * @param routes - route delle feature e dei package
+ * @returns route con un `RouterView` come componente dove mancava
+ */
+export function ensureNavigableRoutes(routes: RouteRecordRaw[]): RouteRecordRaw[] {
+  return routes.map(route => {
+    const children = route.children
+    if (!children?.length) return route
+    const record = route as RouteRecordRaw & { component?: unknown; components?: unknown }
+    const needsComponent = !record.component && !record.components && !route.redirect
+    return {
+      ...route,
+      ...(needsComponent ? { component: RouterView } : {}),
+      children: ensureNavigableRoutes(children)
+    } as RouteRecordRaw
+  })
 }
 
 /**

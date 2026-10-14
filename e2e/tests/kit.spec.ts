@@ -23,4 +23,11 @@ test.describe('pachi-kit', () => {
     await page.locator('[data-test=kit-dialog]').click()
     await expect(page.getByText('Dialogo di pachi-kit/dialog.')).toBeVisible()
   })
+
+  test('a parent route without component opens the dashboard of its children', async ({ page }) => {
+    await loginUi(page, USERS.admin, '/section')
+    await expect(page.getByText('First child').first()).toBeVisible()
+    await expect(page.getByText('Second child').first()).toBeVisible()
+    await expect(page.getByText(/not found|404/i)).toHaveCount(0)
+  })
 })

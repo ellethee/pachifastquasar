@@ -1,5 +1,5 @@
 import type { RouteComponent, RouteRecordRaw } from 'vue-router'
-import { getFilteredRoutes, collectFeatureRoutes } from './routes-finder'
+import { getFilteredRoutes, collectFeatureRoutes, ensureNavigableRoutes } from './routes-finder'
 import type { PachiGlob } from './routes-finder'
 import { pachiLogo } from '../extras/pachi-icons'
 import type { IAppConfig, PachiEnv } from '../core/config'
@@ -28,7 +28,7 @@ export function buildPachiRoutes(
   config: IAppConfig,
   sources: PachiRoutesSources = {}
 ): RouteRecordRaw[] {
-  const collected = collectFeatureRoutes(sources)
+  const collected = ensureNavigableRoutes(collectFeatureRoutes(sources))
   const rootRoutes = getFilteredRoutes(collected.filter(r => r.meta?.root === true))
   const childRoutes = getFilteredRoutes(collected.filter(r => r.meta?.root !== true))
   const auth = config.auth.enabled ? authRoutes(config) : []
