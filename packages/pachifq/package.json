@@ -1,6 +1,6 @@
 {
   "name": "@ilpachi/pachifq",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Scaffold CLI for Vue 3 / Quasar apps and features built on @ilpachi/pachifastquasar",
   "license": "MIT",
   "type": "module",
