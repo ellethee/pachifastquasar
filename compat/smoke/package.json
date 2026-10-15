@@ -14,7 +14,7 @@
     "@ilpachi/use-alova": "^2.1.1",
     "@quasar/extras": "^2.0.1",
     "alova": "^3.3.0",
-    "happy-dom": "^20.14.6",
+    "happy-dom": "^21.0.1",
     "pinia": "^4.0.3",
     "quasar": "^2.35.0",
     "typescript": "^7.0.2",
