@@ -7,13 +7,13 @@ import SchedulerSection from './SchedulerSection.vue'
 import PermissionsSection from './PermissionsSection.vue'
 
 /**
- * Sezioni DEMO incluse nel package (schedulazione e permessi), pensate come esempio e per i test:
- * un'app reale definisce le proprie `ISectionDefinition` e le passa a `PachiEditDialog`.
+ * DEMO sections included in the package (scheduling and permissions), meant as an example and for tests:
+ * a real app defines its own `ISectionDefinition`s and passes them to `PachiEditDialog`.
  */
 export const sectionsRegistry: ISectionDefinition[] = [
   {
     key: 'scheduler',
-    // getter: il titolo segue la lingua corrente (richiede che un componente del package sia già montato)
+    // getter: the title follows the current language (requires a component of the package to be already mounted)
     get title() { return pachiT('pachiEditDialog.sections.schedulerTitle') },
     icon: mdiCalendarToday,
     component: markRaw(SchedulerSection),

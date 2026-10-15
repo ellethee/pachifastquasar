@@ -3,52 +3,52 @@ import { DENSITY_ATTRIBUTE, normalizeDensity } from '../helpers/density'
 import { quasarDeps } from '../helpers/quasar-instance'
 import { readStorage, removeStorage, writeStorage } from '../helpers/storage'
 
-/** Da dove arriva il valore applicato. */
+/** Where the applied value comes from. */
 export type SettingsApplySource = 'cache' | 'load' | 'set' | 'reset'
 
-/** Contesto passato a un applier. */
+/** Context passed to an applier. */
 export interface ISettingsApplierContext {
-  /** Nome con cui l'applier è registrato. */
+  /** Name the applier is registered under. */
   name: string
-  /** Categoria dell'impostazione (assente per `reset`). */
+  /** Setting category (absent for `reset`). */
   category?: string
-  /** Chiave dell'impostazione (assente per `reset`). */
+  /** Setting key (absent for `reset`). */
   key?: string
   /**
-   * Origine: `cache` (boot, dalla cache dell'utente), `load` (caricamento dal backend), `set` (modifica
-   * dell'utente), `reset` (logout o cambio utente: il valore è il `default` dello schema, anche `null`, oppure
-   * `undefined` se lo schema non ne ha uno; tornare al default).
+   * Origin: `cache` (boot, from the user's cache), `load` (load from the backend), `set` (user
+   * change), `reset` (logout or user change: the value is the schema `default`, also `null`, or
+   * `undefined` if the schema has none; go back to the default).
    */
   source: SettingsApplySource
 }
 
 /**
- * Funzione che rende effettivo un valore (tema, lingua, densità, ...). Deve essere idempotente: viene richiamata
- * con lo stesso valore al boot, al caricamento e a ogni modifica.
+ * Function that makes a value effective (theme, language, density, ...). It must be idempotent: it is called again
+ * with the same value at boot, on load and on every change.
  */
 export type SettingsApplier = (value: unknown, ctx: ISettingsApplierContext) => void
 
-/** Chiave localStorage che conserva il tema (condivisa con `ToggleThemeButton` della shell). */
+/** localStorage key that stores the theme (shared with the shell's `ToggleThemeButton`). */
 export const THEME_STORAGE_KEY = 'pachi-prefs-theme'
-/** Chiave localStorage della densità (compatibilità con la sezione locale "Aspetto"). */
+/** localStorage key of the density (compatibility with the local "Appearance" section). */
 export const DENSITY_STORAGE_KEY = 'pachi-prefs-density'
-/** Chiave localStorage dell'accent (compatibilità con la sezione locale "Aspetto"). */
+/** localStorage key of the accent (compatibility with the local "Appearance" section). */
 export const ACCENT_STORAGE_KEY = 'pachi-prefs-accent'
-/** Chiave localStorage della lingua (`@ilpachi/pachi-i18n`). */
+/** localStorage key of the language (`@ilpachi/pachi-i18n`). */
 export const LOCALE_STORAGE_KEY = 'pachi-prefs-locale'
 
-/** Attributo di `<html>` per la scala del testo (`sm` | `md` | `lg`). */
+/** `<html>` attribute for the text scale (`sm` | `md` | `lg`). */
 export const FONT_SCALE_ATTRIBUTE = 'data-font-scale'
-/** Attributo di `<html>` per ridurre le animazioni (`true`). */
+/** `<html>` attribute to reduce animations (`true`). */
 export const REDUCE_MOTION_ATTRIBUTE = 'data-reduce-motion'
 
-/** Colori dell'accent: `accent` e `ink` (testo/icone su sfondo neutro). */
+/** Accent colours: `accent` and `ink` (text/icons on a neutral background). */
 export interface IAccentPreset {
   accent: string
   ink: string
 }
 
-/** Accent predefiniti. `teal` coincide col default di `theme-defaults.scss` (nessuna variabile inline). */
+/** Default accents. `teal` matches the default in `theme-defaults.scss` (no inline variable). */
 export const ACCENT_PRESETS: Readonly<Record<string, IAccentPreset>> = {
   teal: { accent: '#2DD4BF', ink: '#2DD4BF' },
   indigo: { accent: '#818CF8', ink: '#818CF8' },
@@ -57,7 +57,7 @@ export const ACCENT_PRESETS: Readonly<Record<string, IAccentPreset>> = {
   coral: { accent: '#F87171', ink: '#F87171' },
 }
 
-/** Variabili CSS scritte sull'elemento radice dall'applier `accent`. */
+/** CSS variables written on the root element by the `accent` applier. */
 const ACCENT_VARIABLES = [
   '--pachi-accent',
   '--pachi-accent-soft',
@@ -66,26 +66,26 @@ const ACCENT_VARIABLES = [
   '--pachi-accent-deep',
 ] as const
 
-/** Parte di `HTMLElement` usata dagli applier (permette di testarli senza DOM). */
+/** Part of `HTMLElement` used by appliers (lets them be tested without a DOM). */
 export interface ISettingsRoot {
   setAttribute(name: string, value: string): void
   removeAttribute(name: string): void
   style: { setProperty(name: string, value: string): void; removeProperty(name: string): unknown }
 }
 
-/** Elemento radice (`<html>`), o `undefined` fuori dal browser. */
+/** Root element (`<html>`), or `undefined` outside the browser. */
 function getRoot(): ISettingsRoot | undefined {
   return (globalThis as { document?: { documentElement?: ISettingsRoot } }).document?.documentElement
 }
 
-/** Valore come stringa, o `undefined` se non è una stringa non vuota. */
+/** Value as a string, or `undefined` if it is not a non-empty string. */
 function asString(value: unknown): string | undefined {
   return typeof value === 'string' && value ? value : undefined
 }
 
 /**
- * Applier `theme`: `dark` | `light` | `auto` su `$q.dark`; copia il valore in `pachi-prefs-theme`
- * (cache letta da `ToggleThemeButton` della shell). Su `reset` non fa nulla (il tema è una scelta del dispositivo).
+ * Applier `theme`: `dark` | `light` | `auto` on `$q.dark`; copies the value to `pachi-prefs-theme`
+ * (cache read by the shell's `ToggleThemeButton`). On `reset` it does nothing (the theme is a device choice).
  */
 export const applyTheme: SettingsApplier = (value, ctx) => {
   if (ctx.source === 'reset') return
@@ -96,8 +96,8 @@ export const applyTheme: SettingsApplier = (value, ctx) => {
 }
 
 /**
- * Applier `accent`: imposta le variabili `--pachi-accent*` sull'elemento radice. Un accent sconosciuto, `teal`
- * o `reset` rimuovono le variabili (valgono i default del tema).
+ * Applier `accent`: sets the `--pachi-accent*` variables on the root element. An unknown accent, `teal`
+ * or `reset` remove the variables (the theme defaults apply).
  */
 export const applyAccent: SettingsApplier = (value) => {
   const root = getRoot()
@@ -120,7 +120,7 @@ export const applyDensity: SettingsApplier = (value) => {
   getRoot()?.setAttribute(DENSITY_ATTRIBUTE, normalizeDensity(asString(value)))
 }
 
-/** Applier `fontScale`: attributo `data-font-scale` (`sm` | `lg`; `md`, valori ignoti e `reset` lo rimuovono). */
+/** Applier `fontScale`: attributo `data-font-scale` (`sm` | `lg`; `md`, unknown values and `reset` remove it). */
 export const applyFontScale: SettingsApplier = (value) => {
   const root = getRoot()
   if (!root) return
@@ -128,7 +128,7 @@ export const applyFontScale: SettingsApplier = (value) => {
   else root.removeAttribute(FONT_SCALE_ATTRIBUTE)
 }
 
-/** Applier `reduceMotion`: attributo `data-reduce-motion="true"` (rimosso se `false`/`reset`). */
+/** Applier `reduceMotion`: attributo `data-reduce-motion="true"` (removed if `false`/`reset`). */
 export const applyReduceMotion: SettingsApplier = (value) => {
   const root = getRoot()
   if (!root) return
@@ -136,18 +136,18 @@ export const applyReduceMotion: SettingsApplier = (value) => {
   else root.removeAttribute(REDUCE_MOTION_ATTRIBUTE)
 }
 
-/** Ultima lingua impostata dall'applier (serve a non riscrivere sul backend ciò che arriva dal backend). */
+/** Last language set by the applier (avoids writing back to the backend what comes from the backend). */
 let lastAppliedLocale: string | undefined
 
-/** Lingua impostata per ultima da {@link applyLocale} (per distinguere le scelte dell'utente dal selettore). */
+/** Language last set by {@link applyLocale} (to tell the user's choices from the selector). */
 export function getLastAppliedLocale(): string | undefined {
   return lastAppliedLocale
 }
 
 /**
- * Applier `locale`: cambia la lingua di `@ilpachi/pachi-i18n` (codice, anche regionale: `it-IT` -> `it`).
- * `null`/vuoto = automatica (da `navigator.languages`). Su `reset` non fa nulla; senza i18n o con lingua fissa
- * (una sola lingua disponibile) non ha effetto.
+ * Applier `locale`: changes the `@ilpachi/pachi-i18n` language (code, also regional: `it-IT` -> `it`).
+ * `null`/empty = automatic (from `navigator.languages`). On `reset` it does nothing; without i18n or with a fixed language
+ * (only one language available) it has no effect.
  */
 export const applyLocale: SettingsApplier = (value, ctx) => {
   if (ctx.source === 'reset') return
@@ -169,10 +169,10 @@ export const applyLocale: SettingsApplier = (value, ctx) => {
   if (i18n.global.locale.value !== target) i18n.global.locale.value = target
 }
 
-/** Registro degli applier (nome -> funzione). */
+/** Applier registry (name -> function). */
 const registry = new Map<string, SettingsApplier>()
 
-/** Registra gli applier standard (richiamata all'avvio e nei test). */
+/** Registers the standard appliers (called at startup and in tests). */
 function registerBuiltins(): void {
   registry.set('theme', applyTheme)
   registry.set('accent', applyAccent)
@@ -184,12 +184,12 @@ function registerBuiltins(): void {
 registerBuiltins()
 
 /**
- * Registra (o sostituisce) un applier con nome: i campi dello schema con `apply: "<nome>"` lo eseguiranno.
- * Un applier registrato con il nome di uno standard lo sostituisce.
+ * Registers (or replaces) a named applier: schema fields with `apply: "<name>"` will run it.
+ * An applier registered with the name of a standard one replaces it.
  *
- * @param name - nome usato in `apply`
- * @param applier - funzione `(value, ctx) => void`
- * @returns funzione che annulla la registrazione (ripristina l'eventuale applier standard)
+ * @param name - name used in `apply`
+ * @param applier - function `(value, ctx) => void`
+ * @returns function that undoes the registration (restores the standard applier, if any)
  */
 export function registerSettingsApplier(name: string, applier: SettingsApplier): () => void {
   const previous = registry.get(name)
@@ -201,18 +201,18 @@ export function registerSettingsApplier(name: string, applier: SettingsApplier):
   }
 }
 
-/** Nomi degli applier registrati. */
+/** Names of the registered appliers. */
 export function listSettingsAppliers(): string[] {
   return [...registry.keys()]
 }
 
 /**
- * Esegue l'applier `name` (se esiste). Un errore dell'applier è registrato in console e non interrompe gli altri.
+ * Runs the `name` applier (if it exists). An applier error is logged to the console and does not stop the others.
  *
- * @param name - nome dell'applier
- * @param value - valore da applicare
- * @param ctx - contesto (senza `name`)
- * @returns `true` se l'applier esiste
+ * @param name - applier name
+ * @param value - value to apply
+ * @param ctx - context (without `name`)
+ * @returns `true` if the applier exists
  */
 export function runSettingsApplier(
   name: string,
@@ -224,16 +224,16 @@ export function runSettingsApplier(
   try {
     applier(value, { ...ctx, name })
   } catch (e) {
-    console.warn(`fastquasar-settings: applier "${name}" non riuscito`, e)
+    console.warn(`fastquasar-settings: applier "${name}" failed`, e)
   }
   return true
 }
 
 /**
- * Riporta tutti gli applier registrati al default (`source` `reset`): logout o cambio utente. Ogni applier riceve
- * come valore il default dello schema (`defaults[nome]`, anche `null`), oppure `undefined` se non ne ha uno.
+ * Resets all registered appliers to the default (`source` `reset`): logout or user change. Each applier receives
+ * as value the schema default (`defaults[name]`, also `null`), or `undefined` if it has none.
  *
- * @param defaults - mappa nome applier -> default dello schema
+ * @param defaults - map applier name -> schema default
  */
 export function resetSettingsAppliers(defaults: Record<string, unknown> = {}): void {
   for (const name of registry.keys()) {
@@ -242,8 +242,8 @@ export function resetSettingsAppliers(defaults: Record<string, unknown> = {}): v
 }
 
 /**
- * Applica le preferenze locali storiche (`pachi-prefs-accent|density`), usate dalla sezione "Aspetto" locale
- * quando il backend non ha la sezione `appearance`. Il tema è già gestito da `ToggleThemeButton`.
+ * Applies the legacy local preferences (`pachi-prefs-accent|density`), used by the local "Appearance" section
+ * when the backend has no `appearance` section. The theme is already handled by `ToggleThemeButton`.
  */
 export function applyLegacyLocalPrefs(): void {
   const accent = readStorage(ACCENT_STORAGE_KEY)
@@ -252,7 +252,7 @@ export function applyLegacyLocalPrefs(): void {
   if (density) applyDensity(density, { name: 'density', source: 'cache' })
 }
 
-/** Rimuove le preferenze locali storiche (pulsante "Reimposta" della sezione locale). */
+/** Removes the legacy local preferences ("Reset" button of the local section). */
 export function clearLegacyLocalPrefs(): void {
   removeStorage(THEME_STORAGE_KEY)
   removeStorage(DENSITY_STORAGE_KEY)

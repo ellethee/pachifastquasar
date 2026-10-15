@@ -24,25 +24,25 @@ describe('AuthManager.canAccess', () => {
 
   beforeEach(() => {
     setActivePinia(createPinia())
-    // il singleton è legato al pinia del test: si ricrea
+    // the singleton is bound to the test pinia: recreate it
     ;(AuthManager as unknown as { instance: unknown }).instance = undefined
     auth = AuthManager.getInstance()
     useAuthStore().access_token = 'tok'
   })
   const login = (u: IUserInfo) => { auth.userInfo = u }
 
-  it('nega se non autenticato', () => {
+  it('denies if not authenticated', () => {
     expect(auth.canAccess({} as RouteMeta)).toBe(false)
   })
-  it('consente route senza requisiti', () => {
+  it('allows routes without requirements', () => {
     login(user())
     expect(auth.canAccess({} as RouteMeta)).toBe(true)
   })
-  it('il superuser bypassa tutto', () => {
+  it('superuser bypasses everything', () => {
     login(user({ isSuperuser: true }))
     expect(auth.canAccess({ requireSuperuser: true, permissions: ['x'] } as unknown as RouteMeta)).toBe(true)
   })
-  it('requireSuperuser nega al non superuser', () => {
+  it('requireSuperuser denies a non-superuser', () => {
     login(user({ isStaff: true }))
     expect(auth.canAccess({ requireSuperuser: true } as unknown as RouteMeta)).toBe(false)
   })
@@ -52,14 +52,14 @@ describe('AuthManager.canAccess', () => {
     login(user({ isStaff: true }))
     expect(auth.canAccess({ requireStaff: true } as unknown as RouteMeta)).toBe(true)
   })
-  it('permessi: esatti o per prefisso', () => {
+  it('permissions: exact or by prefix', () => {
     login(user({ permissions: ['users.read', 'logs'] }))
     expect(auth.canAccess({ permissions: ['users.read'] } as unknown as RouteMeta)).toBe(true)
     expect(auth.canAccess({ permissions: ['logs.view'] } as unknown as RouteMeta)).toBe(false)
     expect(auth.canAccess({ permissions: ['users'] } as unknown as RouteMeta)).toBe(true)
     expect(auth.canAccess({ permissions: ['users.read', 'admin'] } as unknown as RouteMeta)).toBe(false)
   })
-  it('userInfoVersion cambia solo se i dati cambiano', () => {
+  it('userInfoVersion changes only if the data changes', () => {
     login(user())
     const v = useAuthStore().userInfoVersion
     login(user())
@@ -70,7 +70,7 @@ describe('AuthManager.canAccess', () => {
 })
 
 describe('isSameUserInfo', () => {
-  it('ignora l\'ordine dei permessi', () => {
+  it('ignores permission order', () => {
     expect(isSameUserInfo(user({ permissions: ['a', 'b'] }), user({ permissions: ['b', 'a'] }))).toBe(true)
   })
   it('gestisce null', () => {
@@ -79,7 +79,7 @@ describe('isSameUserInfo', () => {
   })
 })
 
-describe('AuthManager: logout di un\'altra scheda (evento storage)', () => {
+describe('AuthManager: logout from another tab (storage event)', () => {
   let auth: ReturnType<typeof AuthManager.getInstance>
   let logout: ReturnType<typeof vi.fn>
 
@@ -93,12 +93,12 @@ describe('AuthManager: logout di un\'altra scheda (evento storage)', () => {
   const fire = (key: string | null, value: string | null) =>
     (auth as unknown as { _handleStorage: (k: string | null, v: string | null) => void })._handleStorage(key, value)
 
-  it('esce in locale se la sessione persistita viene svuotata', () => {
+  it('logs out locally if the persisted session is cleared', () => {
     useAuthStore().access_token = 'tok'
     fire('auth', null)
     expect(logout).toHaveBeenCalledWith(false)
   })
-  it('esce anche se lo storage viene svuotato del tutto (key null)', () => {
+  it('also logs out if the storage is cleared entirely (key null)', () => {
     useAuthStore().refresh_token = 'r'
     fire(null, null)
     expect(logout).toHaveBeenCalledWith(false)
@@ -107,10 +107,10 @@ describe('AuthManager: logout di un\'altra scheda (evento storage)', () => {
     useAuthStore().access_token = 'tok'
     fire('altro', null)
     fire('auth', JSON.stringify({ access_token: 'nuovo', refresh_token: 'r2' }))
-    fire('auth', '{non json')
+    fire('auth', '{not json')
     expect(logout).not.toHaveBeenCalled()
   })
-  it('non fa nulla se questa scheda non è autenticata', () => {
+  it('does nothing if this tab is not authenticated', () => {
     fire('auth', null)
     expect(logout).not.toHaveBeenCalled()
   })

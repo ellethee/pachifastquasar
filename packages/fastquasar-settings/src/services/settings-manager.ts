@@ -14,50 +14,50 @@ type ReactiveSection<T extends Record<string, unknown>> = {
   [K in keyof T]: ComputedRef<T[K]>
 }
 /**
- * Gestisce impostazioni utente e schema: li carica dal backend, li salva (PUT) e
- * li espone in forma reattiva. Client HTTP e stato di autenticazione sono iniettati
- * tramite `setPachiSettingsOptions`. Con `installPachiSettings()` il caricamento al login e la pulizia al logout
- * sono automatici (evento `pachi:auth-changed` della shell); altrimenti chiamare `loadSettings()` dopo il login
- * e `clearSettings()` al logout.
+ * Manages user settings and schema: loads them from the backend, saves them (PUT) and
+ * exposes them reactively. The HTTP client and the authentication state are injected
+ * through `setPachiSettingsOptions`. With `installPachiSettings()` loading at login and cleanup at logout
+ * are automatic (shell `pachi:auth-changed` event); otherwise call `loadSettings()` after login
+ * and `clearSettings()` at logout.
  *
- * I campi dello schema con `apply` (tema, accent, densità, lingua, ...) sono applicati con gli applier registrati
- * (`registerSettingsApplier`) al caricamento, a ogni `set()` e al boot dalla cache per utente.
+ * Schema fields with `apply` (theme, accent, density, language, ...) are applied with the registered appliers
+ * (`registerSettingsApplier`) on load, on every `set()` and at boot from the per-user cache.
  */
 export class SettingsManager {
   private static instance: SettingsManager
   private store: ReturnType<typeof useSettingsStore>
-  /** Client HTTP risolto a ogni richiesta (così usa quello fornito dall'app anche se catturato dopo la creazione). */
+  /** HTTP client resolved on every request (so it uses the one provided by the app even if captured after creation). */
   private get alova(): IPachiSettingsHttp {
     return getPachiSettingsOptions().getHttp()
   }
   private watchStopHandles: WatchStopHandle[] = []
   private lastSchema: ISettingsSchemaResponse = {}
-  /** Salvataggi in attesa (debounce) per `categoria/chiave`. */
+  /** Pending saves (debounce) per `category/key`. */
   private pending = new Map<
     string,
     { timer: ReturnType<typeof setTimeout>; prev: unknown; value: SettingValue; category: string; key: string }
   >()
-  /** Salvataggi in corso per `categoria/chiave`: i PUT della stessa chiave partono uno alla volta, nell'ordine. */
+  /** In-flight saves per `category/key`: PUTs of the same key start one at a time, in order. */
   private inflight = new Map<string, Promise<void>>()
   private constructor() {
     this.store = useSettingsStore()
     SettingsManager.instance = this
-    // scheda nascosta o chiusa: i salvataggi ancora nel debounce partono subito (altrimenti la modifica andrebbe persa)
+    // tab hidden or closed: saves still in the debounce start immediately (otherwise the change would be lost)
     if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
       document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'hidden') void this.flushAll()
       })
     }
   }
-  /** Stato di autenticazione notificato dagli eventi della shell (`unknown` = non ancora noto). */
+  /** Authentication state notified by the shell events (`unknown` = not yet known). */
   private authState: 'unknown' | 'in' | 'out' = 'unknown'
-  /** Identificativo dell'utente corrente (chiave della cache), `null` se sconosciuto. */
+  /** Current user identifier (cache key), `null` if unknown. */
   private userKey: string | null = null
-  /** Incrementato a ogni pulizia/cambio utente: le risposte in volo di un utente precedente sono scartate. */
+  /** Incremented on every cleanup/user change: in-flight responses of a previous user are discarded. */
   private epoch = 0
-  /** Campi con applier (`categoria.campo` -> nome), dallo schema o dalla cache. */
+  /** Fields with an applier (`category.field` -> name), from the schema or the cache. */
   private applyMap: SettingsApplyMap = {}
-  /** Caricamento in corso o concluso per l'utente corrente. */
+  /** Load in progress or completed for the current user. */
   private loadPromise: Promise<IUserSettingsResponse> | null = null
   private get isAuthenticated(): boolean {
     if (this.authState === 'in') return true
@@ -76,26 +76,26 @@ export class SettingsManager {
     }
     return SettingsManager.instance
   }
-  /** Ultimo schema caricato (vuoto prima del primo caricamento). */
+  /** Last loaded schema (empty before the first load). */
   public get schema(): ISettingsSchemaResponse {
     return this.lastSchema
   }
   /**
-   * Carica impostazioni e schema con una sola richiesta ciascuno, avvia i watcher dello schema, applica i campi con
-   * `apply` e aggiorna la cache dell'utente. Dopo la chiamata lo schema è disponibile in {@link SettingsManager.schema}.
+   * Loads settings and schema with a single request each, starts the schema watchers, applies the fields with
+   * `apply` and updates the user's cache. After the call the schema is available in {@link SettingsManager.schema}.
    */
   public loadSettings(): Promise<IUserSettingsResponse> {
     const promise = this.doLoad()
     this.loadPromise = promise
-    // un caricamento fallito non resta in cache: il prossimo `ensureLoaded` riprova
+    // a failed load is not kept in cache: the next `ensureLoaded` retries
     promise.catch(() => {
       if (this.loadPromise === promise) this.loadPromise = null
     })
     return promise
   }
   /**
-   * Come {@link SettingsManager.loadSettings} ma riusa il caricamento già avviato o concluso per l'utente corrente
-   * (es. quello partito al login): la pagina impostazioni non ricarica a ogni apertura.
+   * Like {@link SettingsManager.loadSettings} but reuses the load already started or completed for the current user
+   * (e.g. the one started at login): the settings page does not reload on every open.
    */
   public ensureLoaded(): Promise<IUserSettingsResponse> {
     return this.loadPromise ?? this.loadSettings()
@@ -111,7 +111,7 @@ export class SettingsManager {
       this.alova.Get<IUserSettingsResponse>('/user/settings'),
       this.fetchSchema(),
     ])
-    // logout o cambio utente durante la richiesta: la risposta non è più dell'utente corrente
+    // logout or user change during the request: the response no longer belongs to the current user
     if (epoch !== this.epoch) return {}
     this.lastSchema = schema
     this.applyMap = collectApplyMap(schema)
@@ -139,8 +139,8 @@ export class SettingsManager {
   }
 
   /**
-   * Prepara l'utente al boot (prima del login/ripristino): ricorda la chiave e applica la cache salvata per lui,
-   * così tema, lingua, ecc. sono corretti prima della risposta del backend (nessun flash).
+   * Prepares the user at boot (before login/restore): remembers the key and applies the cache saved for them,
+   * so theme, language, etc. are correct before the backend responds (no flash).
    *
    * @param userKey - identificativo dell'utente (id o username)
    */
@@ -151,8 +151,8 @@ export class SettingsManager {
     this.applyCache()
   }
   /**
-   * Utente autenticato (evento `pachi:auth-changed`): con un utente diverso dal precedente scarta le impostazioni
-   * dell'altro, applica la cache del nuovo e carica dal backend. Con lo stesso utente già caricato non rifà nulla.
+   * Authenticated user (`pachi:auth-changed` event): with a user different from the previous one it discards the other
+   * user's settings, applies the new user's cache and loads from the backend. With the same user already loaded it does nothing.
    *
    * @param userKey - identificativo dell'utente (id o username)
    */
@@ -162,15 +162,15 @@ export class SettingsManager {
     try {
       await this.ensureLoaded()
     } catch (e) {
-      console.warn('SettingsManager: caricamento delle impostazioni non riuscito', e)
+      console.warn('SettingsManager: failed to load settings', e)
     }
   }
-  /** Sessione terminata (evento `pachi:auth-changed` senza utente): svuota tutto e riporta gli applier al default. */
+  /** Session ended (`pachi:auth-changed` event without a user): clears everything and resets the appliers to the default. */
   public deactivateUser(): void {
     this.authState = 'out'
     this.clearSettings()
   }
-  /** Applica la cache dell'utente corrente (se esiste) e ne adotta la mappa degli applier. */
+  /** Applies the current user's cache (if any) and adopts its applier map. */
   private applyCache(): void {
     if (!this.userKey) return
     const cache = readSettingsCache(this.userKey)
@@ -183,14 +183,14 @@ export class SettingsManager {
       if (name) runSettingsApplier(name, value, { category, key: field, source: 'cache' })
     }
   }
-  /** Esegue gli applier di tutti i campi con `apply` che hanno un valore. */
+  /** Runs the appliers of all fields with `apply` that have a value. */
   private applyAll(source: SettingsApplySource): void {
     for (const key of Object.keys(this.applyMap)) {
       const [category, field] = splitKey(key)
       this.applyField(category, field, source)
     }
   }
-  /** Esegue l'applier del campo (se ne ha uno e il valore è noto). */
+  /** Runs the field's applier (if it has one and the value is known). */
   private applyField(category: string, key: string, source: SettingsApplySource): void {
     const name = this.applyMap[applyKey(category, key)]
     if (!name) return
@@ -198,7 +198,7 @@ export class SettingsManager {
     if (value === undefined) return
     runSettingsApplier(name, value, { category, key, source })
   }
-  /** Salva nella cache dell'utente corrente i valori dei campi con `apply`. */
+  /** Saves the values of the fields with `apply` to the current user's cache. */
   private writeCache(): void {
     if (!this.userKey) return
     const apply: SettingsApplyMap = {}
@@ -213,13 +213,13 @@ export class SettingsManager {
     writeSettingsCache(this.userKey, { v: 1, apply, values })
   }
   /**
-   * Salva il valore del campo associato all'applier `name` (es. `theme` -> `appearance.theme`), se esiste e se
-   * l'utente è autenticato e il valore è diverso. Usato per riflettere nel DB le modifiche fatte fuori dalla pagina
-   * (pulsante tema della barra, selettore lingua).
+   * Saves the value of the field associated with the `name` applier (e.g. `theme` -> `appearance.theme`), if it exists and if
+   * the user is authenticated and the value differs. Used to reflect in the DB the changes made outside the page
+   * (toolbar theme button, language selector).
    *
-   * @param name - nome dell'applier
-   * @param value - nuovo valore
-   * @returns `true` se è stato avviato un salvataggio
+   * @param name - applier name
+   * @param value - new value
+   * @returns `true` if a save was started
    */
   public setByApply(name: string, value: SettingValue): boolean {
     if (!this.isAuthenticated) return false
@@ -232,15 +232,15 @@ export class SettingsManager {
   }
 
   private setupSchemaWatchers(schema: ISettingsSchemaResponse): void {
-    // Ferma i watcher precedenti (es. dopo re-login)
+    // Stop the previous watchers (e.g. after re-login)
     this.watchStopHandles.forEach((stop) => stop())
     this.watchStopHandles = []
 
     const opts = { deps: quasarDeps(), allowScriptStrings: getPachiSettingsOptions().allowScriptStrings }
     for (const [sectionKey, category] of Object.entries(schema)) {
       for (const fieldKey of Object.keys(category.fields)) {
-        // watch: { campoOsservato: azione } → l'azione parte quando cambia il campo osservato (semantica pachifast)
-        // watch: true                       → legacy: riusa gli events sul valore del campo stesso
+        // watch: { watchedField: action } → the action runs when the watched field changes (pachifast semantics)
+        // watch: true                       → legacy: reuses the events on the field's own value
         for (const target of resolveWatchTargets(schema, sectionKey, fieldKey)) {
           const handler = resolveSettingsAction(target.spec, opts)
           if (!handler) continue
@@ -255,9 +255,9 @@ export class SettingsManager {
     }
   }
   /**
-   * Svuota le impostazioni in memoria, annulla i salvataggi in attesa, ferma i watcher e riporta gli applier al
-   * default (accent, densità, ... ; tema e lingua restano quelli del dispositivo). La cache per utente resta
-   * (è legata all'utente: il suo prossimo login non ha flash). Da chiamare al logout (automatico con
+   * Clears the in-memory settings, cancels pending saves, stops the watchers and resets the appliers to the
+   * default (accent, density, ...; theme and language stay those of the device). The per-user cache is kept
+   * (it is tied to the user: their next login has no flash). Call at logout (automatic with
    * `installPachiSettings`).
    */
   public clearSettings(): void {
@@ -275,17 +275,17 @@ export class SettingsManager {
     resetSettingsAppliers(resetDefaults)
   }
   /**
-   * Valore predefinito di un campo: `default` dello schema (anche `null`) o, per backend senza `default`,
-   * il fallback del frontend per i campi standard.
+   * Default value of a field: schema `default` (also `null`) or, for backends without `default`,
+   * the frontend fallback for standard fields.
    *
-   * @param category - categoria
-   * @param key - chiave del campo
+   * @param category - category
+   * @param key - field key
    * @returns `{ found, value }`
    */
   public getDefault(category: string, key: string): { found: boolean; value: unknown } {
     return resolveFieldDefault(this.lastSchema, category, key)
   }
-  /** Mappa nome applier -> default (del primo campo dello schema che lo usa e ha un default). */
+  /** Map applier name -> default (of the first schema field that uses it and has a default). */
   private defaultsByApplier(): Record<string, unknown> {
     const out: Record<string, unknown> = {}
     for (const [fieldKey, name] of Object.entries(this.applyMap)) {
@@ -314,12 +314,12 @@ export class SettingsManager {
     const timer = setTimeout(() => void this.flush(category, key), SettingsManager.SAVE_DEBOUNCE_MS)
     this.pending.set(id, { timer, prev, value, category, key })
   }
-  /** Attesa (ms) prima di inviare al backend l'ultimo valore modificato di una chiave. */
+  /** Wait (ms) before sending the last modified value of a key to the backend. */
   private static readonly SAVE_DEBOUNCE_MS = 400
   /**
-   * Invia subito tutti i salvataggi in attesa (senza aspettare il debounce) e attende la fine di quelli in corso.
+   * Immediately sends all pending saves (without waiting for the debounce) and waits for the in-flight ones to finish.
    *
-   * @returns una promise che si risolve quando tutti i PUT sono terminati (mai rifiutata: gli errori sono gestiti)
+   * @returns a promise that resolves when all PUTs have finished (never rejected: errors are handled)
    */
   public async flushAll(): Promise<void> {
     for (const entry of [...this.pending.values()]) {
@@ -329,8 +329,8 @@ export class SettingsManager {
     await Promise.all([...this.inflight.values()])
   }
   /**
-   * Invia il valore in attesa. I PUT della stessa chiave sono serializzati: un secondo salvataggio parte solo a
-   * fine del primo, così sul server vince sempre l'ultimo valore impostato.
+   * Sends the pending value. PUTs of the same key are serialized: a second save starts only at the
+   * end of the first, so the server always ends up with the last value set.
    */
   private flush(category: string, key: string): Promise<void> {
     const id = `${category}/${key}`
@@ -344,7 +344,7 @@ export class SettingsManager {
     })
     return run
   }
-  /** PUT del valore; in caso di errore ripristina il valore precedente e notifica (non rifiuta mai). */
+  /** PUT of the value; on error it restores the previous value and notifies (never rejects). */
   private async send(
     category: string,
     key: string,
@@ -358,8 +358,8 @@ export class SettingsManager {
         { cacheFor: null },
       )
     } catch (e) {
-      console.warn(`SettingsManager: salvataggio di ${id} non riuscito`, e)
-      // rollback solo se nel frattempo non è stato impostato un valore più recente
+      console.warn(`SettingsManager: failed to save ${id}`, e)
+      // roll back only if a more recent value has not been set in the meantime
       if (!this.pending.has(id) && this.store.getValue(category, key) === entry.value) {
         this.store.setValue(category, key, entry.prev)
         this.applyField(category, key, 'set')
@@ -368,7 +368,7 @@ export class SettingsManager {
       try {
         showNotify({ type: 'negative', message: pachiT('pachiSettings.saveError') })
       } catch {
-        // plugin Notify non installato
+        // Notify plugin not installed
       }
     }
   }
@@ -380,7 +380,7 @@ export class SettingsManager {
 
     return new Proxy({}, {
       get: (_t, prop: PropertyKey) => {
-        // evita cose tipo Symbol.toStringTag ecc
+        // avoid things like Symbol.toStringTag etc.
         if (typeof prop !== 'string') return undefined
 
         if (cache.has(prop)) return cache.get(prop)
@@ -396,8 +396,8 @@ export class SettingsManager {
     }) as ReactiveSection<T>
   }
   /**
-   * Ritorna una ComputedRef reattiva (getter+setter) collegata allo store.
-   * Perfetta per v-model.
+   * Returns a reactive ComputedRef (getter+setter) bound to the store.
+   * Perfect for v-model.
    */
   getReactiveForKey<T extends SettingValue>(
     appKey: string,
@@ -411,10 +411,10 @@ export class SettingsManager {
 }
 
 /**
- * Divide `categoria.campo` al primo punto.
+ * Splits `category.field` at the first dot.
  *
- * @param key - chiave composta
- * @returns `[categoria, campo]`
+ * @param key - composite key
+ * @returns `[category, field]`
  */
 function splitKey(key: string): [string, string] {
   const i = key.indexOf('.')
@@ -422,10 +422,10 @@ function splitKey(key: string): [string, string] {
 }
 
 /**
- * Chiave della cache per un utente (id, altrimenti username).
+ * Cache key for a user (id, otherwise username).
  *
- * @param user - utente o `null`
- * @returns la chiave o `null`
+ * @param user - user or `null`
+ * @returns the key or `null`
  */
 export function userKeyOf(user: { id?: string | null | undefined; username?: string | null | undefined } | null | undefined): string | null {
   return user?.id ?? user?.username ?? null

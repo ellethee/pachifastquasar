@@ -4,9 +4,9 @@ import { quasar } from '@quasar/vite-plugin'
 import dts from 'vite-plugin-dts'
 import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
 
-// Quasar: i componenti usati nei template diventano import espliciti (il consumatore non deve registrarli).
-// Il CSS dei componenti è iniettato nel JS (per chunk): importare un sotto-percorso carica solo i suoi stili.
-// Un entry per area (sotto-percorsi di `exports`), i moduli condivisi finiscono in chunk comuni.
+// Quasar: the components used in templates become explicit imports (the consumer does not need to register them).
+// The component CSS is injected into the JS (per chunk): importing a sub-path loads only its styles.
+// One entry per area (sub-paths of `exports`), shared modules end up in common chunks.
 export default defineConfig({
   plugins: [
     vue(),

@@ -7,18 +7,18 @@
 import { nextTick, onBeforeUnmount, onMounted, onUpdated, ref } from 'vue'
 
 /**
- * Area scrollabile che occupa lo spazio rimasto sotto di essa e non supera il limite inferiore della pagina.
- * Da usare dentro una pagina attorno al contenuto alto (card, form, liste): il resto della pagina (titoli,
- * intestazioni) resta fermo sopra. L'altezza massima è calcolata dalla posizione dell'elemento e si aggiorna
- * al resize della finestra e quando cambia la dimensione del contenitore.
+ * Scrollable area that takes up the space left below it and does not exceed the bottom limit of the page.
+ * To be used inside a page around tall content (cards, forms, lists): the rest of the page (titles,
+ * headings) stays fixed above. The maximum height is computed from the element position and is updated
+ * on window resize and when the container size changes.
  */
 const props = withDefaults(
   defineProps<{
-    /** Elemento HTML da renderizzare. */
+    /** HTML element to render. */
     tag?: string
-    /** Spazio in px da lasciare sotto l'area, oltre al padding della pagina. */
+    /** Space in px to leave below the area, in addition to the page padding. */
     offset?: number
-    /** Altezza minima in px sotto la quale l'area non scende (la pagina scorrerà oltre il limite). */
+    /** Minimum height in px below which the area does not shrink (the page will scroll past the limit). */
     minHeight?: number
   }>(),
   { tag: 'div', offset: 0, minHeight: 120 },
@@ -28,7 +28,7 @@ const root = ref<HTMLElement | null>(null)
 const maxHeight = ref<string | undefined>(undefined)
 let observer: ResizeObserver | null = null
 
-/** Ricalcola l'altezza massima: fondo del viewport meno padding della pagina, meno il bordo superiore dell'area. */
+/** Recomputes the maximum height: viewport bottom minus page padding, minus the top edge of the area. */
 function measure(): void {
   const el = root.value
   if (!el) return

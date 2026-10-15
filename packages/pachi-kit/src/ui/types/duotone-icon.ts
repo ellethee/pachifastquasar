@@ -1,4 +1,4 @@
 export interface DuotoneIcon {
-  primary: string    // path a opacità piena (100%)
-  secondary: string  // path a opacità ridotta (default 40%)
+  primary: string    // path at full opacity (100%)
+  secondary: string  // path at reduced opacity (default 40%)
 }

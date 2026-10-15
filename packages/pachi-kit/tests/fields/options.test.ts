@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import { mergeVirtualOptions, safeLabel } from '../../src/fields/helpers/options'
 
 describe('safeLabel', () => {
-  it('restituisce l\'etichetta o stringa vuota se l\'estrattore lancia', () => {
+  it('returns the label or an empty string if the extractor throws', () => {
     expect(safeLabel(() => 'x', {})).toBe('x')
     expect(
       safeLabel((item) => (item as { a: { b: string } }).a.b, { value: 1 }),
@@ -11,15 +11,15 @@ describe('safeLabel', () => {
 })
 
 describe('mergeVirtualOptions', () => {
-  it('conserva le virtuali non presenti e non duplica quelle già caricate', () => {
+  it('keeps the missing virtual ones and does not duplicate those already loaded', () => {
     const items = [{ value: 1, label: 'a' }]
-    const virtuals = [{ value: 'nuovo', label: 'nuovo' }, { value: 1, label: 'dup' }]
+    const virtuals = [{ value: 'new', label: 'new' }, { value: 1, label: 'dup' }]
     expect(mergeVirtualOptions(items, virtuals, 'value')).toEqual([
       { value: 1, label: 'a' },
-      { value: 'nuovo', label: 'nuovo' },
+      { value: 'new', label: 'new' },
     ])
   })
-  it('senza virtuali restituisce le stesse opzioni', () => {
+  it('without virtual ones it returns the same options', () => {
     const items = [1, 2]
     expect(mergeVirtualOptions(items, [], 'value')).toBe(items)
   })

@@ -1,20 +1,20 @@
 import { mdiAccountCircleOutline } from '@quasar/extras/mdi-v7'
 import { ensureMessages } from './helpers/register-messages'
 
-/** Percorso della pagina profilo (stesso di `src/routes.ts`). */
+/** Profile page path (same as `src/routes.ts`). */
 export const PROFILE_PATH = '/user/profile'
 
 /**
- * Contesto passato dalla shell `@ilpachi/pachifastquasar` (tipo strutturale locale: il package non importa la shell).
+ * Context passed by the `@ilpachi/pachifastquasar` shell (local structural type: the package does not import the shell).
  */
 export interface IPachiProfileMenuContext {
-  /** Funzione di traduzione di vue-i18n. */
+  /** vue-i18n translation function. */
   t: (key: string) => string
-  /** Configurazione risolta della shell (si legge solo `auth.menu.showProfile`). */
+  /** Resolved shell configuration (only `auth.menu.showProfile` is read). */
   config?: { auth?: { menu?: { showProfile?: boolean } } }
 }
 
-/** Voce di menu compatibile con `IMenuButton` della shell. */
+/** Menu item compatible with the shell's `IMenuButton`. */
 export interface IPachiProfileMenuItem {
   label: string
   caption: string
@@ -25,11 +25,11 @@ export interface IPachiProfileMenuItem {
 }
 
 /**
- * Factory della voce "Profilo" del menu account (contratto `PachiMenuItemFactory` di
- * `@ilpachi/pachifastquasar`, esportata come default del modulo `menu`).
+ * Factory of the "Profile" account menu item (`PachiMenuItemFactory` contract of
+ * `@ilpachi/pachifastquasar`, exported as the default of the `menu` module).
  *
- * @param ctx - contesto del menu (`t`, `config`)
- * @returns la voce Profilo (ordine 10)
+ * @param ctx - menu context (`t`, `config`)
+ * @returns the Profile item (order 10)
  */
 export function getMenuItem(ctx: IPachiProfileMenuContext): IPachiProfileMenuItem {
   ensureMessages()

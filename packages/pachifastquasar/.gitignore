@@ -23,14 +23,14 @@ yarn-error.log*
 *.code-workspace
 .vscode/
 
-# Config di lint/format: locali, non versionati
+# Lint/format configs: local, not versioned
 eslint.config.js
 oxlint.config.ts
 stylelint.config.js
 .oxfmtrc.json
 .prettierrc*
 
-# env locali (anche in src/, vedi envDir): possono contenere segreti
+# local env files (also in src/, see envDir): may contain secrets
 .env
 .env.*
 !.env.example

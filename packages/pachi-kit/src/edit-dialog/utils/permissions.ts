@@ -1,7 +1,7 @@
 /**
- * Converte un testo separato da virgole in lista (trim, senza voci vuote).
- * @param text testo grezzo (es. `"a, b,, c"`)
- * @returns lista di voci
+ * Converts a comma-separated text into a list (trimmed, without empty entries).
+ * @param text raw text (e.g. `"a, b,, c"`)
+ * @returns list of entries
  */
 export function parseList(text: string): string[] {
   return text
@@ -11,9 +11,9 @@ export function parseList(text: string): string[] {
 }
 
 /**
- * Converte una lista in testo separato da `, `.
- * @param list lista di voci
- * @returns testo
+ * Converts a list into text separated by `, `.
+ * @param list list of entries
+ * @returns text
  */
 export function formatList(list: string[]): string {
   return list.join(', ')

@@ -10,27 +10,27 @@ const tr = (map: Record<string, string>) => ({ te: (k: string) => k in map, t: (
 afterEach(() => resetPachiAdminOptions())
 
 describe('schema-text', () => {
-  it('chiave tradotta, altrimenti testo del backend', () => {
-    expect(resolveText('k', 'Fallback', tr({ k: 'Tradotto' }))).toBe('Tradotto')
+  it('translated key, otherwise backend text', () => {
+    expect(resolveText('k', 'Fallback', tr({ k: 'Translated' }))).toBe('Translated')
     expect(resolveText('k', 'Fallback', tr({}))).toBe('Fallback')
     expect(resolveText(undefined, 'Fallback', tr({}))).toBe('Fallback')
   })
 
-  it('titoli, etichette e opzioni', () => {
-    const r = tr({ 'admin.demo.item.title': 'Articolo', 'admin.demo.item.status.options.draft': 'Bozza' })
-    expect(modelTitle(itemSchema, r)).toBe('Articolo')
-    expect(fieldOptions(itemSchema.fields.status!, r).map((o) => o.label)).toEqual(['Bozza', 'Active'])
+  it('titles, labels and options', () => {
+    const r = tr({ 'admin.demo.item.title': 'Article', 'admin.demo.item.status.options.draft': 'Draft (translated)' })
+    expect(modelTitle(itemSchema, r)).toBe('Article')
+    expect(fieldOptions(itemSchema.fields.status!, r).map((o) => o.label)).toEqual(['Draft (translated)', 'Active'])
     expect(actionLabel({ name: 'x', label: 'L', labelKey: 'zz' }, r)).toBe('L')
     expect(fieldLabel('demo.item.name', { label: 'Name' }, r)).toBe('Name')
   })
 
-  it('le opzioni `labels` vincono (per chiave e per campo)', () => {
-    setPachiAdminOptions({ labels: { 'admin.demo.item.title': 'Mio titolo', 'demo.item.name': 'Nome' } })
-    expect(modelTitle(itemSchema, tr({ 'admin.demo.item.title': 'X' }))).toBe('Mio titolo')
-    expect(fieldLabel('demo.item.name', { label: 'Name' }, tr({}))).toBe('Nome')
+  it('the `labels` options win (by key and by field)', () => {
+    setPachiAdminOptions({ labels: { 'admin.demo.item.title': 'My title', 'demo.item.name': 'Custom name' } })
+    expect(modelTitle(itemSchema, tr({ 'admin.demo.item.title': 'X' }))).toBe('My title')
+    expect(fieldLabel('demo.item.name', { label: 'Name' }, tr({}))).toBe('Custom name')
   })
 
-  it('nasconde modelli per elenco o predicato', () => {
+  it('hides models by list or predicate', () => {
     const m = { app: 'demo', model: 'file', title: 'F', permissions: { view: true, add: true, change: true, delete: true } }
     expect(isModelHidden(m)).toBe(false)
     setPachiAdminOptions({ hideModels: ['demo.file'] })

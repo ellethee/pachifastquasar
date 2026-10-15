@@ -1,14 +1,14 @@
 import { Quasar } from 'quasar'
 import { quasarLangLoaders } from './quasar-lang-loaders'
 
-/** Preferenze quando il codice non ha un language pack omonimo (es. `en` -> `en-US`). */
+/** Preferences when the code has no language pack with the same name (e.g. `en` -> `en-US`). */
 const PREFERRED: Record<string, string> = { en: 'en-US', zh: 'zh-CN' }
 
 /**
- * Nome del language pack di Quasar corrispondente a un codice lingua dell'app.
+ * Name of the Quasar language pack matching an app language code.
  *
- * @param code - codice lingua dell'app (es. `it`, `en`, `pt-BR`)
- * @returns nome del pack (es. `en-US`) oppure `undefined`
+ * @param code - app language code (e.g. `it`, `en`, `pt-BR`)
+ * @returns pack name (e.g. `en-US`) or `undefined`
  */
 export function findQuasarLang(code: string): string | undefined {
   const names = Object.keys(quasarLangLoaders)
@@ -24,10 +24,10 @@ export function findQuasarLang(code: string): string | undefined {
 }
 
 /**
- * Imposta il language pack di Quasar (testi di q-table, q-date, ...) per un codice lingua dell'app.
- * Se Quasar non ha una lingua corrispondente non fa nulla. `<html lang>` resta il codice dell'app.
+ * Sets the Quasar language pack (q-table, q-date, ... texts) for an app language code.
+ * Does nothing if Quasar has no matching language. `<html lang>` stays the app code.
  *
- * @param code - codice lingua dell'app (es. `it`, `en`, `pt-BR`)
+ * @param code - app language code (e.g. `it`, `en`, `pt-BR`)
  */
 export async function setQuasarLang(code: string): Promise<void> {
   const name = findQuasarLang(code)
@@ -35,6 +35,6 @@ export async function setQuasarLang(code: string): Promise<void> {
   if (!loader) return
   const mod = await loader()
   Quasar.lang.set(mod.default as never)
-  // Quasar riscrive <html lang> con il nome del suo pack (es. `en-US`): si ripristina il codice dell'app
+  // Quasar rewrites <html lang> with the name of its pack (e.g. `en-US`): restore the app code
   document.documentElement.lang = code
 }

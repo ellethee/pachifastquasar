@@ -5,14 +5,14 @@ import PachiDialog from '../../src/dialog/components/PachiDialog.vue'
 import PachiDialogActions from '../../src/dialog/components/PachiDialogActions.vue'
 import { mountWithQuasar, teardown } from '../helpers/mount'
 
-/** Cerca un pulsante nel DOM (il dialog e' teletrasportato nel body) per aria-label o testo. */
+/** Finds a button in the DOM (the dialog is teleported to the body) by aria-label or text. */
 function btn(text: string): HTMLElement | null {
   const all = [...document.body.querySelectorAll<HTMLElement>('button')]
   return all.find(b => b.getAttribute('aria-label') === text || b.textContent?.trim() === text) ?? null
 }
 
 async function openDialog(props: Record<string, unknown>) {
-  const w = mountWithQuasar(PachiDialog, { props: { title: 'Titolo', ...props }, slots: { default: '<p id="body">corpo</p>' } })
+  const w = mountWithQuasar(PachiDialog, { props: { title: 'Title', ...props }, slots: { default: '<p id="body">body</p>' } })
   ;(w.vm as unknown as { show: () => void }).show()
   await flushPromises()
   return w
@@ -25,7 +25,7 @@ afterEach(() => {
 })
 
 describe('PachiDialogActions', () => {
-  it('senza showLabels mostra solo icone con aria-label e emette i click', async () => {
+  it('without showLabels it shows only icons with aria-label and emits the clicks', async () => {
     const w = mountWithQuasar(PachiDialogActions)
     const buttons = w.findAll('button')
     expect(buttons).toHaveLength(2)
@@ -37,7 +37,7 @@ describe('PachiDialogActions', () => {
     expect(w.emitted('action:cancel')).toHaveLength(1)
   })
 
-  it('con showLabels mostra le etichette e confirmDisabled disattiva il solo conferma', () => {
+  it('with showLabels it shows the labels and confirmDisabled disables only the confirm button', () => {
     const w = mountWithQuasar(PachiDialogActions, { props: { showLabels: true, confirmDisabled: true } })
     const [ok, cancel] = w.findAll('button')
     expect(ok!.text()).not.toBe('')
@@ -48,20 +48,20 @@ describe('PachiDialogActions', () => {
 })
 
 describe('PachiDialog', () => {
-  it('rende titolo e contenuto dopo show()', async () => {
+  it('renders title and content after show()', async () => {
     await openDialog({})
-    expect(document.body.textContent).toContain('Titolo')
-    expect(document.getElementById('body')?.textContent).toBe('corpo')
+    expect(document.body.textContent).toContain('Title')
+    expect(document.getElementById('body')?.textContent).toBe('body')
   })
 
-  it('showActionLabels mostra le etichette sui pulsanti d\'azione', async () => {
+  it('showActionLabels shows the labels on the action buttons', async () => {
     const w = await openDialog({ showActionLabels: true })
     const actions = w.findComponent(PachiDialogActions)
     expect(actions.exists()).toBe(true)
     expect(actions.props('showLabels')).toBe(true)
   })
 
-  it('conferma: emette ok con awaitable e ignora il secondo click finche\' non risolto', async () => {
+  it('confirm: emits ok with awaitable and ignores the second click until resolved', async () => {
     const w = await openDialog({})
     const actions = w.findComponent(PachiDialogActions)
     actions.vm.$emit('action:ok')
@@ -74,7 +74,7 @@ describe('PachiDialog', () => {
     expect(w.emitted('ok')).toHaveLength(2)
   })
 
-  it('onError libera la guardia e notifica', async () => {
+  it('onError releases the guard and notifies', async () => {
     const w = await openDialog({})
     const actions = w.findComponent(PachiDialogActions)
     actions.vm.$emit('action:ok')
@@ -85,14 +85,14 @@ describe('PachiDialog', () => {
     expect(w.emitted('ok')).toHaveLength(2)
   })
 
-  it('senza modifiche annulla emette edit:cancel senza conferma', async () => {
+  it('without changes cancel emits edit:cancel without confirmation', async () => {
     const w = await openDialog({ useEditActions: true, hasChanges: false })
     btn('Chiudi')?.click()
     await flushPromises()
     expect(w.emitted('edit:cancel')).toHaveLength(1)
   })
 
-  it('con modifiche chiede conferma di scarto: edit:cancel solo dopo OK, una sola conferma', async () => {
+  it('with changes it asks for discard confirmation: edit:cancel only after OK, a single confirmation', async () => {
     const w = await openDialog({ useEditActions: true, hasChanges: true })
     const handlers: { ok?: () => void, dismiss?: () => void } = {}
     const chain = {

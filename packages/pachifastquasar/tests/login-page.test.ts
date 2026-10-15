@@ -4,7 +4,7 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { Quasar } from 'quasar'
 import { createI18n } from 'vue-i18n'
 
-/** AuthManager finto: `login` e' pilotato dai test. */
+/** AuthManager finto: `login` is driven by the tests. */
 const auth = vi.hoisted(() => ({
   login: vi.fn(),
   verifyMfa: vi.fn(),
@@ -17,7 +17,7 @@ vi.mock('src/services/auth-manager/auth-manager', () => ({
 }))
 vi.mock('src/core/config', () => ({ getPachiConfig: () => ({ app: { title: 'Demo' } }) }))
 
-// happy-dom non implementa screen.orientation, richiesto dal plugin Screen/Platform di Quasar
+// happy-dom does not implement screen.orientation, required by Quasar's Screen/Platform plugin
 if (!window.screen.orientation) {
   Object.defineProperty(window.screen, 'orientation', {
     value: { type: 'portrait-primary', addEventListener() {}, removeEventListener() {} },
@@ -27,7 +27,7 @@ if (!window.screen.orientation) {
 
 const { default: LoginPage } = await import('src/core/auth/pages/LoginPage.vue')
 
-/** Errore 429 come lo lancia il client, con header `Retry-After`. */
+/** 429 error as thrown by the client, with `Retry-After` header. */
 function tooMany(retryAfter?: string) {
   return {
     status: 429,
@@ -35,14 +35,14 @@ function tooMany(retryAfter?: string) {
   }
 }
 
-/** Monta la pagina con Quasar e un i18n minimale (le chiavi mancanti tornano come testo). */
+/** Mounts the page with Quasar and a minimal i18n (missing keys come back as text). */
 function mountLogin() {
   const i18n = createI18n({
     legacy: false,
     locale: 'it',
     missingWarn: false,
     fallbackWarn: false,
-    messages: { it: { auth: { lock: { countdown: 'Bloccato {time}' }, login: { submit: 'Entra' } } } },
+    messages: { it: { auth: { lock: { countdown: 'Locked {time}' }, login: { submit: 'Enter' } } } },
   })
   return mount(LoginPage, {
     attachTo: document.body,
@@ -53,7 +53,7 @@ function mountLogin() {
   })
 }
 
-/** Compila e invia il form di login. */
+/** Fills in and submits the login form. */
 async function submitLogin(w: ReturnType<typeof mountLogin>) {
   const inputs = w.findAll('input')
   await inputs[0]!.setValue('mario')
@@ -72,7 +72,7 @@ afterEach(() => {
 })
 
 describe('LoginPage', () => {
-  it('il pulsante resta disattivato finche\' username e password non sono compilati', async () => {
+  it('the button stays disabled until username and password are filled in', async () => {
     const w = mountLogin()
     const submit = w.find('button[type="submit"]')
     expect(submit.attributes('disabled')).toBeDefined()
@@ -82,40 +82,40 @@ describe('LoginPage', () => {
     expect(w.find('button[type="submit"]').attributes('disabled')).toBeUndefined()
   })
 
-  it('429 con Retry-After: countdown visibile, pulsante disattivato, poi si sblocca', async () => {
+  it('429 with Retry-After: countdown visible, button disabled, then unlocks', async () => {
     auth.login.mockRejectedValue(tooMany('90'))
     const w = mountLogin()
     await submitLogin(w)
     expect(auth.login).toHaveBeenCalledWith('mario', 'segreta')
-    expect(w.text()).toContain('Bloccato 01:30')
+    expect(w.text()).toContain('Locked 01:30')
     expect(w.find('button[type="submit"]').attributes('disabled')).toBeDefined()
 
     vi.advanceTimersByTime(30_000)
     await flushPromises()
-    expect(w.text()).toContain('Bloccato 01:00')
+    expect(w.text()).toContain('Locked 01:00')
 
     vi.advanceTimersByTime(61_000)
     await flushPromises()
-    expect(w.text()).not.toContain('Bloccato')
+    expect(w.text()).not.toContain('Locked')
     expect(w.find('button[type="submit"]').attributes('disabled')).toBeUndefined()
   })
 
-  it('429 senza Retry-After: messaggio generico, nessun countdown', async () => {
+  it('429 without Retry-After: generic message, no countdown', async () => {
     auth.login.mockRejectedValue(tooMany())
     const w = mountLogin()
     await submitLogin(w)
-    expect(w.text()).not.toContain('Bloccato')
+    expect(w.text()).not.toContain('Locked')
     expect(w.find('[role="alert"]').text()).toContain('errors.http.tooManyRequests')
   })
 
-  it('401: messaggio di credenziali non valide', async () => {
+  it('401: invalid credentials message', async () => {
     auth.login.mockRejectedValue({ status: 401 })
     const w = mountLogin()
     await submitLogin(w)
     expect(w.find('[role="alert"]').text()).toContain('auth.login.invalidCredentials')
   })
 
-  it('MFA richiesta: passa al secondo step con il campo codice', async () => {
+  it('MFA required: moves to the second step with the code field', async () => {
     auth.login.mockResolvedValue({ mfaRequired: true })
     const w = mountLogin()
     await submitLogin(w)

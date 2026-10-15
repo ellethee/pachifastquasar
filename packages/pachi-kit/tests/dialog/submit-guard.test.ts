@@ -4,7 +4,7 @@ import { createSubmitGuard } from '../../src/dialog/utils/submit-guard'
 describe('createSubmitGuard', () => {
   afterEach(() => { vi.useRealTimers() })
 
-  it('ignora il rientro finche non viene chiamato leave', () => {
+  it('ignores re-entry until leave is called', () => {
     const g = createSubmitGuard()
     expect(g.enter()).toBe(true)
     expect(g.busy).toBe(true)
@@ -15,7 +15,7 @@ describe('createSubmitGuard', () => {
     expect(g.enter()).toBe(true)
   })
 
-  it('si libera da sola dopo il timeout', () => {
+  it('releases itself after the timeout', () => {
     vi.useFakeTimers()
     const g = createSubmitGuard(1000)
     g.enter()

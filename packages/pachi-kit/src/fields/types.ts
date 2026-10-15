@@ -1,92 +1,91 @@
 /**
  * module types.ts
  *
- * Vocabolario dichiarativo dei campi per il form field-driven di
+ * Declarative field vocabulary for the field-driven form of
  * `@ilpachi/pachi-kit/fields`.
  */
 
 /**
- * Tipo di campo renderizzato da {@link ./components/DynamicField.vue}.
- * - `text` (default): `q-input` semplice.
- * - `textarea`: `q-input` con `type="textarea"`.
- * - `select`: `q-select`, locale (da `field.options`) o remoto (da `field.url`).
- * - `pdate`: data/ora via `PachiDatePicker` (`@ilpachi/pachi-kit/ui`).
- * - `number`: `q-input` con `type="number"`; il valore emesso è un `number` (o `null` se vuoto).
+ * Field type rendered by {@link ./components/DynamicField.vue}.
+ * - `text` (default): plain `q-input`.
+ * - `textarea`: `q-input` with `type="textarea"`.
+ * - `select`: `q-select`, local (from `field.options`) or remote (from `field.url`).
+ * - `pdate`: date/time via `PachiDatePicker` (`@ilpachi/pachi-kit/ui`).
+ * - `number`: `q-input` with `type="number"`; the emitted value is a `number` (or `null` when empty).
  * - `boolean`: `q-toggle`.
- * Con `component` (un componente Vue) il tipo è ignorato e si renderizza quel componente
- * (v-model + tutte le altre chiavi come prop): è così che si usano `FlagsInput`/`EnumSelect`.
+ * With `component` (a Vue component) the type is ignored and that component is rendered
+ * (v-model + all other keys as props): this is how you use `FlagsInput`/`EnumSelect`.
  */
-// `(string & {})` mantiene l'autocompletamento dei tipi noti senza collassare l'unione a `string`
+// `(string & {})` keeps autocompletion of the known types without collapsing the union to `string`
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export type IFieldType = 'text' | 'textarea' | 'select' | 'pdate' | 'number' | 'boolean' | (string & {})
 
 /**
- * Definizione dichiarativa di un singolo campo del form, con lo stesso
- * vocabolario dichiarativo: `field`, `label`, `type`, `url`,
+ * Declarative definition of a single form field, with the keys: `field`, `label`, `type`, `url`,
  * `optionLabel`, `optionValue`, `multiple`, `useChips`, `clearable`,
- * `autogrow`, `useInput`, `mask`, ecc. Qualunque chiave non riservata viene
- * passata pari pari (v-bind) al componente Quasar sottostante.
+ * `autogrow`, `useInput`, `mask`, etc. Any non-reserved key is
+ * passed through as is (v-bind) to the underlying Quasar component.
  */
 export interface IFieldDef {
-  /** Nome della proprietà nello stato della sezione (es. 'nome', 'autore'). */
+  /** Name of the property in the section state (e.g. 'name', 'author'). */
   field: string
-  /** Etichetta visualizzata (prop `label` del componente sottostante). */
+  /** Displayed label (`label` prop of the underlying component). */
   label: string
-  /** Componente Vue custom da renderizzare al posto dei tipi standard (v-model + altre chiavi come prop). */
+  /** Custom Vue component rendered instead of the standard types (v-model + other keys as props). */
   component?: unknown
-  /** Tipo di campo, vedi {@link IFieldType}. Default: 'text'. */
+  /** Field type, see {@link IFieldType}. Default: 'text'. */
   type?: IFieldType
-  /** URL dell'endpoint REST paginato per un select remoto (es. '/api/genere'). */
+  /** URL of the paginated REST endpoint for a remote select (e.g. '/api/genre'). */
   url?: string
-  /** Opzioni statiche per un select locale (alternativa a `url`). */
+  /** Static options for a local select (alternative to `url`). */
   options?: unknown[]
-  /** Chiave (o funzione estrattore) per l'etichetta delle opzioni di un select. Default 'label'. */
+  /** Key (or extractor function) for the label of a select's options. Default 'label'. */
   optionLabel?: string | ((item: unknown) => string)
-  /** Chiave per il valore delle opzioni di un select. Default 'value'. */
+  /** Key for the value of a select's options. Default 'value'. */
   optionValue?: string
-  /** Select a selezione multipla (es. tag). */
+  /** Multiple-selection select (e.g. tags). */
   multiple?: boolean
-  /** Mostra i valori selezionati come chips (Quasar `use-chips`). */
+  /** Show the selected values as chips (Quasar `use-chips`). */
   useChips?: boolean
-  /** Mostra l'icona per svuotare il campo. */
+  /** Show the icon to clear the field. */
   clearable?: boolean
-  /** Textarea che si espande in altezza col contenuto. */
+  /** Textarea that grows in height with its content. */
   autogrow?: boolean
-  /** Abilita l'input testuale di ricerca/filtro nel select. */
+  /** Enable the text search/filter input in the select. */
   useInput?: boolean
-  /** Maschera data/ora per il tipo 'pdate' (es. 'YYYY-MM-DD'). */
+  /** Date/time mask for the 'pdate' type (e.g. 'YYYY-MM-DD'). */
   mask?: string
-  /** `pageSize` richiesto al backend per un select remoto (default 1000, una sola fetch senza paginazione). */
+  /** `pageSize` requested from the backend for a remote select (default 1000, a single fetch without pagination). */
   pageSize?: number
-  /** Campo obbligatorio: valida in `validate()` e marca la UI (asterisco e regola Quasar). */
+  /** Required field: validated in `validate()` and marked in the UI (asterisk and Quasar rule). */
   required?: boolean
-  /** Testo di aiuto sotto il campo. */
+  /** Help text under the field. */
   hint?: string
-  /** Regole di validazione Quasar (`(val) => true | string`). */
+  /** Quasar validation rules (`(val) => true | string`). */
   rules?: ((val: unknown) => boolean | string)[]
   /**
-   * Nome (o nomi) dei campi della stessa sezione da cui questo campo dipende (es. `'countryId'`).
-   * Per un select remoto: finché una dipendenza è vuota (`null`, `undefined`, `''`, array vuoto)
-   * non si carica nulla (opzioni vuote); al cambio di una dipendenza le opzioni vengono ricaricate
-   * (con `params` riletto) e, salvo `resetOnDependencyChange: false`, il valore del campo viene azzerato.
-   * Richiede `FieldsSection` (o il prop `values` di `DynamicField`).
+   * Name (or names) of the fields in the same section this field depends on (e.g. `'countryId'`).
+   * For a remote select: while a dependency is empty (`null`, `undefined`, `''`, empty array)
+   * nothing is loaded (empty options); when a dependency changes the options are reloaded
+   * (with `params` re-evaluated) and, unless `resetOnDependencyChange: false`, the field value is cleared.
+   * Requires `FieldsSection` (or the `values` prop of `DynamicField`).
    */
   dependsOn?: string | string[]
   /**
-   * Query param aggiuntivi della GET delle opzioni di un select remoto: un oggetto fisso oppure una
-   * funzione dei valori correnti della sezione, riletta a ogni cambio dei valori che usa
-   * (es. `(v) => ({ countryId: v.countryId })`). I valori `null`/`undefined`/`''` vengono omessi.
-   * Senza `params`, per i campi con `dependsOn` si inviano le dipendenze come `<campo>=<valore>`.
+   * Extra query params of the options GET of a remote select: a fixed object or a
+   * function of the section's current values, re-evaluated whenever the values it uses change
+   * (e.g. `(v) => ({ countryId: v.countryId })`). `null`/`undefined`/`''` values are omitted.
+   * Without `params`, for fields with `dependsOn` the dependencies are sent as `<field>=<value>`.
    */
   params?: Record<string, unknown> | ((values: IFieldsState) => Record<string, unknown>)
-  /** Con `dependsOn`: azzera il valore quando una dipendenza cambia (default `true`). */
+  /** With `dependsOn`: clear the value when a dependency changes (default `true`). */
   resetOnDependencyChange?: boolean
-  /** Qualsiasi altra prop Quasar (class, style, clearable, dense, ecc.) passa pari pari. */
+  /** Any other Quasar prop (class, style, clearable, dense, etc.) is passed through as is. */
   [key: string]: unknown
 }
 
-/** Una riga del form: uno o più campi affiancati sulla stessa riga (layout a griglia). */
+/** A form row: one or more fields side by side on the same row (grid layout). */
 export type IFieldRow = IFieldDef[]
 
-/** Stato generico di una sezione field-driven: un record chiave→valore dei campi. */
+/** Generic state of a field-driven section: a key→value record of the fields. */
 export type IFieldsState = Record<string, unknown>

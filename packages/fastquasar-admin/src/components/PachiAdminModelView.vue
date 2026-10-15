@@ -197,7 +197,7 @@
           </q-th>
         </template>
         <template #body-cell="cell">
-          <!-- da tastiera la riga si apre dalla prima cella (Invio/Spazio): il clic sulla riga non e' raggiungibile -->
+          <!-- by keyboard the row opens from the first cell (Enter/Space): the row click is not reachable -->
           <q-td
             :props="cell"
             :class="['pachi-admin-cell', cell.col.align === 'right' ? 'pachi-admin-cell--num' : '']"
@@ -283,8 +283,8 @@ import { actionLabel, fieldLabel, fieldOptions, modelTitle } from '../helpers/sc
 import { describeRequestError, useAdminApi } from '../helpers/use-admin'
 
 /**
- * Vista di un modello: tabella lato server (ricerca, ordinamento, paginazione, filtri), selezione di righe con
- * azioni in blocco, dialogo di creazione/modifica. Tutto è guidato da `GET .../_schema`.
+ * Model view: server-side table (search, sorting, pagination, filters), row selection with
+ * bulk actions, create/edit dialog. Everything is driven by `GET .../_schema`.
  */
 const props = defineProps<{
   app: string
@@ -347,7 +347,7 @@ const columns = computed(() => {
     }))
 })
 
-/** Azioni mostrate: consentite dal backend e dai permessi dell'utente. */
+/** Actions shown: allowed by the backend and by the user permissions. */
 const allowedActions = computed(() => {
   const s = schema.value
   if (!s) return []
@@ -358,25 +358,25 @@ const allowedActions = computed(() => {
   })
 })
 
-/** Selezione solo se ci sono azioni in blocco utilizzabili. */
+/** Selection only if there are usable bulk actions. */
 const selectable = computed(() => allowedActions.value.length > 0)
 
-/** Campo dello schema. */
+/** Schema field. */
 function fieldOf(name: string) {
   return schema.value?.fields[name]
 }
 
-/** Testo di una cella (formatter e tipi). */
+/** Text of a cell (formatters and types). */
 function cellText(row: AdminRow, name: string): string {
   return schema.value ? formatCell(schema.value, name, row, String(locale.value)) : ''
 }
 
-/** Etichetta di un filtro. */
+/** Label of a filter. */
 function filterLabel(filter: IAdminFilter): string {
   return fieldLabel(fieldKey(schema.value!.app, schema.value!.model, filter.field), filter)
 }
 
-/** Tipo di `<input>` di un filtro. */
+/** `<input>` type of a filter. */
 function filterInputType(component: AdminComponentName): string {
   if (component === 'number') return 'number'
   if (component === 'date') return 'date'
@@ -385,16 +385,16 @@ function filterInputType(component: AdminComponentName): string {
   return 'text'
 }
 
-/** Testo "da-a di totale" della paginazione. */
+/** Pagination "from-to of total" text. */
 function paginationLabel(from: number, to: number, total: number): string {
   return t('pachiAdmin.table.records', { from, to, total })
 }
 
 /**
- * Mostra un messaggio temporaneo.
+ * Shows a temporary message.
  *
- * @param type - esito
- * @param text - testo
+ * @param type - outcome
+ * @param text - text
  */
 function notify(type: 'ok' | 'error', text: string): void {
   flash.value = { type, text }
@@ -402,9 +402,9 @@ function notify(type: 'ok' | 'error', text: string): void {
   flashTimer = setTimeout(() => { flash.value = null }, 6000)
 }
 
-/** Carica lo schema del modello e prepara ordinamento di default e lista. */
+/** Loads the model schema and prepares the default ordering and the list. */
 async function loadSchema(): Promise<void> {
-  // passando da un modello all'altro la risposta lenta del precedente va scartata (schema e lista)
+  // when switching from one model to another the slow response of the previous one must be discarded (schema and list)
   const seq = ++schemaSeq
   loadSeq++
   loading.value = false
@@ -433,7 +433,7 @@ async function loadSchema(): Promise<void> {
   }
 }
 
-/** Carica la pagina corrente della lista. */
+/** Loads the current page of the list. */
 async function load(): Promise<void> {
   const s = schema.value
   if (!s) return
@@ -465,33 +465,33 @@ async function load(): Promise<void> {
   }
 }
 
-/** Richiesta di QTable (pagina e dimensione: l'ordinamento è gestito dalle intestazioni). */
+/** QTable request (page and size: sorting is handled by the headers). */
 function onRequest(req: { pagination: { page: number, rowsPerPage: number } }): void {
   pagination.value = { ...pagination.value, page: req.pagination.page, rowsPerPage: req.pagination.rowsPerPage }
   void load()
 }
 
-/** La colonna è ordinabile (`orderFields`). */
+/** The column is sortable (`orderFields`). */
 function isOrderable(name: string): boolean {
   return !!schema.value?.list.orderFields.includes(name)
 }
 
-/** Posizione della colonna nell'ordinamento (-1 se assente). */
+/** Position of the column in the ordering (-1 if absent). */
 function sortIndex(name: string): number {
   return sorts.value.findIndex((s) => s.field === name)
 }
 
-/** Valore di `aria-sort` di una colonna. */
+/** `aria-sort` value of a column. */
 function ariaSort(name: string): 'ascending' | 'descending' | undefined {
   const i = sortIndex(name)
   return i < 0 ? undefined : sorts.value[i]!.descending ? 'descending' : 'ascending'
 }
 
 /**
- * Clic su un'intestazione: ordinamento singolo; con Maiusc si accumula l'ordinamento multiplo.
+ * Click on a header: single sort; with Shift the multiple sort accumulates.
  *
- * @param name - colonna
- * @param evt - evento del clic
+ * @param name - column
+ * @param evt - click event
  */
 function onSort(name: string, evt: Event): void {
   if (!isOrderable(name)) return
@@ -499,17 +499,17 @@ function onSort(name: string, evt: Event): void {
   reloadFirstPage()
 }
 
-/** Ricarica dalla prima pagina (ricerca e filtri). */
+/** Reloads from the first page (search and filters). */
 function reloadFirstPage(): void {
   pagination.value = { ...pagination.value, page: 1 }
   void load()
 }
 
 /**
- * Imposta un filtro e ricarica.
+ * Sets a filter and reloads.
  *
- * @param name - campo
- * @param value - valore (vuoto = rimosso)
+ * @param name - field
+ * @param value - value (empty = removed)
  */
 function setFilter(name: string, value: unknown): void {
   if (value === null || value === undefined || value === '') delete filters[name]
@@ -517,26 +517,26 @@ function setFilter(name: string, value: unknown): void {
   reloadFirstPage()
 }
 
-/** Azzera tutti i filtri. */
+/** Clears all filters. */
 function clearFilters(): void {
   for (const key of Object.keys(filters)) delete filters[key]
   reloadFirstPage()
 }
 
-/** Apre il dialogo di creazione. */
+/** Opens the create dialog. */
 function openCreate(): void {
   dialog.mode = 'create'
   dialog.pk = null
   dialog.open = true
 }
 
-/** Apre il dialogo di modifica/dettaglio al clic su una riga. */
+/** Opens the edit/detail dialog on a row click. */
 function onRowClick(evt: Event, row: AdminRow): void {
   if ((evt.target as HTMLElement | null)?.closest('.q-checkbox')) return
   openRow(row)
 }
 
-/** Apre il dialogo di modifica/dettaglio di una riga (clic o tastiera). */
+/** Opens the edit/detail dialog of a row (click or keyboard). */
 function openRow(row: AdminRow): void {
   if (!schema.value) return
   dialog.mode = 'edit'
@@ -544,19 +544,19 @@ function openRow(row: AdminRow): void {
   dialog.open = true
 }
 
-/** Riga salvata: messaggio e ricarica. */
+/** Row saved: message and reload. */
 function onSaved(payload: { mode: AdminFormMode }): void {
   notify('ok', t(payload.mode === 'create' ? 'pachiAdmin.form.created' : 'pachiAdmin.form.saved'))
   void load()
 }
 
-/** Riga eliminata: messaggio e ricarica. */
+/** Row deleted: message and reload. */
 function onDeleted(): void {
   notify('ok', t('pachiAdmin.form.deleted'))
   void load()
 }
 
-/** Avvia un'azione in blocco (con conferma se richiesta). */
+/** Starts a bulk action (with confirmation if required). */
 function askAction(action: IAdminAction): void {
   if (action.confirm) {
     confirm.label = actionLabel(action)
@@ -566,7 +566,7 @@ function askAction(action: IAdminAction): void {
     confirm.open = true
     const s = schema.value!
     const ids = selected.value.map((r) => r[s.primaryKey] as AdminPk)
-    // una sola chiamata `_options?ids=` per mostrare i titoli delle righe coinvolte
+    // a single `_options?ids=` call to show the titles of the involved rows
     void loadRowLabels(api, s.app, s.model, ids).then((labels) => {
       if (confirm.open && confirm.action === action) confirm.summary = summarizeLabels(labels, ids.length)
     })
@@ -575,16 +575,16 @@ function askAction(action: IAdminAction): void {
   }
 }
 
-/** Esegue l'azione confermata. */
+/** Runs the confirmed action. */
 function runConfirmed(): void {
   confirm.open = false
   if (confirm.action) void runAction(confirm.action)
 }
 
 /**
- * Esegue un'azione in blocco sulle righe selezionate.
+ * Runs a bulk action on the selected rows.
  *
- * @param action - azione dello schema
+ * @param action - schema action
  */
 async function runAction(action: IAdminAction): Promise<void> {
   const s = schema.value

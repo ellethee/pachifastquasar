@@ -5,24 +5,24 @@ import { pachiLogo } from '../extras/pachi-icons'
 import type { IAppConfig, PachiEnv } from '../core/config'
 import authRoutes from '../core/auth/pages/routes'
 
-/** Sorgenti delle route fornite dall'app (risultati di `import.meta.glob`). */
+/** Route sources provided by the app (`import.meta.glob` results). */
 export interface PachiRoutesSources {
-  /** Route delle feature (`/src/features/**` + `/routes.ts`). */
+  /** Feature routes (`/src/features/**` + `/routes.ts`). */
   features?: PachiGlob | undefined
-  /** Route dei package `@ilpachi/*` (`/node_modules/@ilpachi/*` + `/{routes,dist/routes,src/routes}.{ts,js}`). */
+  /** Routes of the `@ilpachi/*` packages (`/node_modules/@ilpachi/*` + `/{routes,dist/routes,src/routes}.{ts,js}`). */
   packages?: PachiGlob | undefined
-  /** Variabili d'ambiente per `ilpachi-<pkg>-disable-route`. */
+  /** Environment variables for `ilpachi-<pkg>-disable-route`. */
   env?: PachiEnv | undefined
 }
 
 /**
- * Costruisce l'albero finale delle route: route core `meta.root` (prima), auth (se abilitata), route di
- * package e feature ordinate per `meta.order`, e catch-all finale. Le route con `meta.root === true`
- * diventano top-level (fuori dal layout), le altre figlie del layout.
+ * Builds the final route tree: core routes `meta.root` (first), auth (if enabled), package and feature
+ * routes sorted by `meta.order`, and the final catch-all. Routes with `meta.root === true`
+ * become top-level (outside the layout), the others children of the layout.
  *
- * @param config - configurazione risolta (componenti sostituibili, titolo, logo, auth)
- * @param sources - glob di package e feature
- * @returns route per `createRouter`
+ * @param config - resolved configuration (replaceable components, title, logo, auth)
+ * @param sources - package and feature globs
+ * @returns routes for `createRouter`
  */
 export function buildPachiRoutes(
   config: IAppConfig,

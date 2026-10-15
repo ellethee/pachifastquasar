@@ -138,8 +138,8 @@ function show() {
 function hide() {
   dialogRef.value?.hide()
 }
-// 'shake' viene emesso da QDialog sia per ESC/click esterno con `persistent` (tentativo di chiusura
-// dell'utente) sia per shake() programmatici: questi ultimi vanno ignorati
+// 'shake' is emitted by QDialog both for ESC/outside click with `persistent` (user's attempt to
+// close) and for programmatic shake() calls: the latter must be ignored
 let internalShake = false
 function shakeDialog() {
   const dialog = dialogRef.value as { shake?: () => void } | undefined
@@ -148,23 +148,23 @@ function shakeDialog() {
     try { dialog.shake() } finally { internalShake = false }
   }
 }
-/** ESC/click esterno con modifiche non salvate: propone la conferma di chiusura. */
+/** ESC/outside click with unsaved changes: offers the close confirmation. */
 function onUserDismissAttempt() {
   if (!internalShake) onDialogCancel()
 }
-// true dopo un salvataggio riuscito: le modifiche non sono più "da scartare"
+// true after a successful save: the changes are no longer "to be discarded"
 const saved = ref(false)
 watch(() => hasChanges, () => { saved.value = false })
-/** Con modifiche non salvate il dialog è `persistent` (ESC/click esterno non lo chiudono). */
+/** With unsaved changes the dialog is `persistent` (ESC/outside click do not close it). */
 const blockHide = computed(() => avoidHideWithChanges && useEditActions && hasChanges && !saved.value)
 
-/** Segnala che le modifiche sono state salvate: la chiusura non chiede più conferma. */
+/** Signals that the changes have been saved: closing no longer asks for confirmation. */
 function markSaved() {
   saved.value = true
 }
-// anti-rientro: un secondo click mentre il salvataggio e' in corso viene ignorato
+// re-entry guard: a second click while the save is in progress is ignored
 const saveGuard = createSubmitGuard()
-// la conferma di scarto e' unica: finche' e' aperta ESC/backdrop/chiudi non ne aprono altre
+// the discard confirmation is unique: while it is open ESC/backdrop/close do not open others
 let discardOpen = false
 function onLocalOkClicked() {
   if (!saveGuard.enter()) return
@@ -173,7 +173,7 @@ function onLocalOkClicked() {
     onSuccess: () => { saveGuard.leave(); markSaved(); hide() },
     onError: (error) => { saveGuard.leave(); onSaveError(error) },
   }
-  emit('ok', awaitable)  // emette 'ok' senza chiudere — la chiusura spetta all'awaitable.onSuccess()
+  emit('ok', awaitable)  // emits 'ok' without closing — closing is up to awaitable.onSuccess()
 }
 function onSaveError(error: unknown) {
   $q.notify({
@@ -184,7 +184,7 @@ function onSaveError(error: unknown) {
   })
   shakeDialog()
 }
-/** Salvataggio con le azioni di modifica: l'`onSuccess` azzera lo stato "modificato" senza chiudere. */
+/** Save with the edit actions: `onSuccess` resets the "modified" state without closing. */
 function onEditSave() {
   if (!saveGuard.enter()) return
   const awaitable: AwaitableEmit<void> = {
@@ -195,9 +195,9 @@ function onEditSave() {
   emit('edit:save', awaitable)
 }
 /**
- * Chiude il dialog senza salvare (pulsante chiudi/annulla della toolbar o delle azioni, ESC/click esterno
- * con modifiche): emette `edit:cancel` e chiude. Con modifiche non salvate chiede prima conferma
- * e `edit:cancel` e' emesso solo se l'utente conferma di scartarle.
+ * Closes the dialog without saving (close/cancel button of the toolbar or actions, ESC/outside click
+ * with changes): emits `edit:cancel` and closes. With unsaved changes it first asks for confirmation
+ * and `edit:cancel` is emitted only if the user confirms discarding them.
  */
 function onDialogCancel() {
   if (blockHide.value) {

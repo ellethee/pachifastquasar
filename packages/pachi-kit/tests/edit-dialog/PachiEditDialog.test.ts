@@ -6,10 +6,10 @@ import PachiEditDialog from '../../src/edit-dialog/components/PachiEditDialog.vu
 import PachiDialogEditActions from '../../src/edit-dialog/components/PachiDialogEditActions.vue'
 import { mountWithQuasar, teardown } from '../helpers/mount'
 
-/** Stato condiviso della sezione finta, per pilotarla dai test. */
+/** Shared state of the fake section, to drive it from the tests. */
 const state = { value: 'a', baseline: 'a', valid: true }
 
-/** Sezione minima che espone l'interfaccia `ISectionExpose`. */
+/** Minimal section exposing the `ISectionExpose` interface. */
 const FakeSection = defineComponent({
   setup(_p, { expose }) {
     const tick = ref(0)
@@ -27,9 +27,9 @@ const FakeSection = defineComponent({
 
 const sections = [{ key: 'f', title: 'F', component: markRaw(FakeSection) }]
 
-/** Monta il dialog e lo apre. */
+/** Mounts the dialog and opens it. */
 async function openDialog(props: Record<string, unknown> = {}) {
-  const w = mountWithQuasar(PachiEditDialog, { props: { title: 'Modifica', sections, ...props } })
+  const w = mountWithQuasar(PachiEditDialog, { props: { title: 'Edit', sections, ...props } })
   const dialogRef = (w.vm as unknown as { dialogRef: { show: () => void, hide: () => void } }).dialogRef
   dialogRef.show()
   await flushPromises()
@@ -39,10 +39,10 @@ async function openDialog(props: Record<string, unknown> = {}) {
 
 let hideSpy: ReturnType<typeof vi.spyOn>
 
-/** Simula una modifica dell'utente alla sezione. */
+/** Simulates a user change to the section. */
 async function touch(w: Awaited<ReturnType<typeof openDialog>>) {
   state.value = 'b'
-  // forza il ricalcolo: la sezione finta non ha un ref reattivo condiviso
+  // forces recomputation: the fake section has no shared reactive ref
   const sec = w.findComponent(FakeSection)
   ;(sec.vm as unknown as { touch: () => void }).touch()
   await flushPromises()
@@ -54,14 +54,14 @@ afterEach(() => {
 })
 
 describe('PachiEditDialog', () => {
-  it('rende titolo e sezioni; senza modifiche le azioni salva/ripristina sono nascoste', async () => {
+  it('renders title and sections; without changes the save/restore actions are hidden', async () => {
     const w = await openDialog()
-    expect(document.body.textContent).toContain('Modifica')
+    expect(document.body.textContent).toContain('Edit')
     expect(document.querySelector('.fake-section')).toBeTruthy()
     expect(w.findComponent(PachiDialogEditActions).props('hasChanges')).toBe(false)
   })
 
-  it('con modifiche emette ok con i risultati e chiude dopo onSuccess (closeOnSave default)', async () => {
+  it('with changes it emits ok with the results and closes after onSuccess (closeOnSave default)', async () => {
     const w = await openDialog()
     await touch(w)
     const actions = w.findComponent(PachiDialogEditActions)
@@ -76,7 +76,7 @@ describe('PachiEditDialog', () => {
     expect(hideSpy).toHaveBeenCalledTimes(1)
   })
 
-  it('closeOnSave=false: resta aperto e il salvato diventa baseline', async () => {
+  it('closeOnSave=false: stays open and the saved state becomes the baseline', async () => {
     const w = await openDialog({ closeOnSave: false })
     await touch(w)
     w.findComponent(PachiDialogEditActions).vm.$emit('save')
@@ -89,7 +89,7 @@ describe('PachiEditDialog', () => {
     expect(document.querySelector('.pachi-dialog-footer__saved')).toBeTruthy()
   })
 
-  it('anti-rientro: un secondo salvataggio prima della risposta e\' ignorato', async () => {
+  it('anti-reentry: a second save before the response is ignored', async () => {
     const w = await openDialog()
     await touch(w)
     const actions = w.findComponent(PachiDialogEditActions)
@@ -99,7 +99,7 @@ describe('PachiEditDialog', () => {
     expect(w.emitted('ok')).toHaveLength(1)
   })
 
-  it('validazione fallita: non emette ok e libera la guardia', async () => {
+  it('failed validation: does not emit ok and releases the guard', async () => {
     const w = await openDialog()
     await touch(w)
     state.valid = false
@@ -113,7 +113,7 @@ describe('PachiEditDialog', () => {
     expect(w.emitted('ok')).toHaveLength(1)
   })
 
-  it('onError libera la guardia (nuovo salvataggio possibile)', async () => {
+  it('onError releases the guard (new save possible)', async () => {
     const w = await openDialog()
     await touch(w)
     const actions = w.findComponent(PachiDialogEditActions)
@@ -126,7 +126,7 @@ describe('PachiEditDialog', () => {
     expect(w.emitted('ok')).toHaveLength(2)
   })
 
-  it('restore ripristina la sezione', async () => {
+  it('restore resets the section', async () => {
     const w = await openDialog()
     await touch(w)
     w.findComponent(PachiDialogEditActions).vm.$emit('restore')
@@ -135,7 +135,7 @@ describe('PachiEditDialog', () => {
     expect(w.findComponent(PachiDialogEditActions).props('hasChanges')).toBe(false)
   })
 
-  it('con avoidHideWithChanges e modifiche, chiudere chiede conferma di scarto', async () => {
+  it('with avoidHideWithChanges and changes, closing asks for discard confirmation', async () => {
     const w = await openDialog({ avoidHideWithChanges: true })
     await touch(w)
     const dialog = vi.fn(() => ({ onOk: () => ({ onDismiss: () => ({}) }) }))

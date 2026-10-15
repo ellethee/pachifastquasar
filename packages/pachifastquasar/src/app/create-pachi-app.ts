@@ -11,43 +11,43 @@ import { setPachiQuasar } from '../helpers/quasar-instance'
 import { setQuasarLang } from '../i18n/quasar-lang'
 import { pachiShellMessages } from '../i18n'
 
-/** Parte del contesto di boot di Quasar usata dalla shell. */
+/** Part of the Quasar boot context used by the shell. */
 export interface PachiAppContext {
   app: App
   router?: Router
 }
 
-/** Opzioni di {@link createPachiApp}. */
+/** Options of {@link createPachiApp}. */
 export interface CreatePachiAppOptions {
-  /** Configurazione della shell (tipicamente `pachiConfigFromEnv(import.meta.env)` + personalizzazioni). */
+  /** Shell configuration (typically `pachiConfigFromEnv(import.meta.env)` + customizations). */
   config?: PachiConfigInput
   /**
-   * Messaggi i18n per lingua (le lingue offerte sono le sue chiavi). Se omessi si usano i soli messaggi
-   * della shell; per includere generated/overrides/features dell'app vedi `composePachiMessages`.
+   * i18n messages per language (the offered languages are its keys). If omitted only the shell
+   * messages are used; to include the app generated/overrides/features see `composePachiMessages`.
    */
   messages?: PachiMessageMap
 }
 
 /**
- * Installa la shell nell'app Vue: configurazione, client HTTP (`@ilpachi/use-alova`), i18n
- * (`@ilpachi/pachi-i18n`, con lingua di Quasar sincronizzata) e le classi globali di tema.
- * Va chiamata nel boot file dell'app (`defineBoot(ctx => createPachiApp(ctx, { ... }))`).
+ * Installs the shell in the Vue app: configuration, HTTP client (`@ilpachi/use-alova`), i18n
+ * (`@ilpachi/pachi-i18n`, with the Quasar language kept in sync) and the global theme classes.
+ * Must be called in the app boot file (`defineBoot(ctx => createPachiApp(ctx, { ... }))`).
  *
- * @param ctx - contesto di boot (`{ app, router }`)
- * @param options - vedi {@link CreatePachiAppOptions}
+ * @param ctx - boot context (`{ app, router }`)
+ * @param options - see {@link CreatePachiAppOptions}
  */
 export function createPachiApp(ctx: PachiAppContext, options: CreatePachiAppOptions = {}): void {
   const config = setPachiConfig(options.config)
   const { app } = ctx
-  // plugin di Quasar (Dialog, Notify, Loading) dall'istanza dell'app, mai importati da `quasar`
+  // Quasar plugins (Dialog, Notify, Loading) from the app instance, never imported from `quasar`
   setPachiQuasar(app.config.globalProperties.$q)
 
   const useAlova = createPachiHttp({ envelope: config.http.envelope })
   app.config.globalProperties.$useAlova = useAlova
   app.provide('useAlova', useAlova)
-  // avatar (Gravatar o iniziali) per i package che non importano la shell, es. la pagina profilo
+  // avatar (Gravatar or initials) for packages that do not import the shell, e.g. the profile page
   app.provide(PACHI_AVATAR_URL_KEY, createPachiAvatarResolver())
-  // logout locale (senza chiamate al backend) per i package, es. dopo il cambio password
+  // local logout (no backend calls) for packages, e.g. after a password change
   app.provide(PACHI_LOGOUT_KEY, createPachiLogout())
 
   app.use(
@@ -63,5 +63,5 @@ export function createPachiApp(ctx: PachiAppContext, options: CreatePachiAppOpti
   }
 }
 
-/** Alias di {@link createPachiApp}. */
+/** Alias of {@link createPachiApp}. */
 export const pachiBoot = createPachiApp

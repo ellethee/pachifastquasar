@@ -1,6 +1,6 @@
 import type { IAdminSchema } from '../src/types/admin'
 
-/** Schema di prova, ricalcato su `demo/item` del backend. */
+/** Test schema, modeled on the backend `demo/item`. */
 export const itemSchema: IAdminSchema = {
   app: 'demo',
   model: 'item',

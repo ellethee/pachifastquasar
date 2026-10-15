@@ -1,34 +1,34 @@
 import type { ISettingsSchemaResponse } from '../types/settings-manager'
 import { warnOnce, type SettingsActionSpec } from './actions'
 
-/** Un trigger `watch` risolto: quando cambia `section`/`field` esegui `spec`. */
+/** A resolved `watch` trigger: when `section`/`field` changes, run `spec`. */
 export interface IWatchTarget {
-  /** Sezione (categoria) del campo osservato. */
+  /** Section (category) of the watched field. */
   section: string
-  /** Chiave del campo osservato (come nello schema). */
+  /** Key of the watched field (as in the schema). */
   field: string
-  /** Azione da eseguire. */
+  /** Action to run. */
   spec: SettingsActionSpec
 }
 
 /**
- * Converte `snake_case` in `camelCase` (lo schema usa chiavi camelCase, i modelli Python snake_case).
+ * Converts `snake_case` to `camelCase` (the schema uses camelCase keys, Python models use snake_case).
  *
- * @param key - chiave
- * @returns chiave in camelCase
+ * @param key - key
+ * @returns key in camelCase
  */
 export function toCamelCase(key: string): string {
   return key.replace(/_+([a-zA-Z0-9])/g, (_m, c: string) => c.toUpperCase())
 }
 
 /**
- * Trova nello schema il campo indicato da una chiave di `watch`: `campo` (stessa sezione del campo che dichiara
- * il watch) oppure `sezione.campo`; accetta anche la forma snake_case.
+ * Finds in the schema the field named by a `watch` key: `field` (same section as the field declaring
+ * the watch) or `section.field`; the snake_case form is accepted too.
  *
- * @param schema - schema completo
- * @param section - sezione del campo che dichiara il watch
- * @param key - chiave di `watch`
- * @returns `{ section, field }` oppure `null` se il campo non esiste
+ * @param schema - full schema
+ * @param section - section of the field declaring the watch
+ * @param key - `watch` key
+ * @returns `{ section, field }` or `null` if the field does not exist
  */
 export function findWatchedField(
   schema: ISettingsSchemaResponse,
@@ -49,15 +49,15 @@ export function findWatchedField(
 }
 
 /**
- * Risolve il `watch` di un campo nei campi da osservare, con la semantica del backend: la CHIAVE di
- * `{ campoOsservato: azione }` è il campo il cui cambiamento fa partire l'azione.
- * Se la chiave non corrisponde ad alcun campo si ricade (con un warning) sul campo che dichiara il watch,
- * come facevano le versioni precedenti. `watch: true` (legacy) osserva il campo stesso con gli `events`.
+ * Resolves the `watch` of a field into the fields to observe, with the backend semantics: the KEY of
+ * `{ watchedField: action }` is the field whose change triggers the action.
+ * If the key matches no field, it falls back (with a warning) to the field declaring the watch,
+ * as earlier versions did. `watch: true` (legacy) observes the field itself with its `events`.
  *
- * @param schema - schema completo
- * @param section - sezione del campo che dichiara il watch
- * @param fieldKey - chiave del campo che dichiara il watch
- * @returns trigger da registrare
+ * @param schema - full schema
+ * @param section - section of the field declaring the watch
+ * @param fieldKey - key of the field declaring the watch
+ * @returns triggers to register
  */
 export function resolveWatchTargets(
   schema: ISettingsSchemaResponse,
@@ -75,7 +75,7 @@ export function resolveWatchTargets(
     if (found) return { ...found, spec }
     warnOnce(
       `watch:${section}.${fieldKey}:${key}`,
-      `Settings: watch "${key}" di ${section}.${fieldKey} non corrisponde ad alcun campo: osservo il campo che lo dichiara`,
+      `Settings: watch "${key}" of ${section}.${fieldKey} matches no field: watching the field that declares it`,
     )
     return { section, field: fieldKey, spec }
   })

@@ -27,7 +27,7 @@
 
       <div v-if="!status" class="pachi-profile-sec-hint">{{ t('pachiProfile.security.mfa.loading') }}</div>
 
-      <!-- Codici di backup appena generati (regenerate / email) -->
+      <!-- Freshly generated backup codes (regenerate / email) -->
       <div v-else-if="view === 'backup'" class="pachi-profile-sec-stack">
         <h3 class="pachi-profile-sec-sub">{{ t('pachiProfile.security.mfa.newBackupCodes') }}</h3>
         <p class="pachi-profile-sec-banner pachi-profile-sec-banner--warn">{{ t('pachiProfile.security.mfa.backupWarning') }}</p>
@@ -96,7 +96,7 @@
         </div>
       </div>
 
-      <!-- Conferma MFA via email: il codice è stato inviato al passo precedente -->
+      <!-- Email MFA confirmation: the code was sent in the previous step -->
       <q-form v-else-if="view === 'email'" class="pachi-profile-sec-stack" novalidate @submit.prevent="confirmEmail">
         <h3 class="pachi-profile-sec-sub">{{ t('pachiProfile.security.mfa.emailConfirmTitle') }}</h3>
         <p class="pachi-profile-sec-hint">{{ t('pachiProfile.security.mfa.emailConfirmHelp') }}</p>
@@ -120,7 +120,7 @@
         </div>
       </q-form>
 
-      <!-- MFA via SMS, passo 1: numero di telefono -->
+      <!-- SMS MFA, step 1: phone number -->
       <q-form v-else-if="view === 'smsPhone'" class="pachi-profile-sec-stack" novalidate @submit.prevent="setupSms">
         <h3 class="pachi-profile-sec-sub">{{ t('pachiProfile.security.mfa.smsPhoneTitle') }}</h3>
         <p class="pachi-profile-sec-hint">{{ t('pachiProfile.security.mfa.smsPhoneHelp') }}</p>
@@ -143,7 +143,7 @@
         </div>
       </q-form>
 
-      <!-- MFA via SMS, passo 2: codice ricevuto -->
+      <!-- SMS MFA, step 2: received code -->
       <q-form v-else-if="view === 'sms'" class="pachi-profile-sec-stack" novalidate @submit.prevent="confirmSms">
         <h3 class="pachi-profile-sec-sub">{{ t('pachiProfile.security.mfa.smsConfirmTitle') }}</h3>
         <p class="pachi-profile-sec-hint">{{ t('pachiProfile.security.mfa.smsConfirmHelp') }}</p>
@@ -167,7 +167,7 @@
         </div>
       </q-form>
 
-      <!-- Password per disattivare / rigenerare -->
+      <!-- Password to disable / regenerate -->
       <q-form v-else-if="view === 'disable' || view === 'regenerate'" class="pachi-profile-sec-stack" novalidate @submit.prevent="submitPassword">
         <h3 class="pachi-profile-sec-sub">
           {{ view === 'disable' ? t('pachiProfile.security.mfa.disable') : t('pachiProfile.security.mfa.regenerateTitle') }}
@@ -201,7 +201,7 @@
         </div>
       </q-form>
 
-      <!-- Vista iniziale -->
+      <!-- Initial view -->
       <div v-else-if="status.enabled" class="pachi-profile-sec-actions">
         <span v-if="status.method" class="pachi-profile-sec-hint">
           {{ t('pachiProfile.security.mfa.method') }}: {{ methodLabel(status.method) }}
@@ -254,14 +254,14 @@ import type { PachiMfaMethod } from '../types/security'
 import PachiMfaQrCode from './PachiMfaQrCode.vue'
 
 /**
- * Pannello MFA del profilo. Compare solo se `GET {apiBase}/mfa/status` risponde 2xx (404/403/errori: nessuna
- * sezione e nessun dialog). Permette di attivare TOTP (QR code, chiave, backup code, conferma del codice),
- * email o SMS, di rigenerare i backup code e di disattivare l'MFA (con la password).
+ * Profile MFA panel. It appears only if `GET {apiBase}/mfa/status` answers 2xx (404/403/errors: no
+ * section and no dialog). It allows enabling TOTP (QR code, key, backup codes, code confirmation),
+ * email or SMS, regenerating the backup codes and disabling MFA (with the password).
  */
 const props = withDefaults(defineProps<{
-  /** Base URL delle API (default `/api`). */
+  /** API base URL (default `/api`). */
   apiBase?: string
-  /** Metodi offerti per l'attivazione. */
+  /** Methods offered for activation. */
   methods?: PachiMfaMethod[]
 }>(), {
   apiBase: DEFAULT_API_BASE,
@@ -271,7 +271,7 @@ const props = withDefaults(defineProps<{
 const { t } = usePachiI18n(messages)
 const http = resolvePachiProfileHttp(props.apiBase)
 const countdown = useRetryCountdown()
-/** Pausa tra due invii di codice email/SMS (30 s dopo ogni invio, `Retry-After` su 429). */
+/** Pause between two email/SMS code sends (30 s after each send, `Retry-After` on 429). */
 const sendCooldown = useRetryCountdown()
 const resendLabel = computed(() =>
   sendCooldown.active.value
@@ -281,7 +281,7 @@ const resendLabel = computed(() =>
 
 type View = 'idle' | 'totp' | 'email' | 'smsPhone' | 'sms' | 'backup' | 'disable' | 'regenerate'
 
-/** Metodi offerti (default solo TOTP). */
+/** Offered methods (default: TOTP only). */
 const offered = computed<PachiMfaMethod[]>(() => props.methods ?? ['totp'])
 
 const titleId = `pachi-profile-mfa-${Math.random().toString(36).slice(2, 8)}`
@@ -303,15 +303,15 @@ const password = ref('')
 const passwordError = ref('')
 
 /**
- * Etichetta del metodo MFA attivo.
+ * Label of the active MFA method.
  *
- * @param method - `totp`, `email` o altro
+ * @param method - `totp`, `email` or other
  */
 function methodLabel(method: string): string {
   return ['totp', 'email', 'sms'].includes(method) ? t(`pachiProfile.security.mfa.methods.${method}`) : method
 }
 
-/** Azzera messaggi e campi sensibili. */
+/** Clears messages and sensitive fields. */
 function resetMessages(): void {
   error.value = ''
   notice.value = ''
@@ -322,9 +322,9 @@ function resetMessages(): void {
 }
 
 /**
- * Apre una vista (azzerando campi e messaggi).
+ * Opens a view (clearing fields and messages).
  *
- * @param next - vista da mostrare
+ * @param next - view to show
  */
 function openView(next: View): void {
   resetMessages()
@@ -334,7 +334,7 @@ function openView(next: View): void {
   view.value = next
 }
 
-/** Torna alla vista iniziale e scarta i dati del setup (secret e codici non restano in memoria). */
+/** Returns to the initial view and discards the setup data (secret and codes do not stay in memory). */
 function closeView(): void {
   openView('idle')
   totp.value = null
@@ -342,7 +342,7 @@ function closeView(): void {
   backupCodes.value = []
 }
 
-/** Legge lo stato MFA; se non disponibile la sezione resta nascosta (nessun errore mostrato). */
+/** Reads the MFA status; if unavailable the section stays hidden (no error shown). */
 async function loadStatus(silent = false): Promise<void> {
   try {
     const body = await http.Get<unknown>('/mfa/status', SILENT_REQUEST)
@@ -355,26 +355,26 @@ async function loadStatus(silent = false): Promise<void> {
 }
 
 /**
- * Copia un testo negli appunti (senza mai loggarlo).
+ * Copies a text to the clipboard (never logging it).
  *
- * @param text - testo da copiare
+ * @param text - text to copy
  */
 async function copy(text: string): Promise<void> {
   try {
     await navigator.clipboard.writeText(text)
     notice.value = t('pachiProfile.security.mfa.copied')
   } catch {
-    // appunti non disponibili (contesto non sicuro o permesso negato): si avvisa, l'utente può selezionare il testo a mano
+    // clipboard unavailable (insecure context or permission denied): warn, the user can select the text by hand
     notice.value = t('pachiProfile.security.mfa.copyFailed')
   }
 }
 
 /**
- * Mostra un errore di una richiesta MFA: 429 con avviso di blocco, 409 con ricarica dello stato.
+ * Shows an error of an MFA request: 429 with a lock notice, 409 with a status reload.
  *
- * @param err - errore lanciato dalla richiesta
- * @param onField - gestione opzionale dell'errore su un campo (per `codeInvalid`/`passwordIncorrect`)
- * @param isSend - `true` per l'invio di un codice email/SMS: un 429 è la pausa tra invii, non un blocco
+ * @param err - error thrown by the request
+ * @param onField - optional handling of the error on a field (for `codeInvalid`/`passwordIncorrect`)
+ * @param isSend - `true` when sending an email/SMS code: a 429 is the pause between sends, not a lock
  */
 async function handleError(
   err: unknown,
@@ -383,21 +383,21 @@ async function handleError(
 ): Promise<void> {
   const parsed = await parseApiError(err)
   if (isSend && isSendRateLimited(parsed)) {
-    // pausa tra due invii: pulsante di reinvio disattivato per Retry-After (ripiego 30 s)
+    // pause between two sends: resend button disabled for Retry-After (fallback 30 s)
     sendCooldown.start(sendCooldownSeconds(parsed))
     error.value = translateApiError(parsed, t)
     return
   }
   const kind = classifyMfaError(parsed)
   if (kind === 'tooManyAttempts' && parsed.retryAfter !== undefined) {
-    // account bloccato con tempo noto: conto alla rovescia al posto del messaggio generico
+    // account locked with a known time: countdown instead of the generic message
     countdown.start(parsed.retryAfter)
     return
   }
   const message = translateApiError(parsed, t)
   if (kind === 'tooManyAttempts') locked.value = true
   if (kind === 'mfaDisabled') {
-    // MFA spenta sul server (`MFA_ENABLED=false`): la sezione non ha più senso
+    // MFA turned off on the server (`MFA_ENABLED=false`): the section no longer makes sense
     error.value = t('pachiProfile.security.mfa.serverDisabled')
     available.value = false
     return
@@ -411,7 +411,7 @@ async function handleError(
   error.value = message
 }
 
-/** Avvia il setup TOTP. */
+/** Starts the TOTP setup. */
 async function startTotp(): Promise<void> {
   resetMessages()
   busy.value = true
@@ -433,7 +433,7 @@ async function startTotp(): Promise<void> {
   }
 }
 
-/** Conferma il setup TOTP con il codice a 6 cifre. */
+/** Confirms the TOTP setup with the 6-digit code. */
 async function confirmTotp(): Promise<void> {
   if (countdown.active.value) return
   resetMessages()
@@ -460,9 +460,9 @@ async function confirmTotp(): Promise<void> {
 }
 
 /**
- * Primo passo dell'MFA via email: il backend invia il codice all'indirizzo dell'utente e lascia il metodo inattivo
- * finché non è confermato. Con un backend precedente (setup che attiva subito e restituisce i backup code) si
- * mostrano direttamente i codici.
+ * First step of email MFA: the backend sends the code to the user's address and leaves the method inactive
+ * until it is confirmed. With an older backend (setup that activates immediately and returns the backup codes)
+ * the codes are shown directly.
  */
 async function setupEmail(): Promise<void> {
   if (sendCooldown.active.value) return
@@ -489,7 +489,7 @@ async function setupEmail(): Promise<void> {
   }
 }
 
-/** Secondo passo: conferma l'MFA via email con il codice ricevuto e mostra gli eventuali backup code. */
+/** Second step: confirms email MFA with the received code and shows any backup codes. */
 async function confirmEmail(): Promise<void> {
   if (countdown.active.value) return
   resetMessages()
@@ -518,7 +518,7 @@ async function confirmEmail(): Promise<void> {
         return true
       }
       if (kind === 'noEmailSetup') {
-        // setup scaduto o mai avviato: si torna all'inizio e si invia di nuovo il codice
+        // setup expired or never started: go back to the start and send the code again
         closeView()
         error.value = t('pachiProfile.security.mfa.emailSetupExpired')
         return true
@@ -531,8 +531,8 @@ async function confirmEmail(): Promise<void> {
 }
 
 /**
- * Primo passo dell'MFA via SMS: il backend invia il codice al numero indicato e lascia il metodo inattivo finché
- * non è confermato. Dal secondo invio («Invia di nuovo il codice») il numero resta quello già digitato.
+ * First step of SMS MFA: the backend sends the code to the given number and leaves the method inactive until
+ * it is confirmed. From the second send ("Send the code again") the number stays the one already typed.
  */
 async function setupSms(): Promise<void> {
   if (sendCooldown.active.value) return
@@ -546,7 +546,7 @@ async function setupSms(): Promise<void> {
     const body = await http.Post<unknown>('/mfa/sms/setup', { phone_number: normalizePhoneNumber(phone.value) }, FORM_REQUEST)
     sendCooldown.start(SEND_COOLDOWN_SECONDS)
     if (!smsSetupNeedsConfirm(body)) {
-      // un backend che attiva subito il metodo: si mostrano i backup code, se ci sono
+      // a backend that activates the method immediately: show the backup codes, if any
       const codes = parseBackupCodes(body)
       closeView()
       notice.value = t('pachiProfile.security.mfa.smsDone')
@@ -567,7 +567,7 @@ async function setupSms(): Promise<void> {
   }
 }
 
-/** Secondo passo: conferma l'MFA via SMS con il codice ricevuto e mostra gli eventuali backup code. */
+/** Second step: confirms SMS MFA with the received code and shows any backup codes. */
 async function confirmSms(): Promise<void> {
   if (countdown.active.value) return
   resetMessages()
@@ -595,7 +595,7 @@ async function confirmSms(): Promise<void> {
         return true
       }
       if (kind === 'noSmsSetup') {
-        // setup scaduto o mai avviato: si torna al numero di telefono
+        // setup expired or never started: go back to the phone number
         openView('smsPhone')
         error.value = t('pachiProfile.security.mfa.smsSetupExpired')
         return true
@@ -607,7 +607,7 @@ async function confirmSms(): Promise<void> {
   }
 }
 
-/** Disattiva l'MFA o rigenera i backup code, in base alla vista, chiedendo la password. */
+/** Disables MFA or regenerates the backup codes, depending on the view, asking for the password. */
 async function submitPassword(): Promise<void> {
   if (countdown.active.value) return
   resetMessages()

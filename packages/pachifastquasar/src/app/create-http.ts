@@ -5,40 +5,40 @@ import { AuthManager } from '../services/auth-manager'
 import { errorMessage } from '../helpers/errormessages-helper'
 import { getPachiQuasar } from '../helpers/quasar-instance'
 
-/** Factory `useAlova` restituita da {@link createPachiHttp} (`useAlova({ url }).alova.Get/Post/...`). */
+/** `useAlova` factory returned by {@link createPachiHttp} (`useAlova({ url }).alova.Get/Post/...`). */
 export type PachiUseAlova = ReturnType<typeof createUseAlova>
 
-/** Ritardo (ms) prima di mostrare lo spinner: le risposte veloci non lampeggiano. */
+/** Delay (ms) before showing the spinner: fast responses do not flicker. */
 const SPINNER_DELAY = 300
 
-/** Opzioni di {@link createPachiHttp}. */
+/** Options of {@link createPachiHttp}. */
 export interface CreatePachiHttpOptions {
   /**
-   * `true` (default): le risposte `{ success, message, data }` vengono scartate e si ottiene solo `data`.
-   * `false` per un backend con `PACHIFAST_ENVELOPE_ENABLED=false` (corpo semplice). Se omessa si usa
-   * `http.envelope` della configurazione della shell.
+   * `true` (default): `{ success, message, data }` responses are unwrapped and only `data` is returned.
+   * `false` for a backend with `PACHIFAST_ENVELOPE_ENABLED=false` (plain body). If omitted, the shell
+   * configuration `http.envelope` is used.
    */
   envelope?: boolean
 }
 
 /**
- * Crea il client HTTP `@ilpachi/use-alova` cablato con la shell: header di autenticazione (solo verso
- * l'origine dell'app) e refresh del token su 401 con `retry()` (`AuthManager`), spinner con ritardo
- * (Quasar `Loading`) e messaggi di errore (Dialog/Notify). Le GET non sono mai in cache (come con
- * httpachi): una richiesta può chiederla con `cacheFor` esplicito. Le richieste possono usare
- * `meta: { autoError: false, spinner: false }` (alias letti da use-alova).
+ * Creates the `@ilpachi/use-alova` HTTP client wired to the shell: authentication header (only towards
+ * the app origin) and token refresh on 401 with `retry()` (`AuthManager`), delayed spinner
+ * (Quasar `Loading`) and error messages (Dialog/Notify). GETs are never cached (as with
+ * httpachi): a request can ask for caching with an explicit `cacheFor`. Requests can use
+ * `meta: { autoError: false, spinner: false }` (aliases read by use-alova).
  *
- * @param options - vedi {@link CreatePachiHttpOptions}
- * @returns factory `useAlova` (alova + adapter fetch)
+ * @param options - see {@link CreatePachiHttpOptions}
+ * @returns `useAlova` factory (alova + fetch adapter)
  */
 export function createPachiHttp(options: CreatePachiHttpOptions = {}): PachiUseAlova {
   const envelope = options.envelope ?? getPachiConfig().http.envelope
   return createUseAlova({
-    // `token_type` del backend (di norma "bearer"); il token va solo a richieste same-origin / baseURL
+    // backend `token_type` (usually "bearer"); the token goes only to same-origin / baseURL requests
     token: () => AuthManager.getAccessToken(),
     authType: () => AuthManager.getTokenType() ?? undefined,
     errorHandlers: [AuthManager.handleErrors(), ...defaultErrorHandlers],
-    // blob/DOM oltre al JSON: serve a `withFiles(...).$download` (@ilpachi/use-alova/files)
+    // blob/DOM besides JSON: needed by `withFiles(...).$download` (@ilpachi/use-alova/files)
     successHandlers: [...fileSuccessHandlers],
     errorMessageFunction: errorMessage,
     unwrapEnvelope: envelope,

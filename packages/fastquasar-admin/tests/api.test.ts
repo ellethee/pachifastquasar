@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { createAdminApi, rowPath } from '../src/helpers/api'
 import type { IPachiAdminHttp } from '../src/helpers/http'
 
-/** Client finto che registra le chiamate. */
+/** Fake client that records the calls. */
 function fakeHttp(result: unknown = {}): { http: IPachiAdminHttp, calls: unknown[][] } {
   const calls: unknown[][] = []
   const rec = (m: string) => (...a: unknown[]) => { calls.push([m, ...a]); return Promise.resolve(result) }
@@ -10,7 +10,7 @@ function fakeHttp(result: unknown = {}): { http: IPachiAdminHttp, calls: unknown
 }
 
 describe('api', () => {
-  it('percorsi con pk uuid/stringa codificata', () => {
+  it('paths with uuid/encoded string pk', () => {
     expect(rowPath('a', 'm', 'x/y z')).toBe('/a/m/x%2Fy%20z')
   })
 
@@ -38,7 +38,7 @@ describe('api', () => {
     expect(calls[5]![2]).toEqual({ ids: [1, 2] })
   })
 
-  it('listModels senza corpo restituisce []', async () => {
+  it('listModels without a body returns []', async () => {
     const get = vi.fn().mockResolvedValue(null)
     const api = createAdminApi({ Get: get } as unknown as IPachiAdminHttp)
     expect(await api.listModels()).toEqual([])

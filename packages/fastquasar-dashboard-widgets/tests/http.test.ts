@@ -7,7 +7,7 @@ import { getPachiWidgetsHttp, resetPachiWidgetsHttp, setPachiWidgetsHttp } from 
 
 const mocked = vi.mocked(getUseAlovaInstance)
 
-/** Crea una factory `useAlova` finta che restituisce `alova`. */
+/** Creates a fake `useAlova` factory returning `alova`. */
 function fakeFactory(alova: unknown): ReturnType<typeof getUseAlovaInstance> {
   return vi.fn(() => ({ alova })) as unknown as ReturnType<typeof getUseAlovaInstance>
 }
@@ -17,8 +17,8 @@ beforeEach(() => {
   mocked.mockReset()
 })
 
-describe('default da @ilpachi/use-alova', () => {
-  it('usa l\'alova di getUseAlovaInstance()', () => {
+describe('default from @ilpachi/use-alova', () => {
+  it('uses the alova from getUseAlovaInstance()', () => {
     const alova = { Get: vi.fn() }
     const f = fakeFactory(alova)
     mocked.mockReturnValue(f)
@@ -26,7 +26,7 @@ describe('default da @ilpachi/use-alova', () => {
     expect(f).toHaveBeenCalledTimes(1)
   })
 
-  it('mette il client in cache finché la factory globale non cambia', () => {
+  it('caches the client until the global factory changes', () => {
     const a = { Get: vi.fn() }
     const b = { Get: vi.fn() }
     const fa = fakeFactory(a)
@@ -40,7 +40,7 @@ describe('default da @ilpachi/use-alova', () => {
     expect(fb).toHaveBeenCalledTimes(1)
   })
 
-  it('lancia un errore chiaro se non esiste un\'istanza', () => {
+  it('throws a clear error if there is no instance', () => {
     mocked.mockImplementation(() => {
       throw new Error('no hook')
     })
@@ -48,8 +48,8 @@ describe('default da @ilpachi/use-alova', () => {
   })
 })
 
-describe('client registrato', () => {
-  it('ha la precedenza e non interpella use-alova', async () => {
+describe('registered client', () => {
+  it('takes precedence and does not query use-alova', async () => {
     const wrapped = { success: true, data: [1] }
     setPachiWidgetsHttp(() => ({ Get: async <T>() => wrapped as T }))
     expect(await getPachiWidgetsHttp().Get('/x')).toBe(wrapped)

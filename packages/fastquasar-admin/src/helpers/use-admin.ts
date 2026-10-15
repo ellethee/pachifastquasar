@@ -8,14 +8,14 @@ import type { IAdminErrorDescription, IPachiErrorTranslator } from './api-error'
 import { resolveHttp } from './http'
 import { getPachiAdminOptions } from './options'
 
-/** Chiave con cui la pagina fornisce il client API ai componenti figli. */
+/** Key with which the page provides the API client to child components. */
 export const ADMIN_API_KEY: InjectionKey<IAdminApi> = Symbol('pachiAdminApi')
 
 /**
- * Client delle API Admin per i componenti: quello fornito dalla pagina antenata, altrimenti uno nuovo costruito
- * con il client HTTP risolto (da chiamare dentro `setup()`).
+ * Admin API client for components: the one provided by the ancestor page, otherwise a new one built
+ * with the resolved HTTP client (to be called inside `setup()`).
  *
- * @returns il client API
+ * @returns the API client
  */
 export function useAdminApi(): IAdminApi {
   const injected = inject(ADMIN_API_KEY, null)
@@ -25,9 +25,9 @@ export function useAdminApi(): IAdminApi {
 }
 
 /**
- * Crea il client API e lo fornisce ai discendenti (da chiamare nella pagina radice, dentro `setup()`).
+ * Creates the API client and provides it to descendants (to be called in the root page, inside `setup()`).
  *
- * @returns il client API
+ * @returns the API client
  */
 export function provideAdminApi(): IAdminApi {
   const { getHttp, basePath } = getPachiAdminOptions()
@@ -36,18 +36,18 @@ export function provideAdminApi(): IAdminApi {
   return api
 }
 
-/** Parte dell'API globale di vue-i18n usata qui (tipo ridotto: quelli completi sono troppo profondi). */
+/** Part of the vue-i18n global API used here (reduced type: the full ones are too deep). */
 interface I18nGlobalLite {
   te: (key: string, locale?: string) => boolean
   locale: unknown
 }
 
 /**
- * Traduttore per {@link describeError}: `te` controlla la lingua corrente e `it`/`en` (lingue dei messaggi del
- * package, sempre presenti), così il fallback di vue-i18n può risolvere `t`.
+ * Translator for {@link describeError}: `te` checks the current language and `it`/`en` (the package message
+ * languages, always present), so the vue-i18n fallback can resolve `t`.
  *
- * @param t - funzione `t` del composer
- * @returns traduttore per i messaggi d'errore
+ * @param t - `t` function of the composer
+ * @returns translator for error messages
  */
 export function createErrorTranslator(
   t: (key: string, params?: Record<string, unknown>) => string
@@ -64,11 +64,11 @@ export function createErrorTranslator(
 }
 
 /**
- * Descrive un errore lanciato da una richiesta (normalizza e traduce).
+ * Describes an error thrown by a request (normalizes and translates).
  *
- * @param err - valore lanciato
- * @param t - funzione `t` del composer
- * @returns descrizione per la UI
+ * @param err - thrown value
+ * @param t - `t` function of the composer
+ * @returns description for the UI
  */
 export async function describeRequestError(
   err: unknown,

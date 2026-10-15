@@ -10,19 +10,19 @@ export interface IDashboardCard {
   description: string
   icon: string
   iconColor?: string | null
-  /** Immagine di sfondo a tema della card (import statico), opzionale. */
+  /** Themed background image of the card (static import), optional. */
   img?: string | null
   parentIcon?: string | null
   parentIconColor?: string | null
   parentUrl?: string | null
   to: string
-  /** Animazione del titolo al passaggio del mouse (vedi `meta.titleAnimation`); vuoto = `app.titleAnimation`. */
+  /** Title animation on mouse hover (see `meta.titleAnimation`); empty = `app.titleAnimation`. */
   titleAnimation?: string | undefined
   stats?: IDashboardCardStat[] | (() => IDashboardCardStat[])
   statsUrl?: string
 }
 
-/** Widget generico montato nella dashboard: componente Vue + props. */
+/** Generic widget mounted in the dashboard: Vue component + props. */
 export interface IDashboardWidget {
   component: Component
   props?: Record<string, unknown>

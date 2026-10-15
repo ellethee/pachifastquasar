@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-/** Stato controllabile del finto AuthManager e della config. */
+/** Controllable state of the fake AuthManager and of the config. */
 const state = vi.hoisted(() => ({
   authEnabled: true,
   authenticated: false,
@@ -41,7 +41,7 @@ vi.mock('src/services/auth-manager', () => ({
 
 const { createPachiRouter } = await import('src/router/create-pachi-router')
 
-/** Naviga e restituisce il percorso finale. */
+/** Navigates and returns the final path. */
 async function go(path: string, enabled = true) {
   state.authEnabled = enabled
   const router = createPachiRouter({ mode: 'memory' })
@@ -59,19 +59,19 @@ describe('guardia beforeEach', () => {
     state.restore.mockImplementation(async () => state.authenticated)
   })
 
-  it('auth disattivata: lascia passare tutto senza toccare la sessione', async () => {
+  it('auth disabled: lets everything through without touching the session', async () => {
     const r = await go('/area', false)
     expect(r.path).toBe('/area')
     expect(state.restore).not.toHaveBeenCalled()
   })
 
-  it('senza sessione: rimanda al login con ?next=', async () => {
+  it('no session: redirects to login with ?next=', async () => {
     const r = await go('/area?a=1')
     expect(r.path).toBe('/auth/login')
     expect(r.query.next).toBe('/area?a=1')
   })
 
-  it('tenta il restore silenzioso sulle route protette e, se riesce, entra', async () => {
+  it('tries a silent restore on protected routes and, if it succeeds, lets through', async () => {
     state.restore.mockImplementation(async () => {
       state.authenticated = true
       return true
@@ -81,20 +81,20 @@ describe('guardia beforeEach', () => {
     expect(r.path).toBe('/libera')
   })
 
-  it('route noAuth: non tenta il restore e, da anonimo, passa', async () => {
+  it('noAuth route: does not try restore and, anonymous, passes', async () => {
     const r = await go('/auth/login')
     expect(state.restore).not.toHaveBeenCalled()
     expect(r.path).toBe('/auth/login')
   })
 
-  it('route noAuth da autenticato: rimanda alla landing', async () => {
+  it('noAuth route when authenticated: redirects to the landing page', async () => {
     state.authenticated = true
     state.landing = '/libera'
     const r = await go('/auth/login')
     expect(r.path).toBe('/libera')
   })
 
-  it('autenticato ma senza permessi: rimanda alla landing', async () => {
+  it('authenticated but without permissions: redirects to the landing page', async () => {
     state.authenticated = true
     state.canAccess = false
     state.landing = '/libera'
@@ -102,7 +102,7 @@ describe('guardia beforeEach', () => {
     expect(r.path).toBe('/libera')
   })
 
-  it('senza permessi sulla landing stessa: resta lì (niente redirect infinito)', async () => {
+  it('no permissions on the landing page itself: stays there (no infinite redirect)', async () => {
     state.authenticated = true
     state.canAccess = false
     state.landing = '/area'

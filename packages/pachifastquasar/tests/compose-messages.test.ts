@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 
 type Tree = Record<string, unknown>
 
-/** deepMerge/collectLocales dell'ambiente reale richiedono il browser (quasar): versione minima equivalente. */
+/** The real environment's deepMerge/collectLocales require the browser (quasar): minimal equivalent version. */
 vi.mock('@ilpachi/pachi-i18n', () => {
   const deepMerge = (base: Tree, over: Tree): Tree => {
     const out: Tree = { ...base }
@@ -29,7 +29,7 @@ vi.mock('@ilpachi/pachi-i18n', () => {
 const { composePachiMessages, pachiShellMessages } = await import('src/i18n')
 
 describe('composePachiMessages', () => {
-  it('senza livelli restituisce i messaggi della shell', () => {
+  it('without levels returns the shell messages', () => {
     expect(Object.keys(composePachiMessages())).toEqual(['it', 'en'])
   })
   it('precedenza: shell < generated < overrides < locales < features', () => {
@@ -45,7 +45,7 @@ describe('composePachiMessages', () => {
     expect((it.errors?.codes as Record<string, string>).a).toBe('gen')
     expect(it.x).toEqual({ y: 1 })
   })
-  it('una nuova lingua dell\'app viene aggiunta', () => {
+  it('a new app language is added', () => {
     const messages = composePachiMessages({ locales: { './locales/pt-BR.ts': { app: { a: 1 } } } })
     expect(Object.keys(messages)).toContain('pt-BR')
   })

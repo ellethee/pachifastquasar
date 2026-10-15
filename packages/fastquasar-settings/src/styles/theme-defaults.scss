@@ -1,6 +1,6 @@
-// Valori di default: se il progetto definisce le stesse variabili --pachi-* hanno la precedenza (specificità zero)
+// Default values: if the project defines the same --pachi-* variables, they take precedence (zero specificity)
 
-// Tema scuro (default) + densità standard + font
+// Dark theme (default) + standard density + font
 :where(:root) {
   --pachi-bg: #0a0d12;
   --pachi-surface: #10141b;
@@ -32,7 +32,7 @@
   --pachi-card-r: 12px;
 }
 
-// Tema chiaro (dichiarato dopo: Quasar alterna body--dark / body--light)
+// Light theme (declared after: Quasar alternates body--dark / body--light)
 :where(body.body--light) {
   --pachi-bg: #f0f4f8;
   --pachi-surface: #ffffff;
@@ -58,14 +58,14 @@
   --pachi-green: #059669;
 }
 
-// Densità compatta
+// Compact density
 :where(:root[data-density='compact']) {
   --pachi-row-h: 32px;
   --pachi-pad: 16px;
   --pachi-card-r: 8px;
 }
 
-// Scala del testo (impostazione `fontScale`, attributo scritto dall'applier): sm | lg, md = default
+// Text scale (`fontScale` setting, attribute written by the applier): sm | lg, md = default
 :where(:root) {
   --pachi-font-scale: 1;
 }
@@ -75,7 +75,7 @@
 :where(:root[data-font-scale='lg']) {
   --pachi-font-scale: 1.12;
 }
-// la dimensione di base di Quasar è su `body` (px): serve una regola più specifica di `body`
+// Quasar's base size is on `body` (px): a rule more specific than `body` is needed
 :root[data-font-scale='sm'] body,
 :root[data-font-scale='lg'] body {
   font-size: calc(14px * var(--pachi-font-scale));
@@ -85,7 +85,7 @@
   font-size: calc(100% * var(--pachi-font-scale));
 }
 
-// Riduci animazioni (impostazione `reduceMotion`)
+// Reduce motion (`reduceMotion` setting)
 :root[data-reduce-motion='true'] *,
 :root[data-reduce-motion='true'] *::before,
 :root[data-reduce-motion='true'] *::after {

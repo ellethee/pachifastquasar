@@ -8,11 +8,11 @@ vi.mock('quasar', () => ({ Notify: { create: pluginNotify } }))
 import { resolveQuasar, showNotify } from '../../src/fields/helpers/quasar-instance'
 
 describe('resolveQuasar', () => {
-  it('fuori da un componente restituisce null', () => {
+  it('outside a component it returns null', () => {
     expect(resolveQuasar()).toBeNull()
   })
 
-  it('in setup restituisce $q dell\'app', async () => {
+  it('in setup it returns the app\'s $q', async () => {
     const $q = { notify: vi.fn() }
     let found: unknown
     const app = createSSRApp(defineComponent({ setup() { found = resolveQuasar(); return () => h('div') } }))
@@ -23,14 +23,14 @@ describe('resolveQuasar', () => {
 })
 
 describe('showNotify', () => {
-  it('usa $q.notify quando disponibile', () => {
+  it('uses $q.notify when available', () => {
     const $q = { notify: vi.fn() } as never
     showNotify($q, { message: 'm' })
     expect(($q as { notify: ReturnType<typeof vi.fn> }).notify).toHaveBeenCalledWith({ message: 'm' })
     expect(pluginNotify).not.toHaveBeenCalled()
   })
 
-  it('ripiega sul plugin importato senza $q', () => {
+  it('falls back to the imported plugin without $q', () => {
     showNotify(null, { message: 'm' })
     expect(pluginNotify).toHaveBeenCalledTimes(1)
   })

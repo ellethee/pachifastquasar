@@ -1,38 +1,38 @@
 /**
- * Eventi di finestra con cui la shell avvisa i package `@ilpachi/*` senza che questi la importino
- * (es. `@ilpachi/fastquasar-settings` carica le impostazioni al login e le svuota al logout).
+ * Window events used by the shell to notify the `@ilpachi/*` packages without them importing it
+ * (e.g. `@ilpachi/fastquasar-settings` loads the settings at login and clears them at logout).
  */
 
-/** Evento emesso quando cambia l'utente autenticato (login, ripristino della sessione, cambio utente, logout). */
+/** Event emitted when the authenticated user changes (login, session restore, user switch, logout). */
 export const PACHI_AUTH_CHANGED_EVENT = 'pachi:auth-changed'
 
-/** Evento emesso quando il tema è cambiato dall'utente tramite `ToggleThemeButton`. */
+/** Event emitted when the user changes the theme through `ToggleThemeButton`. */
 export const PACHI_THEME_CHANGED_EVENT = 'pachi:theme-changed'
 
-/** Dettaglio di {@link PACHI_AUTH_CHANGED_EVENT}. */
+/** Detail of {@link PACHI_AUTH_CHANGED_EVENT}. */
 export interface PachiAuthChangedDetail {
-  /** `true` con una sessione valida. */
+  /** `true` with a valid session. */
   authenticated: boolean
-  /** Identificativo stabile dell'utente (UUID), `null` al logout. */
+  /** Stable user identifier (UUID), `null` at logout. */
   userId: string | null
-  /** Nome utente, `null` al logout. */
+  /** Username, `null` at logout. */
   username: string | null
 }
 
-/** Dettaglio di {@link PACHI_THEME_CHANGED_EVENT}. */
+/** Detail of {@link PACHI_THEME_CHANGED_EVENT}. */
 export interface PachiThemeChangedDetail {
-  /** Tema scelto. */
+  /** Chosen theme. */
   theme: 'dark' | 'light'
 }
 
-/** Ultimo identificativo notificato (`undefined` = mai): evita eventi duplicati a ogni refresh dell'utente. */
+/** Last notified identifier (`undefined` = never): avoids duplicate events on every user refresh. */
 let lastNotified: string | null | undefined
 
 /**
- * Emette un `CustomEvent` su `window` (no-op fuori dal browser).
+ * Emits a `CustomEvent` on `window` (no-op outside the browser).
  *
- * @param type - nome dell'evento
- * @param detail - dettaglio
+ * @param type - event name
+ * @param detail - detail
  */
 function dispatch<T>(type: string, detail: T): void {
   if (typeof window === 'undefined' || typeof CustomEvent === 'undefined') return
@@ -40,11 +40,11 @@ function dispatch<T>(type: string, detail: T): void {
 }
 
 /**
- * Notifica il cambio di utente autenticato. Emette solo se l'identità è cambiata rispetto all'ultima notifica
- * (un refresh del token o dei dati dell'utente non produce eventi).
+ * Notifies the change of authenticated user. Emits only if the identity changed since the last notification
+ * (a token or user data refresh produces no events).
  *
- * @param user - utente corrente (`null` senza sessione)
- * @param force - emette comunque (es. all'avvio, quando un package potrebbe essersi iscritto dopo)
+ * @param user - current user (`null` without a session)
+ * @param force - emit anyway (e.g. at startup, when a package may have subscribed later)
  */
 export function notifyPachiAuthChanged(
   user: { id?: string | null; username?: string | null } | null,
@@ -61,15 +61,15 @@ export function notifyPachiAuthChanged(
 }
 
 /**
- * Notifica che il tema è stato cambiato dall'utente.
+ * Notifies that the theme was changed by the user.
  *
- * @param theme - nuovo tema
+ * @param theme - new theme
  */
 export function notifyPachiThemeChanged(theme: 'dark' | 'light'): void {
   dispatch<PachiThemeChangedDetail>(PACHI_THEME_CHANGED_EVENT, { theme })
 }
 
-/** Azzera la memoria dell'ultima notifica (per i test). */
+/** Resets the memory of the last notification (for tests). */
 export function resetPachiAuthNotification(): void {
   lastNotified = undefined
 }

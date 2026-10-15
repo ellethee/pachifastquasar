@@ -14,29 +14,29 @@ describe('createPachiAlova', () => {
     getInstanceMock.mockImplementation(() => useAlovaMock)
   })
 
-  it('usa getUseAlovaInstance() e passa l\'url', () => {
+  it('uses getUseAlovaInstance() and passes the url', () => {
     const alova = createPachiAlova({ url: '/api/users' }) as unknown as { url: string }
     expect(useAlovaMock).toHaveBeenCalledWith({ url: '/api/users' })
     expect(alova.url).toBe('/api/users')
   })
 
-  it('usa url vuota se non indicata', () => {
+  it('uses an empty url if not given', () => {
     createPachiAlova()
     expect(useAlovaMock).toHaveBeenCalledWith({ url: '' })
   })
 
-  it('riusa l\'istanza se url e useAlova non cambiano, la ricrea se cambia l\'url', () => {
+  it('reuses the instance if url and useAlova do not change, recreates it if the url changes', () => {
     const a = createPachiAlova({ url: '/a' })
     expect(createPachiAlova({ url: '/a' })).toBe(a)
     expect(createPachiAlova({ url: '/b' })).not.toBe(a)
   })
 
-  it('lancia un errore chiaro senza istanza use-alova', () => {
+  it('throws a clear error without a use-alova instance', () => {
     getInstanceMock.mockImplementation(() => { throw new Error('none') })
     expect(() => createPachiAlova({ url: '/x' })).toThrow(/needs an @ilpachi\/use-alova client/)
   })
 
-  it('la factory personalizzata ha la precedenza (e va per ultima: stato globale)', () => {
+  it('the custom factory takes precedence (and goes last: global state)', () => {
     const custom = vi.fn(() => ({ tag: 'custom' }) as never)
     setPachiAlovaFactory(custom as PachiAlovaFactory)
     expect(createPachiAlova({ url: '/z' })).toEqual({ tag: 'custom' })

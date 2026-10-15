@@ -1,23 +1,23 @@
 import type { AdminPk } from '../types/admin'
 import type { IAdminApi } from './api'
 
-/** Numero massimo di titoli mostrati nelle conferme. */
+/** Maximum number of titles shown in confirmations. */
 export const MAX_LABELS = 5
-/** Numero massimo di id chiesti con una sola chiamata. */
+/** Maximum number of ids requested with a single call. */
 const MAX_IDS = 50
 
-/** Titoli da mostrare e quanti altri restano. */
+/** Titles to show and how many others remain. */
 export interface IRowLabelSummary {
   shown: string[]
   more: number
 }
 
 /**
- * Riassume i titoli delle righe: i primi `max` e il numero degli altri (sul totale delle righe selezionate).
+ * Summarizes the row titles: the first `max` and the number of the others (out of the total selected rows).
  *
- * @param labels - titoli ricevuti
- * @param total - numero totale di righe coinvolte
- * @param max - titoli da mostrare
+ * @param labels - received titles
+ * @param total - total number of rows involved
+ * @param max - titles to show
  */
 export function summarizeLabels(labels: string[], total: number, max = MAX_LABELS): IRowLabelSummary {
   const shown = labels.slice(0, max)
@@ -25,13 +25,13 @@ export function summarizeLabels(labels: string[], total: number, max = MAX_LABEL
 }
 
 /**
- * Titoli delle righe con UNA sola chiamata `_options?ids=` del modello stesso (gli errori danno elenco vuoto).
+ * Row titles with a SINGLE `_options?ids=` call of the model itself (errors yield an empty list).
  *
- * @param api - client API
+ * @param api - API client
  * @param app - app
- * @param model - modello
- * @param ids - chiavi primarie (si chiedono al massimo le prime 50)
- * @returns i titoli, nell'ordine delle `ids` quando possibile
+ * @param model - model
+ * @param ids - primary keys (at most the first 50 are requested)
+ * @returns the titles, in the order of `ids` when possible
  */
 export async function loadRowLabels(api: IAdminApi, app: string, model: string, ids: AdminPk[]): Promise<string[]> {
   if (!ids.length) return []

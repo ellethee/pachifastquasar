@@ -3,23 +3,23 @@ import type { Ref } from 'vue'
 import type  PachiUploader  from '../components/PachiUploader.vue'
 
 export interface IPachiUploaderFile extends File {
-  /** Chiave univoca: webkitRelativePath + lastModified + name + size */
+  /** Unique key: webkitRelativePath + lastModified + name + size */
   __key: string
-  /** Stato corrente del file nell'uploader */
+  /** Current status of the file in the uploader */
   __status: 'idle' | 'uploading' | 'uploaded' | 'failed'
-  /** Byte già caricati */
+  /** Bytes already uploaded */
   __uploaded: number
-  /** Progresso normalizzato da 0 a 1 */
+  /** Progress normalized from 0 to 1 */
   __progress: number
-  /** Etichetta progresso, es. "45.32%" */
+  /** Progress label, e.g. "45.32%" */
   __progressLabel: string
-  /** Etichetta dimensione leggibile, es. "1.5 MB" */
+  /** Human-readable size label, e.g. "1.5 MB" */
   __sizeLabel: string
-  /** Solo per immagini: HTMLImageElement con src = ObjectURL del file */
+  /** Images only: HTMLImageElement with src = the file's ObjectURL */
   __img?: HTMLImageElement
-  /** Nome originale del file, impostato quando il nome inviato al server e' stato rinominato dall'utente */
+  /** Original file name, set when the name sent to the server has been renamed by the user */
   __originalName?: string
-  /** Annulla l'upload in corso; impostata dal plugin XHR durante l'upload */
+  /** Cancels the upload in progress; set by the XHR plugin during the upload */
   __abort?: () => void
 }
 export interface IPachiUploaderUpdatableFile extends IPachiUploaderFile {
@@ -36,7 +36,7 @@ export interface IPachiUploaderThumbnailableFile extends IPachiUploaderUpdatable
 export type UpdatableFileItem<T> = T & IPachiUploaderUpdatableFile
 
 export interface IUsePachiUploaderProps<T = unknown> {
-  /** Props da passare al componente QUploader interno */
+  /** Props to pass to the internal QUploader component */
   uploaderProps: Partial<QUploaderProps>
   itemDefaults: T
   filenameKey?: string
@@ -44,24 +44,24 @@ export interface IUsePachiUploaderProps<T = unknown> {
   label?: string|undefined
   headerTarget?: HTMLElement | undefined
   /**
-   * Se fornito, abilita il tracking del progresso server→storage.
-   * Genera un `upload_id`, lo aggiunge come campo form e registra un handler
-   * sull'event bus passato dal consumer.
+   * If provided, enables server→storage progress tracking.
+   * Generates an `upload_id`, adds it as a form field and registers a handler
+   * on the event bus passed by the consumer.
    */
   eventBus?: {
     addHandler: (event: string, handler: { onMessage: (data: unknown) => void }) => void
     removeHandler: (event: string, handler: { onMessage: (data: unknown) => void }) => void
   }
-  /** Nome dell'evento dell'event bus con il progresso server→storage. Default 'upload_progress'. */
+  /** Name of the event bus event carrying the server→storage progress. Default 'upload_progress'. */
   progressEvent?: string
   extraParams?: Record<string, unknown>
   /**
-   * Header aggiuntivi delle richieste di upload: array statico oppure funzione valutata a ogni richiesta
-   * (utile per token che cambiano, es. `() => [{ name: 'Authorization', value: `Bearer ${token()}` }]`).
-   * Non ha effetto se `uploaderProps.headers` e' gia' definito.
+   * Additional headers of the upload requests: static array or function evaluated on every request
+   * (useful for changing tokens, e.g. `() => [{ name: 'Authorization', value: `Bearer ${token()}` }]`).
+   * Has no effect if `uploaderProps.headers` is already defined.
    */
   headers?: { name: string, value: string }[] | (() => { name: string, value: string }[])
-  /** Mostra nell'header i toggle "batch" e "dry run" (default false: sono solo flag esposti in `useBatch`/`dryRun`, senza logica interna). */
+  /** Shows the "batch" and "dry run" toggles in the header (default false: they are only flags exposed in `useBatch`/`dryRun`, with no internal logic). */
   showBatchToggles?: boolean
 }
 
@@ -96,7 +96,7 @@ export interface IPachiUploaderProps<T = unknown> extends IUsePachiUploaderProps
   getFileMetadata: (key: string) => T
   itemsMetadata:  Record<string, T>
   fileStatuses: Record<string, string>
-  /** Progresso upload server→storage per file, keyed by __key. Popolato solo se e' stato passato `eventBus`. */
+  /** Server→storage upload progress per file, keyed by __key. Populated only if `eventBus` was passed. */
   storageStatuses: Record<string, IStorageFileStatus>
   events: IPachiUploaderPropsEvents
   filenameKey: string
@@ -108,7 +108,7 @@ export interface IUsePachiUploaderReturn<T = unknown> {
   pachiUploaderProps: IPachiUploaderProps<T>
 }
 
-/** Scope dello slot `header` del `QUploader` usato dall'header di `PachiUploader`. */
+/** Scope of the `header` slot of `QUploader` used by the `PachiUploader` header. */
 export interface IUploaderHeaderScope {
   canAddFiles: boolean
   canUpload: boolean

@@ -2,34 +2,34 @@ import { getPachiI18n, pachiT } from '@ilpachi/pachi-i18n'
 import type { ISettingsCategory, ISettingsSchema } from '../types/settings-manager'
 
 /**
- * Traduce una chiave di messaggio del backend (es. `settings.audit.title`) nella lingua corrente.
- * Se la chiave manca (o non è presente nei messaggi dell'app) restituisce `fallback`.
+ * Translates a backend message key (e.g. `settings.audit.title`) into the current language.
+ * If the key is missing (or absent from the app messages) it returns `fallback`.
  *
- * @param key - chiave inviata dal backend (`titleKey`, `labelKey`, valori di `propertyKeys`/`optionKeys`)
- * @param fallback - testo già presente nello schema (tradotto dal backend o in inglese)
+ * @param key - key sent by the backend (`titleKey`, `labelKey`, values of `propertyKeys`/`optionKeys`)
+ * @param fallback - text already present in the schema (translated by the backend or in English)
  */
 export function resolveSchemaText(key: string | undefined, fallback: string): string
 export function resolveSchemaText(key: string | undefined, fallback: string | undefined): string | undefined
 export function resolveSchemaText(key: string | undefined, fallback: string | undefined): string | undefined {
   if (!key) return fallback
-  // `te` con chiave dinamica: si evita la tipizzazione ricorsiva dello schema dei messaggi
+  // `te` with a dynamic key: avoids the recursive typing of the messages schema
   const global = getPachiI18n()?.global as unknown as { te: (key: string) => boolean } | undefined
   return global?.te(key) ? pachiT(key) : fallback
 }
 
-/** Titolo di una sezione: `titleKey` tradotta, altrimenti `title`. */
+/** Title of a section: translated `titleKey`, otherwise `title`. */
 export function sectionTitle(category: ISettingsCategory & { titleKey?: string }): string {
   return resolveSchemaText(category.titleKey, category.title)
 }
 
 /**
- * Proprietà da passare al componente di un campo con i testi tradotti dalle chiavi dello schema:
- * - `label`: `propertyKeys.label`, poi `labelKey`, poi il valore già presente;
- * - altre proprietà di testo (`hint`, `placeholder`, ...): `propertyKeys.<nome>`;
+ * Properties to pass to a field's component, with texts translated from the schema keys:
+ * - `label`: `propertyKeys.label`, then `labelKey`, then the value already present;
+ * - other text properties (`hint`, `placeholder`, ...): `propertyKeys.<name>`;
  * - `options[].label`: `optionKeys.<value>`.
- * Non modifica lo schema originale.
+ * Does not modify the original schema.
  *
- * @param field - campo dello schema
+ * @param field - schema field
  */
 export function fieldProperties(field: ISettingsSchema): Record<string, unknown> {
   const properties: Record<string, unknown> = { ...field.properties }

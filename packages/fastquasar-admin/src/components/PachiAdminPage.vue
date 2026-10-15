@@ -57,22 +57,22 @@ import { modelTitle } from '../helpers/schema-text'
 import { describeRequestError, provideAdminApi } from '../helpers/use-admin'
 
 /**
- * Pagina Admin: elenco dei modelli visibili a sinistra, vista del modello selezionato a destra.
- * La selezione segue la route (`/admin/:app/:model`, passata come props) o, senza router, lo stato locale.
+ * Admin page: list of visible models on the left, view of the selected model on the right.
+ * The selection follows the route (`/admin/:app/:model`, passed as props) or, without a router, the local state.
  */
 const props = withDefaults(defineProps<{
-  /** App del modello selezionato (parametro di route). */
+  /** App of the selected model (route parameter). */
   app?: string | undefined
-  /** Modello selezionato (parametro di route). */
+  /** Selected model (route parameter). */
   model?: string | undefined
-  /** Prefisso delle route per la navigazione. Default `/admin`. */
+  /** Route prefix for navigation. Default `/admin`. */
   basePath?: string | undefined
 }>(), { app: undefined, model: undefined, basePath: '/admin' })
 
 const { t } = usePachiI18n(messages)
 const api = provideAdminApi()
 
-/** Router dell'app (nessuna dipendenza da vue-router: si usa `$router` se c'è). */
+/** The app router (no dependency on vue-router: `$router` is used if present). */
 const router = (getCurrentInstance()?.proxy as unknown as { $router?: { push: (to: string) => unknown } } | null)?.$router as { push: (to: string) => unknown, replace: (to: string) => unknown } | undefined
 
 const models = ref<IAdminModelInfo[]>([])
@@ -80,22 +80,22 @@ const loading = ref(true)
 const errorText = ref('')
 const local = ref<{ app: string, model: string } | null>(null)
 
-/** Selezione da route o locale. */
+/** Selection from route or local. */
 const routeSelection = computed(() => {
   if (props.app && props.model) return { app: props.app, model: props.model }
   return local.value
 })
 
-/** Modello attivo nella lista. */
+/** Active model in the list. */
 function isActive(m: IAdminModelInfo): boolean {
   const sel = routeSelection.value
   return !!sel && sel.app === m.app && sel.model === m.model
 }
 
 /**
- * Seleziona un modello (aggiorna la route se c'è un router).
+ * Selects a model (updates the route if there is a router).
  *
- * @param m - modello scelto
+ * @param m - chosen model
  */
 function select(m: IAdminModelInfo): void {
   local.value = { app: m.app, model: m.model }
@@ -103,7 +103,7 @@ function select(m: IAdminModelInfo): void {
   if (router) void router.push(to)
 }
 
-/** Carica l'elenco dei modelli visibili. */
+/** Loads the list of visible models. */
 async function loadModels(force = false): Promise<void> {
   loading.value = true
   errorText.value = ''

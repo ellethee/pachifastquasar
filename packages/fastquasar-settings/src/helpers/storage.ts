@@ -1,8 +1,8 @@
 /**
- * Accesso difensivo a `localStorage` (assente in test/SSR, bloccato in modalità privata): gli errori sono ignorati.
+ * Defensive access to `localStorage` (absent in tests/SSR, blocked in private mode): errors are ignored.
  */
 
-/** Legge una chiave (o `null` se assente o non leggibile). */
+/** Reads a key (or `null` if absent or unreadable). */
 export function readStorage(key: string): string | null {
   try {
     return globalThis.localStorage?.getItem(key) ?? null
@@ -11,20 +11,20 @@ export function readStorage(key: string): string | null {
   }
 }
 
-/** Scrive una chiave (no-op se lo storage non è disponibile). */
+/** Writes a key (no-op if storage is unavailable). */
 export function writeStorage(key: string, value: string): void {
   try {
     globalThis.localStorage?.setItem(key, value)
   } catch {
-    // storage non disponibile: la preferenza vale solo per la sessione
+    // storage unavailable: the preference only lasts for the session
   }
 }
 
-/** Rimuove una chiave (no-op se lo storage non è disponibile). */
+/** Removes a key (no-op if storage is unavailable). */
 export function removeStorage(key: string): void {
   try {
     globalThis.localStorage?.removeItem(key)
   } catch {
-    // storage non disponibile
+    // storage unavailable
   }
 }

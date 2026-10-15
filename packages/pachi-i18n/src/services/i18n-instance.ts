@@ -3,20 +3,20 @@ import { watch } from 'vue'
 import type { CreatePachiI18nOptions, PachiMessageMap } from '../types'
 import { detectLocale, matchLocale } from '../helper/detect-locale'
 
-/** Istanza vue-i18n creata da {@link createPachiI18n} (modalità composition). */
+/** vue-i18n instance created by {@link createPachiI18n} (composition mode). */
 export type PachiI18n = I18n<Record<string, never>, Record<string, never>, Record<string, never>, string, false>
 
 const INSTANCE_KEY = Symbol.for('@ilpachi/pachi-i18n/instance')
 
 const STOP_KEY = Symbol.for('@ilpachi/pachi-i18n/stop')
 
-/** Contenitore su `globalThis`: resta unico anche se il package venisse duplicato dal bundler. */
+/** Holder on `globalThis`: stays unique even if the bundler duplicates the package. */
 const holder = globalThis as unknown as Record<symbol, PachiI18n | (() => void) | undefined>
 
 /**
- * Dismette l'istanza globale: ferma il watcher che persiste/applica i cambi di lingua e la dimentica
- * (`getPachiI18n()` torna `undefined`). Utile in test, HMR o per ricreare l'i18n; è idempotente.
- * `createPachiI18n` la chiama da sé prima di creare una nuova istanza.
+ * Disposes the global instance: stops the watcher that persists/applies locale changes and forgets it
+ * (`getPachiI18n()` returns `undefined`). Useful in tests, HMR or to recreate the i18n; it is idempotent.
+ * `createPachiI18n` calls it by itself before creating a new instance.
  */
 export function disposePachiI18n(): void {
   const stop = holder[STOP_KEY]
@@ -25,12 +25,12 @@ export function disposePachiI18n(): void {
   holder[INSTANCE_KEY] = undefined
 }
 
-/** Restituisce l'istanza creata da {@link createPachiI18n}, oppure `undefined` se non ancora creata. */
+/** Returns the instance created by {@link createPachiI18n}, or `undefined` if not created yet. */
 export function getPachiI18n(): PachiI18n | undefined {
   return holder[INSTANCE_KEY] as PachiI18n | undefined
 }
 
-/** Come {@link getPachiI18n} ma solleva un errore se l'istanza non esiste. */
+/** Like {@link getPachiI18n} but throws if the instance does not exist. */
 export function requirePachiI18n(): PachiI18n {
   const instance = getPachiI18n()
   if (!instance) throw new Error('@ilpachi/pachi-i18n: call createPachiI18n() (i18n boot) before using it.')
@@ -38,13 +38,13 @@ export function requirePachiI18n(): PachiI18n {
 }
 
 /**
- * Risolve `fixedLocale` tra le lingue disponibili (match esatto, base, variante).
- * Se non corrisponde a nulla ripiega su `defaultLocale` (o sulla prima lingua) con un warning.
+ * Resolves `fixedLocale` among the available locales (exact, base, variant match).
+ * If nothing matches it falls back to `defaultLocale` (or the first locale) with a warning.
  *
- * @param fixedLocale - codice richiesto (vuoto/assente = lingua non fissa)
- * @param messages - messaggi per lingua
- * @param defaultLocale - lingua di ripiego
- * @returns il codice della lingua fissa oppure `undefined`
+ * @param fixedLocale - requested code (empty/missing = no fixed locale)
+ * @param messages - messages per locale
+ * @param defaultLocale - fallback locale
+ * @returns the fixed locale code or `undefined`
  */
 function resolveFixedLocale(
   fixedLocale: string | undefined,
@@ -56,22 +56,22 @@ function resolveFixedLocale(
   const match = matchLocale(fixedLocale.trim(), available)
   if (match) return match
   const fallback = matchLocale(defaultLocale, available) ?? available[0] ?? defaultLocale
-  console.warn(`[pachi-i18n] lingua fissa "${fixedLocale}" non disponibile (${available.join(', ')}): uso "${fallback}"`)
+  console.warn(`[pachi-i18n] fixed locale "${fixedLocale}" not available (${available.join(', ')}): using "${fallback}"`)
   return fallback
 }
 
 /**
- * Crea l'istanza vue-i18n (composition, `legacy: false`) e la memorizza come singleton del modulo.
- * Con `fixedLocale` usa solo quella lingua (niente rilevamento né persistenza).
- * Altrimenti rileva la lingua iniziale (localStorage, poi `navigator.languages`, poi `defaultLocale`), persiste ogni
- * cambio, aggiorna `document.documentElement.lang` e chiama `onLocaleChange`.
- * Va installata con `app.use(i18n)`.
+ * Creates the vue-i18n instance (composition, `legacy: false`) and stores it as the module singleton.
+ * With `fixedLocale` it uses only that locale (no detection nor persistence).
+ * Otherwise it detects the initial locale (localStorage, then `navigator.languages`, then `defaultLocale`), persists
+ * every change, updates `document.documentElement.lang` and calls `onLocaleChange`.
+ * It must be installed with `app.use(i18n)`.
  *
- * Pensato per una SPA (SSR non supportato: l'istanza è un singleton su `globalThis`). Ne esiste una sola alla volta:
- * una nuova chiamata dismette la precedente (vedi {@link disposePachiI18n}); installa sempre l'ultima creata, perché
- * `usePachiI18n`/`useLocale`/`pachiT` lavorano su quella globale.
+ * Meant for a SPA (SSR not supported: the instance is a singleton on `globalThis`). Only one exists at a time:
+ * a new call disposes the previous one (see {@link disposePachiI18n}); always install the last one created, because
+ * `usePachiI18n`/`useLocale`/`pachiT` work on the global one.
  *
- * @param options - vedi {@link CreatePachiI18nOptions}
+ * @param options - see {@link CreatePachiI18nOptions}
  */
 export function createPachiI18n(options: CreatePachiI18nOptions): PachiI18n {
   const {
@@ -88,11 +88,11 @@ export function createPachiI18n(options: CreatePachiI18nOptions): PachiI18n {
   const catalog = fixed ? { [fixed]: messages[fixed] ?? {} } : messages
   const available = Object.keys(catalog)
   const forced = initialLocale ? matchLocale(initialLocale, available) : undefined
-  // defaultLocale non presente nei messaggi dell'app: si ripiega sulla variante/prima lingua disponibile
+  // defaultLocale not present in the app messages: fall back to the variant/first available locale
   const matchedDefault = matchLocale(defaultLocale, available)
   const safeDefault = matchedDefault ?? available[0] ?? defaultLocale
   if (!matchedDefault && available.length > 0 && !fixed) {
-    console.warn(`[pachi-i18n] defaultLocale "${defaultLocale}" non disponibile (${available.join(', ')}): uso "${safeDefault}"`)
+    console.warn(`[pachi-i18n] defaultLocale "${defaultLocale}" not available (${available.join(', ')}): using "${safeDefault}"`)
   }
   const locale = fixed ?? forced ?? detectLocale(available, safeDefault, storageKey)
 
@@ -104,8 +104,8 @@ export function createPachiI18n(options: CreatePachiI18nOptions): PachiI18n {
   }) as unknown as PachiI18n
   holder[INSTANCE_KEY] = i18n
 
-  // onLocaleChange può essere asincrona: le chiamate sono serializzate e, con cambi rapidi, le lingue
-  // intermedie vengono saltate così vince sempre l'ultima richiesta (niente risoluzioni fuori ordine)
+  // onLocaleChange may be async: calls are serialized and, on rapid changes, intermediate locales
+  // are skipped so the last request always wins (no out-of-order resolutions)
   let latest = locale
   let running = false
   const flush = async (): Promise<void> => {
@@ -126,7 +126,7 @@ export function createPachiI18n(options: CreatePachiI18nOptions): PachiI18n {
     }
   }
 
-  /** Effetti collaterali di una lingua attiva (attributo lang, callback). */
+  /** Side effects of an active locale (lang attribute, callback). */
   const apply = (code: string): void => {
     if (typeof document !== 'undefined') document.documentElement.lang = code
     latest = code
@@ -139,7 +139,7 @@ export function createPachiI18n(options: CreatePachiI18nOptions): PachiI18n {
     try {
       localStorage.setItem(storageKey, code)
     } catch {
-      // localStorage non disponibile: la scelta vale solo per la sessione
+      // localStorage unavailable: the choice only lasts for the session
     }
     apply(code)
   })

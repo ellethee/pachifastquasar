@@ -1,20 +1,20 @@
 import type { IPachiApiError } from './api-error'
 import { primaryItem } from './api-error'
 
-/** Lunghezza minima di default della nuova password (come il backend `pachifast`). */
+/** Default minimum length of the new password (same as the `pachifast` backend). */
 export const DEFAULT_MIN_PASSWORD_LENGTH = 12
 
-/** Valori del form di cambio password. */
+/** Change password form values. */
 export interface IPasswordFormValues {
   current: string
   next: string
   confirm: string
 }
 
-/** Chiavi di errore di validazione (tradotte da `pachiProfile.security.password.validation.<chiave>`). */
+/** Validation error keys (translated from `pachiProfile.security.password.validation.<key>`). */
 export type PasswordFieldError = 'required' | 'tooShort' | 'mismatch'
 
-/** Errori per campo (assente = campo valido). */
+/** Errors per field (missing = valid field). */
 export interface IPasswordFormErrors {
   current?: PasswordFieldError
   next?: PasswordFieldError
@@ -22,11 +22,11 @@ export interface IPasswordFormErrors {
 }
 
 /**
- * Valida il form: tutti i campi obbligatori, nuova password di almeno `minLength` caratteri, conferma uguale.
+ * Validates the form: all fields required, new password of at least `minLength` characters, matching confirmation.
  *
- * @param values - valori correnti
- * @param minLength - lunghezza minima richiesta
- * @returns errori per campo (oggetto vuoto se valido)
+ * @param values - current values
+ * @param minLength - required minimum length
+ * @returns errors per field (empty object if valid)
  */
 export function validatePasswordForm(values: IPasswordFormValues, minLength: number): IPasswordFormErrors {
   const errors: IPasswordFormErrors = {}
@@ -39,21 +39,21 @@ export function validatePasswordForm(values: IPasswordFormValues, minLength: num
 }
 
 /**
- * `true` se non ci sono errori.
+ * `true` if there are no errors.
  *
- * @param errors - risultato di {@link validatePasswordForm}
+ * @param errors - result of {@link validatePasswordForm}
  */
 export function isPasswordFormValid(errors: IPasswordFormErrors): boolean {
   return Object.keys(errors).length === 0
 }
 
 /**
- * Nuovo minimo se l'errore è `auth.password_too_short` con `params.min_length` numerico intero positivo
- * (anche stringa numerica), altrimenti il minimo corrente.
+ * New minimum if the error is `auth.password_too_short` with a positive integer numeric `params.min_length`
+ * (a numeric string is accepted too), otherwise the current minimum.
  *
- * @param error - errore normalizzato della richiesta
- * @param current - minimo corrente
- * @returns minimo aggiornato
+ * @param error - normalized request error
+ * @param current - current minimum
+ * @returns updated minimum
  */
 export function minLengthFromError(error: IPachiApiError, current: number): number {
   const item = primaryItem(error)
@@ -63,15 +63,15 @@ export function minLengthFromError(error: IPachiApiError, current: number): numb
   return typeof n === 'number' && Number.isInteger(n) && n > 0 ? n : current
 }
 
-/** Dove mostrare un errore del backend nel form. */
+/** Where to show a backend error in the form. */
 export type PasswordErrorTarget = 'current' | 'next' | 'form'
 
 /**
- * Campo a cui attribuire l'errore del backend: `auth.password_incorrect` → password attuale,
- * `auth.password_too_short` e `auth.password_unchanged` → nuova password, il resto → messaggio generale del form.
+ * Field to which the backend error is attributed: `auth.password_incorrect` → current password,
+ * `auth.password_too_short` and `auth.password_unchanged` → new password, anything else → general form message.
  *
- * @param error - errore normalizzato
- * @returns bersaglio dell'errore
+ * @param error - normalized error
+ * @returns error target
  */
 export function passwordErrorTarget(error: IPachiApiError): PasswordErrorTarget {
   const code = primaryItem(error)?.code

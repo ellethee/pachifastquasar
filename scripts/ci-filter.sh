@@ -1,22 +1,22 @@
 #!/usr/bin/env bash
-# Stampa il filtro pnpm per la CI selettiva: "...[<base>]..." (pacchetti toccati + dipendenti + dipendenze) oppure "*" (tutto).
-# Uso: scripts/ci-filter.sh <base-ref>   (vuoto o non risolvibile => tutto)
-# Se cambiano file fuori da packages/ e playground/ (lockfile, workspace, workflow, script) si costruisce tutto.
+# Prints the pnpm filter for the selective CI: "...[<base>]..." (touched packages + dependents + dependencies) or "*" (everything).
+# Usage: scripts/ci-filter.sh <base-ref>   (empty or unresolvable => everything)
+# If files outside packages/ and playground/ change (lockfile, workspace, workflow, scripts) everything is built.
 set -euo pipefail
 
-# Stampa "*" (tutti i pacchetti).
+# Prints "*" (all packages).
 all() {
   echo '*'
 }
 
-# Argomento: base-ref. Stampa il filtro da passare a `pnpm --filter`.
+# Argument: base-ref. Prints the filter to pass to `pnpm --filter`.
 main() {
   local base="${1:-}"
   if [ -z "$base" ] || ! git rev-parse --verify --quiet "$base^{commit}" >/dev/null; then
     all
     return
   fi
-  # `grep -q` chiude la pipe al primo risultato: senza `|| true` pipefail leggerebbe l'uscita di git diff (SIGPIPE) come falso
+  # `grep -q` closes the pipe at the first match: without `|| true` pipefail would read git diff's exit (SIGPIPE) as a failure
   local outside
   outside="$(git diff --name-only "$base"...HEAD | grep -vE '^(packages|playground)/' || true)"
   if [ -n "$outside" ]; then

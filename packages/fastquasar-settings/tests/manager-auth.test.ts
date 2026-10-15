@@ -25,7 +25,7 @@ const schema = {
   },
   preferences: { title: 'P', icon: null, route: null, fields: { locale: { component: 'select', apply: 'locale' }, tablePageSize: { component: 'number' } } },
 }
-/** Valori per utente (simula il backend). */
+/** Per-user values (simulates the backend). */
 const backend: Record<string, Record<string, Record<string, unknown>>> = {
   u1: { appearance: { theme: 'light', accent: 'indigo', density: 'compact' }, preferences: { locale: 'en', tablePageSize: 50 } },
   u2: { appearance: { theme: 'dark', accent: 'teal', density: 'comf' }, preferences: { locale: null, tablePageSize: 25 } },
@@ -62,8 +62,8 @@ beforeEach(() => {
   })
 })
 
-describe('eventi auth -> settings manager', () => {
-  it('al login carica, applica e scrive la cache dell\'utente', async () => {
+describe('auth events -> settings manager', () => {
+  it('on login loads, applies and writes the user cache', async () => {
     await handleAuthChanged({ authenticated: true, userId: 'u1', username: 'ann' })
     const m = SettingsManager.getInstance()
     expect(m.get('appearance', 'accent')).toBe('indigo')
@@ -75,7 +75,7 @@ describe('eventi auth -> settings manager', () => {
     expect(cache?.apply['appearance.accent']).toBe('accent')
   })
 
-  it('al boot applica la cache dell\'utente prima della risposta (nessun flash)', () => {
+  it('on boot applies the user cache before the response (no flash)', () => {
     storage.set(settingsCacheKey('u1'), JSON.stringify({
       v: 1, apply: { 'appearance.density': 'density', 'appearance.accent': 'accent' },
       values: { 'appearance.density': 'compact', 'appearance.accent': 'violet' },
@@ -85,7 +85,7 @@ describe('eventi auth -> settings manager', () => {
     expect(css.get('--pachi-accent')).toBeDefined()
   })
 
-  it('al logout svuota lo store e riporta gli applier al default, mantenendo la cache dell\'utente', async () => {
+  it('on logout clears the store and resets the appliers to default, keeping the user cache', async () => {
     await handleAuthChanged({ authenticated: true, userId: 'u1' })
     await handleAuthChanged({ authenticated: false, userId: null })
     const m = SettingsManager.getInstance()
@@ -97,7 +97,7 @@ describe('eventi auth -> settings manager', () => {
     expect(puts).toHaveLength(0)
   })
 
-  it('il cambio utente non mostra i dati dell\'altro', async () => {
+  it('switching user does not show the other user\'s data', async () => {
     await handleAuthChanged({ authenticated: true, userId: 'u1' })
     currentUser = 'u2'
     await handleAuthChanged({ authenticated: true, userId: 'u2' })
@@ -109,7 +109,7 @@ describe('eventi auth -> settings manager', () => {
     currentUser = 'u1'
   })
 
-  it('una risposta in volo di un utente precedente viene scartata', async () => {
+  it('an in-flight response of a previous user is discarded', async () => {
     const m = SettingsManager.getInstance()
     const loading = handleAuthChanged({ authenticated: true, userId: 'u1' })
     m.deactivateUser()
@@ -118,7 +118,7 @@ describe('eventi auth -> settings manager', () => {
     expect(css.size).toBe(0)
   })
 
-  it('lo stesso utente già caricato non ricarica', async () => {
+  it('the same already-loaded user does not reload', async () => {
     const get = vi.fn(async (url: string) => (url.endsWith('/schema') ? schema : backend['u1']) as never)
     setPachiSettingsOptions({ getHttp: () => ({ Get: get, Put: async () => undefined }) })
     await handleAuthChanged({ authenticated: true, userId: 'u1' })
@@ -126,7 +126,7 @@ describe('eventi auth -> settings manager', () => {
     expect(get).toHaveBeenCalledTimes(2)
   })
 
-  it('set() applica subito, aggiorna la cache e salva (PUT) dopo il debounce', async () => {
+  it('set() applies immediately, updates the cache and saves (PUT) after the debounce', async () => {
     vi.useFakeTimers()
     await handleAuthChanged({ authenticated: true, userId: 'u1' })
     const m = SettingsManager.getInstance()
@@ -138,7 +138,7 @@ describe('eventi auth -> settings manager', () => {
     vi.useRealTimers()
   })
 
-  it('pachi:theme-changed e cambio lingua salvano il campo con l\'applier corrispondente', async () => {
+  it('pachi:theme-changed and language change save the field with the matching applier', async () => {
     vi.useFakeTimers()
     await handleAuthChanged({ authenticated: true, userId: 'u1' })
     handleThemeChanged('dark')
@@ -153,7 +153,7 @@ describe('eventi auth -> settings manager', () => {
     vi.useRealTimers()
   })
 
-  it('con vecchio backend (senza appearance.theme) il cambio tema non salva nulla', async () => {
+  it('with an old backend (without appearance.theme) a theme change saves nothing', async () => {
     const old = { preferences: { title: 'P', icon: null, route: null, fields: { other: { component: 'string' } } } }
     setPachiSettingsOptions({ getHttp: () => ({ Get: async (u: string) => (u.endsWith('/schema') ? old : {}) as never, Put: async () => undefined }) })
     await handleAuthChanged({ authenticated: true, userId: 'u1' })

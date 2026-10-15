@@ -1,6 +1,6 @@
 import { mdiPuzzleOutline } from '@quasar/extras/mdi-v7'
 
-/** Pagina d'esempio di `@ilpachi/pachi-kit` (sotto-percorsi `ui` e `dialog`). */
+/** Example page of `@ilpachi/pachi-kit` (`ui` and `dialog` sub-paths). */
 export default [
   {
     path: '/kit',

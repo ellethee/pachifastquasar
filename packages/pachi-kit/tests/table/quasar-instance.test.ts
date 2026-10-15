@@ -9,11 +9,11 @@ vi.mock('quasar', () => ({ Dialog: { create: pluginDialog }, Notify: { create: p
 import { openDialog, resolveQuasar, showNotify } from '../../src/table/helpers/quasar-instance'
 
 describe('resolveQuasar', () => {
-  it('fuori da un componente restituisce null', () => {
+  it('outside a component it returns null', () => {
     expect(resolveQuasar()).toBeNull()
   })
 
-  it('in setup restituisce $q dell\'app', async () => {
+  it('in setup it returns the app\'s $q', async () => {
     const $q = { dialog: vi.fn(), notify: vi.fn() }
     let found: unknown
     const app = createSSRApp(defineComponent({ setup() { found = resolveQuasar(); return () => h('div') } }))
@@ -24,7 +24,7 @@ describe('resolveQuasar', () => {
 })
 
 describe('openDialog / showNotify', () => {
-  it('usano $q quando disponibile', () => {
+  it('use $q when available', () => {
     const $q = { dialog: vi.fn(() => 'd'), notify: vi.fn() } as never
     expect(openDialog($q, { title: 'x' })).toBe('d')
     showNotify($q, { message: 'm' })
@@ -32,7 +32,7 @@ describe('openDialog / showNotify', () => {
     expect(pluginNotify).not.toHaveBeenCalled()
   })
 
-  it('ripiegano sui plugin importati senza $q', () => {
+  it('fall back to the imported plugins without $q', () => {
     openDialog(null, { title: 'x' })
     showNotify(null, { message: 'm' })
     expect(pluginDialog).toHaveBeenCalledTimes(1)

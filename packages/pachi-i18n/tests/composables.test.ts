@@ -3,7 +3,7 @@ import { nextTick } from 'vue'
 
 vi.mock('vue-i18n', async (orig) => {
   const actual = await orig<typeof import('vue-i18n')>()
-  // legge l'istanza dal singleton su globalThis (evita import circolari dentro la factory)
+  // read the instance from the singleton on globalThis (avoids circular imports inside the factory)
   const instance = () => (globalThis as Record<symbol, { global: unknown } | undefined>)[Symbol.for('@ilpachi/pachi-i18n/instance')]!
   return { ...actual, useI18n: () => instance().global }
 })
@@ -23,7 +23,7 @@ afterEach(() => {
 })
 
 describe('usePachiI18n / registerMessages', () => {
-  it('registra i messaggi del package senza sovrascrivere quelli dell\'app (omitExisting + merge)', () => {
+  it('registers package messages without overwriting the app ones (omitExisting + merge)', () => {
     createPachiI18n({ messages: { it: { pkg: { hi: 'Ciao app' } }, en: {} }, initialLocale: 'it' })
     const { t } = usePachiI18n(pkg)
     expect(t('pkg.hi')).toBe('Ciao app')
@@ -31,13 +31,13 @@ describe('usePachiI18n / registerMessages', () => {
     expect(getPachiI18n()!.global.getLocaleMessage('en')).toMatchObject({ pkg: { hi: 'Hello pkg' } })
   })
 
-  it('ignora le lingue non offerte dall\'app', () => {
+  it('ignores locales not offered by the app', () => {
     createPachiI18n({ messages: { it: {} }, initialLocale: 'it' })
     usePachiI18n(pkg)
     expect(getPachiI18n()!.global.availableLocales).toEqual(['it'])
   })
 
-  it('app en-US/it-IT con package it/en: usa matchLocale', () => {
+  it('app en-US/it-IT with package it/en: uses matchLocale', () => {
     createPachiI18n({ messages: { 'it-IT': {}, 'en-US': {} }, initialLocale: 'en-US' })
     const { t } = usePachiI18n(pkg)
     expect(t('pkg.hi')).toBe('Hello pkg')
@@ -45,7 +45,7 @@ describe('usePachiI18n / registerMessages', () => {
     expect(t('pkg.hi')).toBe('Ciao pkg')
   })
 
-  it('registra una sola volta e riempie le lingue aggiunte a runtime alla chiamata successiva', () => {
+  it('registers only once and fills locales added at runtime on the next call', () => {
     const i18n = createPachiI18n({ messages: { it: {} }, initialLocale: 'it' })
     const merge = vi.spyOn(i18n.global, 'mergeLocaleMessage')
     usePachiI18n(pkg)
@@ -58,8 +58,8 @@ describe('usePachiI18n / registerMessages', () => {
   })
 })
 
-describe('createPachiI18n: defaultLocale e ciclo di vita', () => {
-  it('defaultLocale non presente: ripiega sulla lingua disponibile e aggiorna html lang', () => {
+describe('createPachiI18n: defaultLocale and lifecycle', () => {
+  it('defaultLocale not present: falls back to the available locale and updates html lang', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     const doc = { documentElement: { lang: '' } }
     vi.stubGlobal('document', doc)
@@ -71,7 +71,7 @@ describe('createPachiI18n: defaultLocale e ciclo di vita', () => {
     warn.mockRestore()
   })
 
-  it('una nuova istanza dismette la precedente (un solo watcher)', async () => {
+  it('a new instance disposes the previous one (a single watcher)', async () => {
     const setItem = vi.fn()
     vi.stubGlobal('localStorage', { getItem: () => null, setItem })
     const first = createPachiI18n({ messages: { it: {}, en: {} }, initialLocale: 'it' })
@@ -81,14 +81,14 @@ describe('createPachiI18n: defaultLocale e ciclo di vita', () => {
     expect(setItem).not.toHaveBeenCalled()
   })
 
-  it('disposePachiI18n e\' idempotente e azzera l\'istanza', () => {
+  it('disposePachiI18n is idempotent and resets the instance', () => {
     createPachiI18n({ messages: { it: {} }, initialLocale: 'it' })
     disposePachiI18n()
     disposePachiI18n()
     expect(getPachiI18n()).toBeUndefined()
   })
 
-  it('persiste la lingua in localStorage al cambio', async () => {
+  it('persists the locale in localStorage on change', async () => {
     const setItem = vi.fn()
     vi.stubGlobal('localStorage', { getItem: () => null, setItem })
     const i18n = createPachiI18n({ messages: { it: {}, en: {} }, initialLocale: 'it', storageKey: 'k' })
@@ -97,13 +97,13 @@ describe('createPachiI18n: defaultLocale e ciclo di vita', () => {
     expect(setItem).toHaveBeenCalledWith('k', 'en')
   })
 
-  it('legge la lingua salvata in localStorage', () => {
+  it('reads the locale saved in localStorage', () => {
     vi.stubGlobal('localStorage', { getItem: () => 'en-GB', setItem: vi.fn() })
     const i18n = createPachiI18n({ messages: { it: {}, en: {} } })
     expect(i18n.global.locale.value).toBe('en')
   })
 
-  it('localStorage che solleva errori non rompe il cambio lingua', async () => {
+  it('localStorage throwing errors does not break the locale change', async () => {
     vi.stubGlobal('localStorage', { getItem: () => null, setItem: () => { throw new Error('x') } })
     const i18n = createPachiI18n({ messages: { it: {}, en: {} }, initialLocale: 'it' })
     i18n.global.locale.value = 'en'
@@ -113,7 +113,7 @@ describe('createPachiI18n: defaultLocale e ciclo di vita', () => {
 })
 
 describe('useLocale', () => {
-  it('setLocale ignora codici non validi, labelOf ha fallback al codice', () => {
+  it('setLocale ignores invalid codes, labelOf falls back to the code', () => {
     createPachiI18n({ messages: { it: {}, en: {} }, initialLocale: 'it' })
     const { locale, setLocale, labelOf, availableLocales } = useLocale()
     setLocale('xx')
@@ -125,7 +125,7 @@ describe('useLocale', () => {
     expect(labelOf('not a code!')).toBe('not a code!')
   })
 
-  it('senza istanza solleva errore', () => {
+  it('throws without an instance', () => {
     expect(() => useLocale()).toThrow(/createPachiI18n/)
   })
 })

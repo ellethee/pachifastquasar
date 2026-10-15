@@ -1,7 +1,7 @@
 {
   "name": "pachifastquasar-playground",
   "version": "0.0.0",
-  "description": "App Quasar di sviluppo e test di @ilpachi/pachifastquasar (non pubblicata)",
+  "description": "Quasar app for development and testing of @ilpachi/pachifastquasar (not published)",
   "productName": "Pachi Fast Quasar Playground",
   "author": "ilPachi",
   "type": "module",

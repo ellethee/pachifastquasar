@@ -1,24 +1,24 @@
-/** Singolo errore del backend (`detail[]`). */
+/** A single backend error (`detail[]`). */
 export interface IPachiApiErrorItem {
-  /** Codice stabile (es. `admin.object_not_found`), se presente. */
+  /** Stable code (e.g. `admin.object_not_found`), if present. */
   code?: string
-  /** Messaggio del backend (lingua del server). */
+  /** Backend message (server language). */
   msg?: string
-  /** Parametri per l'interpolazione (es. `{ permissions: ['demo.item.view'] }`). */
+  /** Parameters for interpolation (e.g. `{ permissions: ['demo.item.view'] }`). */
   params?: Record<string, unknown>
-  /** Posizione dell'errore (es. `['body', 'name']`). */
+  /** Error location (e.g. `['body', 'name']`). */
   loc?: Array<string | number>
 }
 
-/** Errore HTTP normalizzato. */
+/** Normalized HTTP error. */
 export interface IPachiApiError {
-  /** Codice HTTP (0 se di rete / sconosciuto). */
+  /** HTTP code (0 if network error / unknown). */
   status: number
-  /** Voci di `detail` (vuoto se il corpo non è nel formato atteso). */
+  /** `detail` entries (empty if the body is not in the expected format). */
   items: IPachiApiErrorItem[]
 }
 
-/** Famiglia di errore, utile per scegliere come mostrarlo. */
+/** Error family, useful to choose how to display it. */
 export type AdminErrorKind =
   | 'validation'
   | 'conflict'
@@ -28,29 +28,29 @@ export type AdminErrorKind =
   | 'network'
   | 'other'
 
-/** Funzioni di traduzione necessarie a {@link describeError}. */
+/** Translation functions needed by {@link describeError}. */
 export interface IPachiErrorTranslator {
-  /** `true` se la chiave esiste. */
+  /** `true` if the key exists. */
   te: (key: string) => boolean
-  /** Traduce la chiave con i parametri. */
+  /** Translates the key with the parameters. */
   t: (key: string, params?: Record<string, unknown>) => string
 }
 
-/** Descrizione di un errore pronta per la UI. */
+/** Error description ready for the UI. */
 export interface IAdminErrorDescription {
   kind: AdminErrorKind
   status: number
-  /** Messaggio generale (mai vuoto). */
+  /** General message (never empty). */
   message: string
-  /** Messaggi per campo (solo 422 con `loc` `["body", <campo>]`). */
+  /** Per-field messages (only 422 with `loc` `["body", <field>]`). */
   fields: Record<string, string>
 }
 
 /**
- * Estrae le voci di errore da un corpo `{ detail: [...] }` (o `{ detail: "testo" }`).
+ * Extracts the error entries from a `{ detail: [...] }` body (or `{ detail: "text" }`).
  *
- * @param body - corpo JSON della risposta d'errore
- * @returns le voci riconosciute
+ * @param body - JSON body of the error response
+ * @returns the recognized entries
  */
 export function parseErrorBody(body: unknown): IPachiApiErrorItem[] {
   if (body === null || typeof body !== 'object') return []
@@ -72,11 +72,11 @@ export function parseErrorBody(body: unknown): IPachiApiErrorItem[] {
 }
 
 /**
- * Normalizza un errore lanciato dal client HTTP: `ResponseError` di `@ilpachi/use-alova` (legge il corpo con
- * `safeResponseJson`), errore con `status` numerico e `body` o qualunque altro (status 0).
+ * Normalizes an error thrown by the HTTP client: `ResponseError` of `@ilpachi/use-alova` (reads the body with
+ * `safeResponseJson`), error with numeric `status` and `body`, or any other (status 0).
  *
- * @param err - valore lanciato dalla richiesta
- * @returns errore normalizzato (mai lancia)
+ * @param err - value thrown by the request
+ * @returns normalized error (never throws)
  */
 export async function parseApiError(err: unknown): Promise<IPachiApiError> {
   if (err === null || typeof err !== 'object') return { status: 0, items: [] }
@@ -94,9 +94,9 @@ export async function parseApiError(err: unknown): Promise<IPachiApiError> {
 }
 
 /**
- * Famiglia di un errore: 422 validation, 409 conflict, 403 forbidden, 404 notFound, 401 unauthorized, 0 network.
+ * Family of an error: 422 validation, 409 conflict, 403 forbidden, 404 notFound, 401 unauthorized, 0 network.
  *
- * @param status - codice HTTP
+ * @param status - HTTP code
  */
 export function errorKind(status: number): AdminErrorKind {
   switch (status) {
@@ -119,27 +119,27 @@ export function errorKind(status: number): AdminErrorKind {
 }
 
 /**
- * Chiave del messaggio del package per un codice (`admin.object_not_found` → `pachiAdmin.errors.codes.admin_object_not_found`).
+ * Package message key for a code (`admin.object_not_found` → `pachiAdmin.errors.codes.admin_object_not_found`).
  *
- * @param code - codice del backend
+ * @param code - backend code
  */
 export function packageCodeKey(code: string): string {
   return `pachiAdmin.errors.codes.${code.replace(/[^A-Za-z0-9_]/g, '_')}`
 }
 
 /**
- * `snake_case` → `camelCase` (gli errori del backend possono citare il nome Python del campo).
+ * `snake_case` → `camelCase` (backend errors may cite the Python name of the field).
  *
- * @param name - nome del campo
+ * @param name - field name
  */
 export function camelize(name: string): string {
   return name.replace(/(?<!_)_([a-z0-9])/g, (_m, c: string) => c.toUpperCase())
 }
 
 /**
- * Parametri pronti per l'interpolazione: gli array diventano testo separato da virgole.
+ * Parameters ready for interpolation: arrays become comma-separated text.
  *
- * @param params - parametri del backend
+ * @param params - backend parameters
  */
 export function interpolationParams(params: Record<string, unknown> | undefined): Record<string, unknown> {
   const out: Record<string, unknown> = {}
@@ -150,12 +150,11 @@ export function interpolationParams(params: Record<string, unknown> | undefined)
 }
 
 /**
- * Messaggio di una voce. Ordine: traduzione dell'app `errors.codes.<code>`, traduzione del package, `msg`
- * del backend.
+ * Message of an entry. Order: app translation `errors.codes.<code>`, package translation, backend `msg`.
  *
- * @param item - voce di errore
- * @param tr - funzioni di traduzione
- * @returns il testo, o `undefined` se la voce non ha né codice noto né `msg`
+ * @param item - error entry
+ * @param tr - translation functions
+ * @returns the text, or `undefined` if the entry has neither a known code nor `msg`
  */
 export function itemMessage(item: IPachiApiErrorItem, tr: IPachiErrorTranslator): string | undefined {
   const params = interpolationParams(item.params)
@@ -169,11 +168,11 @@ export function itemMessage(item: IPachiApiErrorItem, tr: IPachiErrorTranslator)
 }
 
 /**
- * Campo a cui si riferisce una voce (`loc` = `["body", "<campo>"]` o `["query", "<parametro>"]`; il parametro di
- * un filtro a intervallo è `<campo>__gte` / `<campo>__lte`).
+ * Field an entry refers to (`loc` = `["body", "<field>"]` or `["query", "<param>"]`; the parameter of a
+ * range filter is `<field>__gte` / `<field>__lte`).
  *
- * @param item - voce di errore
- * @returns nome camelCase del campo, o `undefined`
+ * @param item - error entry
+ * @returns camelCase field name, or `undefined`
  */
 export function itemField(item: IPachiApiErrorItem): string | undefined {
   const loc = item.loc
@@ -183,12 +182,12 @@ export function itemField(item: IPachiApiErrorItem): string | undefined {
 }
 
 /**
- * Descrive un errore per la UI: famiglia, messaggio generale e messaggi per campo (422).
- * 409 `admin.integrity_error`, 403 `access.permissions_missing`, 404 `admin.*_not_found` hanno testi del package.
+ * Describes an error for the UI: family, general message and per-field messages (422).
+ * 409 `admin.integrity_error`, 403 `access.permissions_missing`, 404 `admin.*_not_found` have package texts.
  *
- * @param error - errore normalizzato
- * @param tr - funzioni di traduzione
- * @returns descrizione (mai lancia)
+ * @param error - normalized error
+ * @param tr - translation functions
+ * @returns description (never throws)
  */
 export function describeError(error: IPachiApiError, tr: IPachiErrorTranslator): IAdminErrorDescription {
   const kind = errorKind(error.status)
@@ -197,7 +196,7 @@ export function describeError(error: IPachiApiError, tr: IPachiErrorTranslator):
   for (const item of error.items) {
     const message = itemMessage(item, tr)
     const field = kind === 'validation' ? itemField(item) : undefined
-    // `orderBy` e `ids` non sono campi di un form: restano messaggi generali
+    // `orderBy` and `ids` are not form fields: they stay general messages
     const isParam = item.loc?.[1] === 'orderBy' || item.loc?.[1] === 'ids'
     if (field && message && !isParam) {
       fields[field] ??= message

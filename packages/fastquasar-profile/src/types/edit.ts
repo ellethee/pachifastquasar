@@ -1,14 +1,14 @@
 import type { IPachiProfileUser } from './profile'
 
-/** Opzioni della modifica del profilo (`PATCH /auth/user`). */
+/** Profile editing options (`PATCH /auth/user`). */
 export interface IPachiProfileEditOptions {
-  /** `false` nasconde la modifica anche con un oggetto di opzioni (default `true`). */
+  /** `false` hides editing even with an options object (default `true`). */
   enabled?: boolean
-  /** Base URL delle API (default `/api`). */
+  /** API base URL (default `/api`). */
   apiBase?: string
   /**
-   * Chiamata dopo il salvataggio, con l'utente restituito dal backend: serve ad aggiornare la copia dell'app,
-   * ad esempio `() => authManager.refreshUserInfo()`.
+   * Called after saving, with the user returned by the backend: used to update the app's copy,
+   * for example `() => authManager.refreshUserInfo()`.
    */
   onUpdated?: (user: IPachiProfileUser) => void | Promise<void>
 }

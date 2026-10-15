@@ -1,10 +1,10 @@
 /**
- * Calcola l'etichetta di un'opzione senza mai lanciare: un `optionLabel` funzione scritto per
- * opzioni "vere" può fallire su un'opzione virtuale o malformata; in tal caso restituisce `''`.
+ * Computes an option's label without ever throwing: a function `optionLabel` written for
+ * "real" options may fail on a virtual or malformed option; in that case it returns `''`.
  *
- * @param getLabel - estrattore di etichetta
- * @param item - opzione
- * @returns l'etichetta (stringa vuota se l'estrattore lancia o non restituisce un valore)
+ * @param getLabel - label extractor
+ * @param item - option
+ * @returns the label (empty string if the extractor throws or returns no value)
  */
 export function safeLabel(getLabel: (item: unknown) => string, item: unknown): string {
   try {
@@ -16,13 +16,13 @@ export function safeLabel(getLabel: (item: unknown) => string, item: unknown): s
 }
 
 /**
- * Aggiunge alle opzioni caricate quelle "virtuali" create al volo, se non già presenti
- * (confronto sul valore `optionValue`).
+ * Adds to the loaded options the "virtual" ones created on the fly, if not already present
+ * (compared on the `optionValue` value).
  *
- * @param items - opzioni caricate (locali o remote)
- * @param virtuals - opzioni virtuali da conservare
- * @param valueKey - chiave del valore dell'opzione
- * @returns un nuovo array con le opzioni e le virtuali mancanti
+ * @param items - loaded options (local or remote)
+ * @param virtuals - virtual options to keep
+ * @param valueKey - option value key
+ * @returns a new array with the options and the missing virtual ones
  */
 export function mergeVirtualOptions(items: unknown[], virtuals: unknown[], valueKey: string): unknown[] {
   if (!virtuals.length) return items

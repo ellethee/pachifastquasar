@@ -1,12 +1,12 @@
-/** Segmenti vietati: evitano la prototype pollution. */
+/** Forbidden segments: they prevent prototype pollution. */
 const FORBIDDEN_KEYS = new Set(['__proto__', 'constructor', 'prototype'])
 
 /**
- * Legge un valore annidato da un percorso con punti (`a.b.c`).
+ * Reads a nested value from a dotted path (`a.b.c`).
  *
- * @param obj - oggetto di partenza
- * @param path - percorso separato da punti
- * @returns valore trovato o `undefined`
+ * @param obj - starting object
+ * @param path - dot-separated path
+ * @returns the value found, or `undefined`
  */
 export function getByPath(obj: unknown, path: string): unknown {
   return path.split('.').reduce((o: unknown, k) => {
@@ -16,13 +16,13 @@ export function getByPath(obj: unknown, path: string): unknown {
 }
 
 /**
- * Scrive un valore annidato in un percorso con punti, creando gli oggetti intermedi.
- * Ignora (senza scrivere) i percorsi che contengono `__proto__`, `constructor` o `prototype`.
+ * Writes a nested value into a dotted path, creating the intermediate objects.
+ * Ignores (without writing) paths containing `__proto__`, `constructor` or `prototype`.
  *
- * @param obj - oggetto da modificare
- * @param path - percorso separato da punti
- * @param value - valore da scrivere
- * @returns `true` se il valore è stato scritto
+ * @param obj - object to modify
+ * @param path - dot-separated path
+ * @param value - value to write
+ * @returns `true` if the value was written
  */
 export function setByPath(obj: unknown, path: string, value: unknown): boolean {
   const parts = path.split('.')

@@ -7,18 +7,18 @@ export interface IPachiTable2Props {
   extraParams?: MaybeRef<Record<string, unknown>>,
   grid?: boolean,
   rowKey?: string,
-  /** Ordinamento iniziale. */
+  /** Initial sort. */
   initialSort?: IOrderState[],
-  /** Alias storico (typo) di `initialSort`. */
+  /** Historical alias (typo) of `initialSort`. */
   initalSort?: IOrderState[],
   rezDelay?: number,
   rezOffset?: number | undefined,
-  /** Colonna azioni (modifica/elimina). Reattiva. Con `'emit-delete'` l'eliminazione emette `pt2:delete-item`. */
+  /** Actions column (edit/delete). Reactive. With `'emit-delete'` deletion emits `pt2:delete-item`. */
   useColActions?: boolean | 'emit-delete',
-  /** Mostra il bottone di modifica: `false` lo nasconde, una funzione decide per riga. Reattiva. Default `true`. */
+  /** Show the edit button: `false` hides it, a function decides per row. Reactive. Default `true`. */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   canEdit?: boolean | ((row: any) => boolean),
-  /** Mostra il bottone di eliminazione: `false` lo nasconde, una funzione decide per riga. Reattiva. Default `true`. */
+  /** Show the delete button: `false` hides it, a function decides per row. Reactive. Default `true`. */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   canDelete?: boolean | ((row: any) => boolean),
   lazyLoadingTimeout?: number,
@@ -43,15 +43,15 @@ export interface IMultipleSortColumnInfo {
 }
 
 /**
- * Configurazione della paginazione per QTable
+ * Pagination configuration for QTable
  *
  * @interface PachiTable2Pagination
- * @property {number} page - Numero di pagina corrente (1-based)
- * @property {number} rowsPerPage - Numero di righe per pagina
- * @property {number} rowsNumber - Numero totale di righe disponibili
- * @property {number} [pagesNumber] - Numero totale di pagine (calcolato automaticamente se non fornito)
- * @property {boolean} [sortBy] - Campo per l'ordinamento
- * @property {boolean} [descending] - Se true, ordinamento discendente
+ * @property {number} page - Current page number (1-based)
+ * @property {number} rowsPerPage - Number of rows per page
+ * @property {number} rowsNumber - Total number of available rows
+ * @property {number} [pagesNumber] - Total number of pages (computed automatically if not provided)
+ * @property {boolean} [sortBy] - Field to sort by
+ * @property {boolean} [descending] - If true, descending order
  */
 export interface PachiTable2Pagination {
   page: number
@@ -63,24 +63,24 @@ export interface PachiTable2Pagination {
 }
 
 export interface PachiTable2PaginationProps {
-  /** Numero massimo di bottoni pagina visibili */
+  /** Maximum number of visible page buttons */
   maxPages?: number
-  /** Mostra link prima/ultima pagina */
+  /** Show first/last page links */
   boundaryLinks?: boolean
-  /** Mostra link precedente/successivo */
+  /** Show previous/next links */
   directionLinks?: boolean
-  /** Mostra numeri ai bordi */
+  /** Show numbers at the edges */
   boundaryNumbers?: boolean
-  /** Mostra ellipsis (...) */
+  /** Show ellipsis (...) */
   ellipses?: boolean
-  /** Mostra input per pagina diretta */
+  /** Show input for direct page jump */
   input?: boolean
-  /** Disabilita la paginazione */
+  /** Disable pagination */
   disable?: boolean
-  /** Opzioni per righe per pagina */
+  /** Options for rows per page */
   rowsPerPageOptions?: number[]
-  /** Mostra selettore righe per pagina */
+  /** Show rows-per-page selector */
   showRowsPerPage?: boolean
-  /** Mostra info paginazione (es: "1-10 di 100") */
+  /** Show pagination info (e.g. "1-10 of 100") */
   showInfo?: boolean
 }

@@ -2,11 +2,11 @@ import type { PachiMessageMap } from '../types'
 import { deepMerge } from './messages'
 
 /**
- * Converte il risultato di `import.meta.glob('./locales/*.ts', { eager: true, import: 'default' })` in
- * `{ codice: messaggi }`, ricavando il codice dal nome del file (`it.ts`/`it.json` -> `it`, `pt-BR.ts` -> `pt-BR`).
- * File con lo stesso codice (es. di feature diverse) vengono uniti con merge profondo.
+ * Converts the result of `import.meta.glob('./locales/*.ts', { eager: true, import: 'default' })` into
+ * `{ code: messages }`, deriving the code from the file name (`it.ts`/`it.json` -> `it`, `pt-BR.ts` -> `pt-BR`).
+ * Files with the same code (e.g. from different features) are combined with a deep merge.
  *
- * @param globResult - risultato di `import.meta.glob` (valori = messaggi oppure moduli con `default`)
+ * @param globResult - result of `import.meta.glob` (values = messages or modules with `default`)
  */
 export function collectLocales(globResult: Record<string, unknown>): PachiMessageMap {
   const result: PachiMessageMap = {}

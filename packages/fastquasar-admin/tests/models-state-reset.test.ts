@@ -8,7 +8,7 @@ vi.mock('@ilpachi/pachi-i18n', () => ({ getPachiI18n: () => undefined, collectLo
 const perms = { view: true, add: false, change: false, delete: false }
 const model = (name: string) => [{ app: 'a', model: name, title: name, permissions: perms }]
 
-/** Client finto la cui `GET` e' risolta/rifiutata a mano dal test. */
+/** Fake client whose `GET` is resolved/rejected by hand in the test. */
 function controllableHttp() {
   const pending: Array<{ resolve: (v: unknown) => void, reject: (e: unknown) => void }> = []
   const http: IPachiAdminHttp = {
@@ -25,34 +25,34 @@ const settle = async () => { for (let i = 0; i < 5; i++) await Promise.resolve()
 beforeEach(() => resetAdminModels())
 afterEach(() => { resetAdminModels(); resetPachiAdminOptions(); vi.useRealTimers() })
 
-describe('reset dei modelli admin', () => {
-  it('la risposta in volo di un utente precedente non scrive i modelli del nuovo utente', async () => {
+describe('admin models reset', () => {
+  it('the in-flight response of a previous user does not write the new user\'s models', async () => {
     const { http, pending } = controllableHttp()
     setPachiAdminOptions({ getHttp: () => http })
     const first = loadAdminModels()
-    // logout/login con un altro utente mentre la richiesta e' ancora in volo
+    // logout/login with another user while the request is still in flight
     resetAdminModels()
-    pending[0]!.resolve(model('dell-utente-A'))
+    pending[0]!.resolve(model('of-user-A'))
     await first
     await settle()
     expect(getAdminModels()).toBeNull()
-    // il nuovo utente fa una richiesta sua, non riusa la promise vecchia
+    // the new user makes their own request, it does not reuse the old promise
     const second = loadAdminModels()
     expect(pending).toHaveLength(2)
-    pending[1]!.resolve(model('dell-utente-B'))
+    pending[1]!.resolve(model('of-user-B'))
     await second
-    expect(getAdminModels()?.map((m) => m.model)).toEqual(['dell-utente-B'])
+    expect(getAdminModels()?.map((m) => m.model)).toEqual(['of-user-B'])
   })
 
-  it('un errore transitorio non diventa "nessun modello" e si riprova dopo la pausa', async () => {
+  it('a transient error does not become "no models" and is retried after the pause', async () => {
     vi.useFakeTimers()
     const { http, pending } = controllableHttp()
     setPachiAdminOptions({ getHttp: () => http })
     const run = loadAdminModels()
-    pending[0]!.reject(Object.assign(new Error('rete'), { status: 503 }))
+    pending[0]!.reject(Object.assign(new Error('network'), { status: 503 }))
     await run
     expect(getAdminModels()).toBeNull()
-    // subito dopo: nessun nuovo tentativo (pausa)
+    // right after: no new attempt (pause)
     void hasAdminModels()
     expect(pending).toHaveLength(1)
     vi.advanceTimersByTime(11_000)
@@ -60,7 +60,7 @@ describe('reset dei modelli admin', () => {
     expect(pending).toHaveLength(2)
   })
 
-  it('401/403/404 sono definitivi: elenco vuoto, nessun nuovo tentativo', async () => {
+  it('401/403/404 are definitive: empty list, no new attempt', async () => {
     const { http, pending } = controllableHttp()
     setPachiAdminOptions({ getHttp: () => http })
     const run = loadAdminModels()

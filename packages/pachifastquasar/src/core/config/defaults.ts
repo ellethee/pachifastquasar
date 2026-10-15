@@ -1,6 +1,6 @@
 import type { IAppConfig } from './types/app-config'
 
-/** Valori predefiniti della configurazione (applicati sotto quanto fornito dall'app). */
+/** Default configuration values (applied beneath what the app provides). */
 export const DEFAULT_PACHI_CONFIG: IAppConfig = {
   auth: {
     enabled: true,

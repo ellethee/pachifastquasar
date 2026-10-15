@@ -1,16 +1,16 @@
-# E2E OPZIONALE: suite Playwright (e2e/) sul playground costruito, contro un backend pachifast reale (compat/backend).
-# NON blocca nulla: parte solo a mano ("Run workflow") o una volta a settimana, e il job ha continue-on-error.
-# Dettagli in e2e/README.md.
-# NOTA: pachifast non e' ancora pubblicato su PyPI: finche' non lo e', questo job fallisce all'installazione
-# del backend (e' atteso). Variabili opzionali del repository: PACHIFAST_INDEX_URL (indice PyPI alternativo,
-# senza credenziali) e PACHIFAST_VERSION. Input manuale: pachifast_version (vuoto = ultima). Nessun segreto.
+# OPTIONAL E2E: Playwright suite (e2e/) on the built playground, against a real pachifast backend (compat/backend).
+# It blocks nothing: it runs only manually ("Run workflow") or once a week, and the job has continue-on-error.
+# Details in e2e/README.md.
+# NOTE: pachifast is not yet published on PyPI: until it is, this job fails when installing
+# the backend (this is expected). Optional repository variables: PACHIFAST_INDEX_URL (alternative PyPI index,
+# without credentials) and PACHIFAST_VERSION. Manual input: pachifast_version (empty = latest). No secrets.
 name: E2E playground
 
 on:
   workflow_dispatch:
     inputs:
       pachifast_version:
-        description: 'Versione di pachifast da PyPI (vuoto = ultima)'
+        description: 'pachifast version from PyPI (empty = latest)'
         required: false
         default: ''
   schedule:
@@ -26,13 +26,13 @@ concurrency:
 env:
   COMPAT_PORT: '8030'
   PACHIFAST_VERSION: ${{ inputs.pachifast_version || vars.PACHIFAST_VERSION }}
-  # vuoto = PyPI (backend.sh usa PyPI se la variabile manca)
+  # empty = PyPI (backend.sh uses PyPI if the variable is missing)
   PACHIFAST_INDEX_URL: ${{ vars.PACHIFAST_INDEX_URL }}
 
 jobs:
   e2e:
     runs-on: ubuntu-latest
-    # opzionale: un fallimento non rende rosso il resto della pipeline
+    # optional: a failure does not turn the rest of the pipeline red
     continue-on-error: true
     timeout-minutes: 40
     steps:
@@ -49,12 +49,12 @@ jobs:
           export COMPAT_DATA_DIR="${RUNNER_TEMP}/compat-data"
           compat/backend.sh all
           echo "COMPAT_DATA_DIR=${COMPAT_DATA_DIR}" >> "$GITHUB_ENV"
-      - name: Versione di pachifast
+      - name: pachifast version
         run: compat/backend.sh version
       - run: pnpm install --frozen-lockfile
-      - name: Browser (Playwright Chromium e dipendenze di sistema)
+      - name: Browser (Playwright Chromium and system dependencies)
         run: pnpm -C e2e exec playwright install --with-deps chromium
-      - name: Build del playground (shell da dist)
+      - name: Build the playground (shell from dist)
         run: pnpm build:playground
       - name: E2E
         run: pnpm e2e
@@ -65,9 +65,9 @@ jobs:
           name: playwright-report
           path: e2e/playwright-report
           if-no-files-found: ignore
-      - name: Log del backend (se fallisce)
+      - name: Backend log (on failure)
         if: failure()
         run: tail -n 80 "${COMPAT_DATA_DIR}/backend.log" || true
-      - name: Stop del backend
+      - name: Stop the backend
         if: always()
         run: compat/backend.sh stop || true

@@ -1,14 +1,14 @@
 import type { IPachiApiError } from './api-error'
 import { primaryItem } from './api-error'
 
-/** Stato MFA (`GET /api/mfa/status`). */
+/** MFA status (`GET /api/mfa/status`). */
 export interface IMfaStatus {
   enabled: boolean
-  /** `totp`, `email`, `sms` o `null`. */
+  /** `totp`, `email`, `sms` or `null`. */
   method: string | null
 }
 
-/** Dati del setup TOTP (`POST /api/mfa/totp/setup`). */
+/** TOTP setup data (`POST /api/mfa/totp/setup`). */
 export interface ITotpSetup {
   secret: string
   otpauthUri: string
@@ -16,20 +16,20 @@ export interface ITotpSetup {
 }
 
 /**
- * Legge un campo da un oggetto accettando snake_case e camelCase.
+ * Reads a field from an object accepting both snake_case and camelCase.
  *
- * @param rec - oggetto sorgente
- * @param snake - nome snake_case
- * @param camel - nome camelCase
+ * @param rec - source object
+ * @param snake - snake_case name
+ * @param camel - camelCase name
  */
 function pick(rec: Record<string, unknown>, snake: string, camel: string): unknown {
   return rec[snake] ?? rec[camel]
 }
 
 /**
- * Normalizza la risposta di stato; `null` se non ha la forma attesa.
+ * Normalizes the status response; `null` if it does not have the expected shape.
  *
- * @param body - risposta (envelope già scartato dal client)
+ * @param body - response (envelope already discarded by the client)
  */
 export function parseMfaStatus(body: unknown): IMfaStatus | null {
   if (body === null || typeof body !== 'object') return null
@@ -39,10 +39,10 @@ export function parseMfaStatus(body: unknown): IMfaStatus | null {
 }
 
 /**
- * Estrae i backup code da una risposta (`backup_codes`), scartando valori non stringa.
+ * Extracts the backup codes from a response (`backup_codes`), discarding non-string values.
  *
- * @param body - risposta del backend
- * @returns elenco dei codici (vuoto se assenti)
+ * @param body - backend response
+ * @returns list of codes (empty if absent)
  */
 export function parseBackupCodes(body: unknown): string[] {
   if (body === null || typeof body !== 'object') return []
@@ -51,9 +51,9 @@ export function parseBackupCodes(body: unknown): string[] {
 }
 
 /**
- * Normalizza la risposta del setup TOTP; `null` se mancano `secret` o `otpauth_uri`.
+ * Normalizes the TOTP setup response; `null` if `secret` or `otpauth_uri` is missing.
  *
- * @param body - risposta del backend
+ * @param body - backend response
  */
 export function parseTotpSetup(body: unknown): ITotpSetup | null {
   if (body === null || typeof body !== 'object') return null
@@ -65,34 +65,34 @@ export function parseTotpSetup(body: unknown): ITotpSetup | null {
 }
 
 /**
- * Raggruppa il secret in blocchi da 4 caratteri per la lettura (es. `ABCD EFGH`).
+ * Groups the secret in 4-character blocks for readability (e.g. `ABCD EFGH`).
  *
- * @param secret - secret base32
+ * @param secret - base32 secret
  */
 export function formatSecret(secret: string): string {
   return secret.replace(/\s+/g, '').replace(/(.{4})/g, '$1 ').trim()
 }
 
 /**
- * Toglie gli spazi dal codice digitato o incollato (le app di autenticazione lo mostrano come "123 456").
+ * Strips the spaces from the typed or pasted code (authenticator apps show it as "123 456").
  *
- * @param code - codice digitato
- * @returns il codice senza spazi
+ * @param code - typed code
+ * @returns the code without spaces
  */
 export function normalizeTotpCode(code: string): string {
   return code.replace(/\s+/g, '')
 }
 
 /**
- * `true` se il codice ha 6 cifre (spazi ignorati).
+ * `true` if the code has 6 digits (spaces ignored).
  *
- * @param code - codice digitato
+ * @param code - typed code
  */
 export function isValidTotpCode(code: string): boolean {
   return /^\d{6}$/.test(normalizeTotpCode(code))
 }
 
-/** Esito sintetico di un errore MFA, per scegliere avvisi e azioni. */
+/** Summary outcome of an MFA error, used to choose notices and actions. */
 export type MfaErrorKind =
   | 'alreadyEnabled'
   | 'codeInvalid'
@@ -104,12 +104,12 @@ export type MfaErrorKind =
   | 'other'
 
 /**
- * Classifica un errore MFA per codice e stato HTTP (429 senza codice = troppi tentativi).
- * `mfa.code_invalid`, `mfa.totp_invalid`, `mfa.email_code_invalid` e `mfa.sms_code_invalid` sono tutti «codice errato»;
- * `mfa.no_email_setup`/`mfa.no_sms_setup` = nessun setup in corso (scaduto), `mfa.disabled` = MFA spenta sul server.
+ * Classifies an MFA error by code and HTTP status (429 without a code = too many attempts).
+ * `mfa.code_invalid`, `mfa.totp_invalid`, `mfa.email_code_invalid` and `mfa.sms_code_invalid` are all "wrong code";
+ * `mfa.no_email_setup`/`mfa.no_sms_setup` = no setup in progress (expired), `mfa.disabled` = MFA turned off on the server.
  *
- * @param error - errore normalizzato
- * @returns la categoria
+ * @param error - normalized error
+ * @returns the category
  */
 export function classifyMfaError(error: IPachiApiError): MfaErrorKind {
   const code = primaryItem(error)?.code
@@ -124,13 +124,13 @@ export function classifyMfaError(error: IPachiApiError): MfaErrorKind {
 }
 
 /**
- * Celle scure della matrice del QR code per `text` (correzione errori M), in righe di booleani.
+ * Dark cells of the QR code matrix for `text` (error correction M), as rows of booleans.
  *
- * @param text - contenuto da codificare (es. URI `otpauth://`)
- * @returns promessa della matrice quadrata `modules[riga][colonna]`
+ * @param text - content to encode (e.g. an `otpauth://` URI)
+ * @returns promise of the square matrix `modules[row][column]`
  */
 export async function buildQrMatrix(text: string): Promise<boolean[][]> {
-  // import dinamico: la libreria finisce in un chunk separato, caricato solo quando serve il QR
+  // dynamic import: the library ends up in a separate chunk, loaded only when the QR is needed
   const { default: qrcode } = await import('qrcode-generator')
   const qr = qrcode(0, 'M')
   qr.addData(text)
@@ -146,10 +146,10 @@ export async function buildQrMatrix(text: string): Promise<boolean[][]> {
 }
 
 /**
- * Percorso SVG (`d`) che disegna le celle scure della matrice (un quadrato 1x1 per cella).
+ * SVG path (`d`) drawing the dark cells of the matrix (a 1x1 square per cell).
  *
- * @param matrix - matrice da {@link buildQrMatrix}
- * @returns stringa per l'attributo `d` di un `<path>`
+ * @param matrix - matrix from {@link buildQrMatrix}
+ * @returns string for the `d` attribute of a `<path>`
  */
 export function qrMatrixToPath(matrix: boolean[][]): string {
   let d = ''
@@ -162,40 +162,40 @@ export function qrMatrixToPath(matrix: boolean[][]): string {
 }
 
 /**
- * `true` se la risposta di `POST /mfa/email/setup` chiede la conferma con il codice ricevuto per email (backend
- * 0.7.1+: `confirm_required: true`; prima il setup attivava subito il metodo e restituiva i backup code).
+ * `true` if the `POST /mfa/email/setup` response asks for confirmation with the code received by email (backend
+ * 0.7.1+: `confirm_required: true`; before that the setup activated the method immediately and returned the backup codes).
  *
- * @param body - corpo della risposta (già senza envelope)
+ * @param body - response body (already without envelope)
  */
 export function emailSetupNeedsConfirm(body: unknown): boolean {
   return body !== null && typeof body === 'object' && (body as { confirm_required?: unknown }).confirm_required === true
 }
 
 /**
- * `true` se la risposta di `POST /mfa/sms/setup` chiede la conferma con il codice ricevuto via SMS
+ * `true` if the `POST /mfa/sms/setup` response asks for confirmation with the code received by SMS
  * (backend 0.7.2+: `confirm_required: true`).
  *
- * @param body - corpo della risposta (già senza envelope)
+ * @param body - response body (already without envelope)
  */
 export function smsSetupNeedsConfirm(body: unknown): boolean {
   return body !== null && typeof body === 'object' && (body as { confirm_required?: unknown }).confirm_required === true
 }
 
 /**
- * Normalizza un numero di telefono digitato: toglie spazi, trattini, punti e parentesi (il `+` iniziale resta; non ne aggiunge uno mancante).
+ * Normalizes a typed phone number: strips spaces, hyphens, dots and parentheses (a leading `+` stays; a missing one is not added).
  *
- * @param phone - numero digitato
- * @returns numero senza separatori
+ * @param phone - typed number
+ * @returns number without separators
  */
 export function normalizePhoneNumber(phone: string): string {
   return phone.replace(/[\s\-.()]+/g, '')
 }
 
 /**
- * `true` se il numero, normalizzato, è in formato internazionale: `+` iniziale obbligatorio (il backend 0.15.0 risponde
- * 422 senza) seguito da 7-15 cifre.
+ * `true` if the normalized number is in international format: leading `+` required (backend 0.15.0 answers
+ * 422 without it) followed by 7-15 digits.
  *
- * @param phone - numero digitato
+ * @param phone - typed number
  */
 export function isValidPhoneNumber(phone: string): boolean {
   return /^\+\d{7,15}$/.test(normalizePhoneNumber(phone))

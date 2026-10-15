@@ -2,7 +2,7 @@
   <div class="pachi-st-picker">
     <div v-if="label" class="pachi-st-setting-label">{{ label }}</div>
 
-    <!-- Tema: anteprime -->
+    <!-- Theme: previews -->
     <div v-if="variant === 'theme'" class="pachi-st-theme-grid">
       <button
         v-for="o in items"
@@ -30,7 +30,7 @@
       </button>
     </div>
 
-    <!-- Accent: pillole colorate -->
+    <!-- Accent: coloured pills -->
     <div v-else-if="variant === 'accent'" class="pachi-st-accent-row">
       <button
         v-for="o in items"
@@ -50,7 +50,7 @@
       </button>
     </div>
 
-    <!-- Altre scelte brevi (densità, ...): toggle segmentato -->
+    <!-- Other short choices (density, ...): segmented toggle -->
     <div v-else class="pachi-st-density-toggle">
       <button
         v-for="o in items"
@@ -75,12 +75,12 @@ import { messages } from '../locales'
 import { ACCENT_PRESETS } from '../services/appliers'
 
 /**
- * Scelta singola con aspetto dedicato: `theme` (anteprime chiaro/scuro/sistema), `accent` (pillole colorate) o
- * `segmented` (toggle). Usata dalla sezione "Aspetto" (schema `appearance` o fallback locale).
+ * Single choice with a dedicated look: `theme` (light/dark/system previews), `accent` (coloured pills) or
+ * `segmented` (toggle). Used by the "Appearance" section (`appearance` schema or local fallback).
  */
 defineOptions({ inheritAttrs: false })
 
-/** Opzione come nel `properties.options` di un campo `select`. */
+/** Option as in the `properties.options` of a `select` field. */
 interface IOption {
   label?: string
   value: string
@@ -88,30 +88,30 @@ interface IOption {
 
 const props = defineProps<{
   modelValue?: string | null
-  /** Opzioni `{ label, value }` (come per `QSelect`). */
+  /** Options `{ label, value }` (as for `QSelect`). */
   options?: IOption[]
-  /** Titolo del gruppo. */
+  /** Group title. */
   label?: string
-  /** Aspetto: `theme` | `accent` | `segmented`. */
+  /** Look: `theme` | `accent` | `segmented`. */
   variant: 'theme' | 'accent' | 'segmented'
 }>()
 const emit = defineEmits<{ 'update:modelValue': [value: string] }>()
 
 const { t, locale } = usePachiI18n(messages)
 
-/** Anteprime del selettore del tema. */
+/** Theme picker previews. */
 const THEME_PREVIEWS: Record<string, { bg: string; card: string }> = {
   dark: { bg: '#0A0D12', card: '#10141B' },
   light: { bg: '#F4F5F7', card: '#FFFFFF' },
   auto: { bg: 'linear-gradient(90deg, #F4F5F7 50%, #0A0D12 50%)', card: '' },
 }
 
-/** Colore di un accent noto. */
+/** Colour of a known accent. */
 function accentHex(value: string): string | undefined {
   return ACCENT_PRESETS[value]?.accent
 }
 
-/** Etichetta locale (themes/accents) se il backend non ha fornito il testo. */
+/** Local label (themes/accents) when the backend did not provide the text. */
 function fallbackLabel(value: string): string {
   void locale.value
   if (props.variant === 'theme' && value in THEME_PREVIEWS) return t(`pachiSettings.themes.${value}`)

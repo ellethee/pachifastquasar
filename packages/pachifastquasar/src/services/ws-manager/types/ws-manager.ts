@@ -1,6 +1,6 @@
 export interface IWebSocketManagerHandler<T = unknown> {
   onOpen?: () => void
-  /** `code` è il close code del WebSocket (4401 = token non valido o scaduto). */
+  /** `code` is the WebSocket close code (4401 = invalid or expired token). */
   onClose?: (code?: number) => void
   onError?: (error: Event) => void
   onMessage?: (data: T) => void

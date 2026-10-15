@@ -51,7 +51,7 @@ import { setPachiAdminOptions } from '@ilpachi/fastquasar-admin'
 setPachiAdminOptions({
   basePath: '/api/admin/models',               // default
   hideModels: ['auth.session'],                // or (model) => model.app === 'internal'
-  labels: { 'admin.demo.item.title': 'Articoli', 'demo.item.price': 'Prezzo (EUR)' },
+  labels: { 'admin.demo.item.title': 'Articles', 'demo.item.price': 'Price (EUR)' },
   formatters: {
     date: ({ defaultText }) => defaultText.toUpperCase(),        // by type
     'demo.item.price': ({ value }) => `EUR ${value}`,            // by field (wins over the type)

@@ -65,7 +65,7 @@ const DAY_HEADERS = computed(() =>
   ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'].map(d => t(`pachiEditDialog.scheduler.days.${d}`))
 )
 
-// "oggi" locale, riallineato quando la pagina torna visibile (cambio di giorno)
+// local "today", realigned when the page becomes visible again (day change)
 const todayStr = ref(formatLocalDate(new Date()))
 function refreshToday() { todayStr.value = formatLocalDate(new Date()) }
 onMounted(() => document.addEventListener('visibilitychange', refreshToday))

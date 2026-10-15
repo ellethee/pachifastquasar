@@ -2,7 +2,7 @@ import { mdiShieldAccountOutline } from '@quasar/extras/mdi-v7'
 import { ensureMessages } from './helpers/register-messages'
 import { ADMIN_PATH } from './menu'
 
-/** Route minima compatibile con `RouteRecordRaw` (il package non dipende da vue-router). */
+/** Minimal route compatible with `RouteRecordRaw` (the package does not depend on vue-router). */
 export interface IPachiRouteRecord {
   path: string
   meta?: Record<string, unknown>
@@ -11,10 +11,10 @@ export interface IPachiRouteRecord {
   component: () => Promise<unknown>
 }
 
-/** Componente della pagina (caricato in modo lazy). */
+/** Page component (lazy loaded). */
 const page = (): Promise<unknown> => import('./components/PachiAdminPage.vue')
 
-/** Metadati comuni alle route Admin (nascoste dal menu laterale, raggiungibili dal menu account). */
+/** Metadata shared by the Admin routes (hidden from the side menu, reachable from the account menu). */
 const meta = {
   hidden: true,
   titleKey: 'pachiAdmin.pageTitle',
@@ -23,9 +23,9 @@ const meta = {
 }
 
 /**
- * Route del package (default export di `routes`, scoperto dalla shell `@ilpachi/pachifastquasar`): la pagina
- * Admin con l'elenco dei modelli (`/admin`) e il modello selezionato (`/admin/:app/:model`).
- * L'accesso ai dati è deciso dal backend con i permessi dell'utente: la route richiede solo l'autenticazione.
+ * Routes of the package (default export of `routes`, discovered by the `@ilpachi/pachifastquasar` shell): the
+ * Admin page with the model list (`/admin`) and the selected model (`/admin/:app/:model`).
+ * Data access is decided by the backend with the user permissions: the route only requires authentication.
  */
 export default [
   {

@@ -59,11 +59,11 @@ defineExpose({
 })
 </script>
 <style lang="scss">
-// Altezza e colonne personalizzabili: --pachi-uploader-height (default a specificita' zero,
-// vedi theme-defaults.scss: calc(100vh - 100px)) e --pachi-uploader-columns (default auto-fill).
-// Niente !important sull'altezza: basta ridefinire la variabile (es. 400px, 100%).
+// Customizable height and columns: --pachi-uploader-height (default at zero specificity,
+// see theme-defaults.scss: calc(100vh - 100px)) and --pachi-uploader-columns (default auto-fill).
+// No !important on the height: just redefine the variable (e.g. 400px, 100%).
 .pachi-uploader.q-uploader {
-  // selettore a 2 classi: batte max-height/max-width di .q-uploader senza !important sull'altezza
+  // 2-class selector: beats max-height/max-width of .q-uploader without !important on the height
   width: 100% !important;
   max-height: var(--pachi-uploader-height);
   min-height: var(--pachi-uploader-height);

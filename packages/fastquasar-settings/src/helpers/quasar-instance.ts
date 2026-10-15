@@ -54,11 +54,11 @@ export function isDarkActive(): boolean {
 }
 
 /**
- * Dipendenze per le azioni di `events`/`watch` dello schema. `Dark` e `Notify` sono risolti a ogni chiamata
- * su `$q` dell'app (`$q.dark`, `$q.notify`, anche se l'istanza diventa disponibile dopo la creazione degli
- * handler), con ripiego sui plugin importati.
+ * Dependencies for the `events`/`watch` actions of the schema. `Dark` and `Notify` are resolved on every call
+ * from the app's `$q` (`$q.dark`, `$q.notify`, even if the instance becomes available after the handlers
+ * are created), falling back to the imported plugins.
  *
- * @param $q - istanza `$q` da passare alle azioni (default: quella risolta/ricordata)
+ * @param $q - `$q` instance to pass to the actions (default: the resolved/remembered one)
  * @returns `{ Dark, Notify, $q }` per `resolveSettingsActions`
  */
 export function quasarDeps($q: QVueGlobals | null = resolveQuasar()): ISettingsActionDeps {

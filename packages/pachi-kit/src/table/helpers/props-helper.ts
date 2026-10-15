@@ -1,12 +1,12 @@
-/** Valore booleano fisso oppure funzione per riga (usato da `canEdit`/`canDelete`). */
+/** Fixed boolean value or per-row function (used by `canEdit`/`canDelete`). */
 export type RowFlag<T> = boolean | ((row: T) => boolean)
 
 /**
- * Risolve un permesso per riga: `undefined` vale `true`, una funzione viene valutata sulla riga.
+ * Resolves a per-row permission: `undefined` is `true`, a function is evaluated on the row.
  *
- * @param flag - valore o funzione
- * @param row - riga corrente
- * @returns true se l'azione e' consentita
+ * @param flag - value or function
+ * @param row - current row
+ * @returns true if the action is allowed
  */
 export function resolveRowFlag<T>(flag: RowFlag<T> | undefined, row: T): boolean {
   if (flag === undefined) return true
@@ -14,13 +14,13 @@ export function resolveRowFlag<T>(flag: RowFlag<T> | undefined, row: T): boolean
 }
 
 /**
- * Indica se la colonna azioni va mostrata: serve `useColActions` e almeno un'azione non disattivata
- * in modo statico (`canEdit`/`canDelete` uguali a `false` la nascondono).
+ * Tells whether the actions column should be shown: it needs `useColActions` and at least one action not statically
+ * disabled (`canEdit`/`canDelete` equal to `false` hide it).
  *
- * @param useColActions - valore della prop `useColActions`
- * @param canEdit - prop `canEdit`
- * @param canDelete - prop `canDelete`
- * @returns true se la colonna va mostrata
+ * @param useColActions - value of the `useColActions` prop
+ * @param canEdit - `canEdit` prop
+ * @param canDelete - `canDelete` prop
+ * @returns true if the column should be shown
  */
 export function shouldShowActionsColumn(useColActions: unknown, canEdit: unknown, canDelete: unknown): boolean {
   if (!useColActions) return false
@@ -28,13 +28,13 @@ export function shouldShowActionsColumn(useColActions: unknown, canEdit: unknown
 }
 
 /**
- * Cerca un listener di evento tra le props vnode di un componente, sia in camelCase (`onPt2:editItem`,
- * da `@pt2:editItem` o `@pt2:edit-item` nei template SFC) sia con il nome originale (`onPt2:edit-item`,
- * da render function/JSX).
+ * Looks for an event listener among a component's vnode props, both in camelCase (`onPt2:editItem`,
+ * from `@pt2:editItem` or `@pt2:edit-item` in SFC templates) and with the original name (`onPt2:edit-item`,
+ * from render function/JSX).
  *
- * @param vnodeProps - props del vnode (`instance.vnode.props`)
- * @param event - nome dell'evento (es. `pt2:edit-item`)
- * @returns true se esiste un listener
+ * @param vnodeProps - vnode props (`instance.vnode.props`)
+ * @param event - event name (e.g. `pt2:edit-item`)
+ * @returns true if a listener exists
  */
 export function hasEventListener(vnodeProps: Record<string, unknown> | null | undefined, event: string): boolean {
   if (!vnodeProps) return false

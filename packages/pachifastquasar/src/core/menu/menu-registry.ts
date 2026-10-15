@@ -3,18 +3,18 @@ import type { PachiMenuItemFactory } from '../components/AccountMenuButton/types
 let factories: PachiMenuItemFactory[] = []
 
 /**
- * Registra le factory di voci di menu scoperte nei package (sostituisce l'elenco precedente).
+ * Registers the menu item factories discovered in packages (replaces the previous list).
  *
- * @param list - factory dei package
+ * @param list - package factories
  */
 export function registerPachiMenus(list: PachiMenuItemFactory[]): void {
   factories = [...list]
 }
 
 /**
- * Factory di voci di menu registrate dai package.
+ * Menu item factories registered by packages.
  *
- * @returns elenco (copia)
+ * @returns list (copy)
  */
 export function getPachiMenuFactories(): PachiMenuItemFactory[] {
   return [...factories]

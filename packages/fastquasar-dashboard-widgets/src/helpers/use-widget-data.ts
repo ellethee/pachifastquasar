@@ -1,38 +1,38 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch, type Ref } from 'vue'
 import { getPachiWidgetsHttp, type IPachiWidgetsHttp } from './http'
 
-/** Opzioni del composable `usePachiWidgetData`. */
+/** Options of the composable `usePachiWidgetData`. */
 export interface IUsePachiWidgetDataOptions<T> {
-  /** Endpoint da interrogare (reattivo). */
+  /** Endpoint to query (reactive). */
   url: () => string
-  /** Client HTTP opzionale (reattivo); se assente si usa quello risolto in `setup()`. */
+  /** Optional HTTP client (reactive); if absent, the one resolved in `setup()` is used. */
   http: () => IPachiWidgetsHttp | undefined
-  /** Intervallo di polling in ms (0 o negativo = disattivo). */
+  /** Polling interval in ms (0 or negative = disabled). */
   refreshInterval: () => number
-  /** Trasforma/valida la risposta grezza. */
+  /** Transforms/validates the raw response. */
   parse: (data: unknown) => T
-  /** Valore iniziale e valore usato dopo un errore. */
+  /** Initial value and value used after an error. */
   empty: T
 }
 
-/** Stato restituito da `usePachiWidgetData`. */
+/** State returned by `usePachiWidgetData`. */
 export interface IUsePachiWidgetData<T> {
-  /** True durante il primo caricamento. */
+  /** True during the first load. */
   loading: Ref<boolean>
-  /** True se l'ultima richiesta è fallita (distinto dallo stato vuoto). */
+  /** True if the last request failed (distinct from the empty state). */
   error: Ref<boolean>
-  /** Ultimo dato valido. */
+  /** Last valid data. */
   data: Ref<T>
-  /** Rilancia la richiesta. */
+  /** Re-runs the request. */
   reload: () => Promise<void>
 }
 
 /**
- * Carica `url` con il client HTTP dei widget: fetch al mount, ricarica al cambio di `url`/`http`,
- * polling opzionale pulito all'unmount. Da chiamare dentro `setup()`.
+ * Loads `url` with the widgets HTTP client: fetch on mount, reload when `url`/`http` change,
+ * optional polling cleaned up on unmount. Call it inside `setup()`.
  *
- * @param opts - opzioni (getter reattivi)
- * @returns stato reattivo e `reload`
+ * @param opts - options (reactive getters)
+ * @returns reactive state and `reload`
  */
 export function usePachiWidgetData<T>(opts: IUsePachiWidgetDataOptions<T>): IUsePachiWidgetData<T> {
   const injected = getPachiWidgetsHttp()

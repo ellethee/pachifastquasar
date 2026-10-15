@@ -8,13 +8,13 @@ updates:
       npm-dependencies:
         patterns: ["*"]
     ignore:
-      # fissato a 2.2.x: vedi CONTRIBUTING.md (d.ts dei .vue con vite-plugin-dts 5)
+      # pinned to 2.2.x: see CONTRIBUTING.md (.vue d.ts with vite-plugin-dts 5)
       - dependency-name: "@vue/language-core"
         update-types: ["version-update:semver-major", "version-update:semver-minor"]
-      # segue il Node minimo supportato (>=20): vedi CONTRIBUTING.md
+      # follows the minimum supported Node (>=20): see CONTRIBUTING.md
       - dependency-name: "@types/node"
         update-types: ["version-update:semver-major"]
-      # 11.2+ richiede Node >= 22.13 (la shell supporta Node >= 20): vedi CONTRIBUTING.md
+      # 11.2+ requires Node >= 22.13 (the shell supports Node >= 20): see CONTRIBUTING.md
       - dependency-name: "@intlify/unplugin-vue-i18n"
         update-types: ["version-update:semver-major", "version-update:semver-minor"]
   - package-ecosystem: github-actions

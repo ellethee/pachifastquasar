@@ -1,7 +1,7 @@
 import type { QBtnProps, QEditorCommand, QEditorProps } from 'quasar'
 import type { Component, Ref, VNodeChild } from 'vue'
 
-/** Pulsante di azione configurabile del dialog (estende le props di `QBtn`). */
+/** Configurable action button of the dialog (extends the `QBtn` props). */
 export interface IPachiDialogButton extends QBtnProps {
   label: string
   action?: (_payload?: unknown) => void
@@ -12,7 +12,7 @@ export interface IPachiDialogButton extends QBtnProps {
   emit?: string
 }
 
-/** Messaggio strutturato che un'azione può restituire al dialog. */
+/** Structured message that an action can return to the dialog. */
 export interface IPachiDialogMessage {
   kind: 'dialog-message'
   type?: 'positive' | 'negative' | 'warning' | 'info'
@@ -21,14 +21,14 @@ export interface IPachiDialogMessage {
   payload?: boolean | Record<string, unknown>
 }
 
-/** Contenuto del dialog passato come prop: componente Vue o render function (funzione che restituisce VNode). */
+/** Dialog content passed as a prop: Vue component or render function (function returning a VNode). */
 export type PachiDialogContent = Component | (() => VNodeChild)
 
-/** Props di `PachiDialog`. */
+/** `PachiDialog` props. */
 export interface IPachiDialogProps {
   icon?: string | null
   title: string
-  /** Classi della toolbar del titolo (default `bg-primary text-white`). */
+  /** Title toolbar classes (default `bg-primary text-white`). */
   titleClass?: string
   rounded?: boolean
   shaped?: boolean
@@ -43,29 +43,29 @@ export interface IPachiDialogProps {
   maxWidth?: string | null
   maxHeight?: string | null
   actionClasses?: string[]
-  /** Disabilita (non nasconde) il pulsante di conferma. */
+  /** Disables (does not hide) the confirm button. */
   confirmDisabled?: boolean
-  /** Disabilita (non nasconde) il pulsante di chiusura. */
+  /** Disables (does not hide) the close button. */
   cancelDisabled?: boolean
   cardClass?: string | null
-  /** Mostra l'etichetta di testo accanto all'icona dei pulsanti d'azione (default `false`: solo icona con tooltip). */
+  /** Shows the text label next to the icon of the action buttons (default `false`: icon only with tooltip). */
   showActionLabels?: boolean
-  /** Usa le azioni "ripristina/salva/chiudi" al posto di conferma/chiudi. */
+  /** Uses the "restore/save/close" actions instead of confirm/close. */
   useEditActions?: boolean
   hasChanges?: boolean
-  /** Con `useEditActions` e `hasChanges` chiede conferma prima di chiudere (default true). */
+  /** With `useEditActions` and `hasChanges` asks for confirmation before closing (default true). */
   avoidHideWithChanges?: boolean
   /**
-   * Contenuto del dialog come componente o render function, alternativa allo slot di default
-   * (con `Dialog.create({ component: PachiDialog })` non si possono passare slot). Lo slot ha la precedenza.
-   * Equivale a {@link PachiDialogContent} (scritto cosi' perche' il compilatore Vue ricavi i tipi runtime Object|Function).
+   * Dialog content as a component or render function, alternative to the default slot
+   * (slots cannot be passed with `Dialog.create({ component: PachiDialog })`). The slot takes precedence.
+   * Equivale a {@link PachiDialogContent} (written this way so that the Vue compiler derives the Object|Function runtime types).
    */
   content?: object | (() => VNodeChild)
-  /** Props passate a `content` (se e' un componente). */
+  /** Props passed to `content` (if it is a component). */
   contentProps?: Record<string, unknown>
 }
 
-/** Opzioni dell'editor (`useEditorOptions`). */
+/** Editor options (`useEditorOptions`). */
 export interface IEditorOptions {
   editorHeight?: string
   displayClass?: string
@@ -74,13 +74,13 @@ export interface IEditorOptions {
   qEditorProps?: Partial<QEditorProps>
 }
 
-/** Definizione di un pulsante custom di `QEditor` con handler che ricevono il testo. */
+/** Definition of a custom `QEditor` button with handlers that receive the text. */
 export interface IEditorButtons extends Omit<QEditorCommand, 'handler' | 'toggled'> {
   toggled?: (text: string|Ref<string>, ...args: unknown[]) => boolean
   handler?: (text: string|Ref<string>, ...args: unknown[]) => void
 }
 
-/** Contratto esposto da una sezione extra inserita nel dialog. */
+/** Contract exposed by an extra section inserted in the dialog. */
 export interface IExtraSectionExpose<T = unknown> {
   reset(): void
   getResults(): T
@@ -88,5 +88,5 @@ export interface IExtraSectionExpose<T = unknown> {
   validate?(): boolean
 }
 
-/** Opzioni di `createPachiDialog`: le props di `PachiDialog` piu' il contenuto. */
+/** Options of `createPachiDialog`: the `PachiDialog` props plus the content. */
 export type ICreatePachiDialogOptions = IPachiDialogProps

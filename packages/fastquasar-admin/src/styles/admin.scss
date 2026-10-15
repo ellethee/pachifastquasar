@@ -1,4 +1,4 @@
-// Stili del package: classi `pachi-admin*`, variabili `--pachi-*` (default a specificità zero in theme-defaults.scss)
+// Package styles: `pachi-admin*` classes, `--pachi-*` variables (zero-specificity defaults in theme-defaults.scss)
 
 .pachi-admin {
   display: grid;
@@ -7,8 +7,8 @@
   padding: 16px;
   width: 100%;
   align-content: start;
-  // il layout della shell è alto un viewport e non scrolla: la pagina scrolla da sé entro lo spazio utile
-  // (`--pachi-page-height` è definita dalla shell; senza, nessun limite)
+  // the shell layout is one viewport tall and does not scroll: the page scrolls by itself within the available space
+  // (`--pachi-page-height` is defined by the shell; without it, no limit)
   max-height: var(--pachi-page-height, none);
   overflow-y: auto;
   color: var(--pachi-ink);
@@ -159,7 +159,7 @@
 
   &__head { display: flex; align-items: center; }
   &__title { font-size: 17px; font-weight: 650; }
-  // il contenuto alto scrolla dentro il dialogo: le azioni restano sempre raggiungibili
+  // tall content scrolls inside the dialog: the actions always stay reachable
   &__body { max-height: 62vh; overflow-y: auto; }
   &__actions { border-top: 1px solid var(--pachi-border); padding: 8px 16px; }
 }

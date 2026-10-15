@@ -1,69 +1,69 @@
-/** Dipendenze passate alle azioni (iniettate dal chiamante: il modulo non importa Quasar). */
+/** Dependencies passed to actions (injected by the caller: the module does not import Quasar). */
 export interface ISettingsActionDeps {
-  /** Plugin `Dark` di Quasar (o un suo sostituto nei test). */
+  /** Quasar `Dark` plugin (or a substitute in tests). */
   Dark?: { set: (v: boolean | 'auto') => void; toggle: () => void }
-  /** Plugin `Notify` di Quasar. */
+  /** Quasar `Notify` plugin. */
   Notify?: { create: (opts: { message: string; type?: string }) => unknown }
-  /** Istanza `$q` (solo per il fallback con stringhe di script). */
+  /** `$q` instance (only for the script-string fallback). */
   $q?: unknown
 }
 
 /**
- * Trigger di `events`/`watch` come arriva dallo schema: stringa legacy (`nome`, `nome:arg`, script storico)
- * oppure oggetto `{ action, args }` (formato di pachifast; `args` è un oggetto JSON, ma sono accettati anche
- * un array o un valore singolo).
+ * `events`/`watch` trigger as it comes from the schema: legacy string (`name`, `name:arg`, historical script)
+ * or `{ action, args }` object (pachifast format; `args` is a JSON object, but an array or a single value
+ * are also accepted).
  */
 export type SettingsActionSpec = string | { action: string; args?: unknown }
 
-/** Contesto ricevuto da un'azione. */
+/** Context received by an action. */
 export interface ISettingsActionContext extends ISettingsActionDeps {
   /**
-   * Argomento testuale: la parte dopo `:` della stringa `nome:argomento`, oppure (forma oggetto) il primo
-   * argomento scalare (valore singolo o primo elemento di un array), convertito in stringa.
+   * Text argument: the part after `:` in the `name:argument` string, or (object form) the first
+   * scalar argument (single value or first element of an array), converted to string.
    */
   arg?: string
-  /** Argomenti dichiarati dallo schema normalizzati in array (`undefined` -> `[]`, valore singolo -> `[valore]`). */
+  /** Arguments declared by the schema, normalized to an array (`undefined` -> `[]`, single value -> `[value]`). */
   args?: unknown[]
-  /** Argomenti con nome (`args` di pachifast, es. `{ mode: 'dark' }`); `{}` se `args` non è un oggetto. */
+  /** Named arguments (pachifast `args`, e.g. `{ mode: 'dark' }`); `{}` if `args` is not an object. */
   params?: Record<string, unknown>
 }
 
-/** Handler di un'azione: riceve il contesto e gli argomenti dell'evento (per `watch`, il nuovo valore). */
+/** Action handler: receives the context and the event arguments (for `watch`, the new value). */
 export type SettingsActionHandler = (ctx: ISettingsActionContext, ...args: unknown[]) => unknown
 
-/** Handler di un evento/watch già risolto. */
+/** Already resolved event/watch handler. */
 export type SettingsResolvedHandler = (...args: unknown[]) => unknown
 
-/** Opzioni di risoluzione di una specifica. */
+/** Options for resolving a spec. */
 export interface IResolveActionOptions {
-  /** Dipendenze iniettate nelle azioni. */
+  /** Dependencies injected into actions. */
   deps: ISettingsActionDeps
-  /** Abilita il fallback `new Function` sulle stringhe di script (default false). */
+  /** Enables the `new Function` fallback on script strings (default false). */
   allowScriptStrings?: boolean
 }
 
-/** Azioni predefinite (whitelist). */
+/** Built-in actions (whitelist). */
 const builtinActions: Record<string, SettingsActionHandler> = {
-  /** Alterna il tema scuro/chiaro. */
+  /** Toggles the dark/light theme. */
   darkToggle: ({ Dark }) => Dark?.toggle(),
-  /** Imposta il tema scuro: `arg` (`dark`/`light`/`auto`) oppure il valore dell'evento (booleano o stringa). */
+  /** Sets the dark theme: `arg` (`dark`/`light`/`auto`) or the event value (boolean or string). */
   darkSet: ({ Dark, arg, params }, value) => {
     const v = arg ?? params?.mode ?? value
     Dark?.set(v === 'auto' ? 'auto' : v === 'dark' || v === true)
   },
-  /** Imposta il tema scuro quando il valore dell'evento è uguale a `arg` (default `dark`). */
+  /** Sets the dark theme when the event value equals `arg` (default `dark`). */
   darkSetWhenEquals: ({ Dark, arg, params }, value) => Dark?.set(value === (arg ?? params?.value ?? 'dark')),
-  /** Mostra una notifica con il testo `arg`. */
+  /** Shows a notification with the `arg` text. */
   notify: ({ Notify, arg, params }) => Notify?.create({ message: arg ?? String(params?.message ?? '') }),
 }
 
 const customActions = new Map<string, SettingsActionHandler>()
 
 /**
- * Registra azioni nominate dell'app, utilizzabili nei campi `events`/`watch` dello schema
- * (es. `"events": { "update:modelValue": "refreshMenu" }`). Sovrascrivono quelle predefinite.
+ * Registers named app actions, usable in the schema `events`/`watch` fields
+ * (e.g. `"events": { "update:modelValue": "refreshMenu" }`). They override the built-in ones.
  *
- * @param actions - mappa nome azione -> handler
+ * @param actions - action name -> handler map
  */
 export function registerSettingsActions(actions: Record<string, SettingsActionHandler>): void {
   for (const [name, fn] of Object.entries(actions)) customActions.set(name, fn)
@@ -71,20 +71,20 @@ export function registerSettingsActions(actions: Record<string, SettingsActionHa
 }
 
 /**
- * Elenca i nomi delle azioni disponibili (predefinite e registrate).
+ * Lists the names of the available actions (built-in and registered).
  *
- * @returns nomi ordinati
+ * @returns sorted names
  */
 export function listSettingsActions(): string[] {
   return [...new Set([...Object.keys(builtinActions), ...customActions.keys()])].sort()
 }
 
 /**
- * Traduce le due stringhe di script storiche inviate dal backend nelle azioni equivalenti,
- * così continuano a funzionare senza `new Function`.
+ * Translates the two historical script strings sent by the backend into the equivalent actions,
+ * so they keep working without `new Function`.
  *
- * @param spec - specifica grezza
- * @returns specifica `nome[:argomento]` oppure `null` se non è una forma nota
+ * @param spec - raw spec
+ * @returns `name[:argument]` spec, or `null` if it is not a known form
  */
 export function mapLegacyScript(spec: string): string | null {
   const s = spec.replace(/\s+/g, '')
@@ -94,17 +94,17 @@ export function mapLegacyScript(spec: string): string | null {
   return null
 }
 
-/** Cache delle factory di script compilate (una sola `new Function` per stringa). */
+/** Cache of compiled script factories (a single `new Function` per string). */
 const scriptCache = new Map<string, (...scope: unknown[]) => unknown>()
 
-/** Messaggi già emessi (un solo `console.warn` per specifica sconosciuta/malformata). */
+/** Messages already emitted (a single `console.warn` per unknown/malformed spec). */
 const warned = new Set<string>()
 
 /**
- * Emette un `console.warn` una sola volta per `key`.
+ * Emits a `console.warn` only once per `key`.
  *
- * @param key - chiave di deduplica
- * @param message - testo del warning
+ * @param key - deduplication key
+ * @param message - warning text
  */
 export function warnOnce(key: string, message: string): void {
   if (warned.has(key)) return
@@ -112,16 +112,16 @@ export function warnOnce(key: string, message: string): void {
   console.warn(message)
 }
 
-/** Azzera la memoria dei warning già emessi (solo per i test). */
+/** Clears the memory of already emitted warnings (tests only). */
 export function resetSettingsWarnings(): void {
   warned.clear()
 }
 
 /**
- * Normalizza gli `args` di un trigger in `{ args, params, arg }` (vedi {@link ISettingsActionContext}).
+ * Normalizes the `args` of a trigger into `{ args, params, arg }` (see {@link ISettingsActionContext}).
  *
- * @param raw - `args` grezzi dallo schema
- * @returns parti del contesto
+ * @param raw - raw `args` from the schema
+ * @returns context parts
  */
 export function normalizeActionArgs(raw: unknown): Pick<ISettingsActionContext, 'arg' | 'args' | 'params'> {
   const isObject = raw !== null && typeof raw === 'object' && !Array.isArray(raw)
@@ -133,24 +133,24 @@ export function normalizeActionArgs(raw: unknown): Pick<ISettingsActionContext, 
 }
 
 /**
- * Risolve una specifica (`nome`, `nome:arg`, forma storica oppure oggetto `{ action, args }`) in un handler.
- * Le stringhe che non corrispondono a un'azione sono eseguite come script solo con `allowScriptStrings`;
- * le specifiche in forma oggetto non sono mai eseguite come codice.
+ * Resolves a spec (`name`, `name:arg`, historical form or `{ action, args }` object) into a handler.
+ * Strings that do not match an action are executed as scripts only with `allowScriptStrings`;
+ * object-form specs are never executed as code.
  *
- * @param spec - specifica proveniente dallo schema
- * @param opts - dipendenze e modalità
- * @returns handler, oppure `null` se non risolvibile
+ * @param spec - spec coming from the schema
+ * @param opts - dependencies and mode
+ * @returns handler, or `null` if it cannot be resolved
  */
 export function resolveSettingsAction(spec: SettingsActionSpec, opts: IResolveActionOptions): SettingsResolvedHandler | null {
   if (typeof spec !== 'string') {
     const name = spec !== null && typeof spec === 'object' ? (spec as { action?: unknown }).action : undefined
     if (typeof name !== 'string' || !name) {
-      warnOnce(`bad:${JSON.stringify(spec)}`, `Settings: formato di azione non riconosciuto ${JSON.stringify(spec)} (atteso una stringa o { action, args })`)
+      warnOnce(`bad:${JSON.stringify(spec)}`, `Settings: unrecognized action format ${JSON.stringify(spec)} (expected a string or { action, args })`)
       return null
     }
     const handler = customActions.get(name) ?? (Object.hasOwn(builtinActions, name) ? builtinActions[name] : undefined)
     if (!handler) {
-      warnOnce(`unknown:${name}`, `Settings: azione "${name}" sconosciuta (registrala con registerSettingsActions)`)
+      warnOnce(`unknown:${name}`, `Settings: unknown action "${name}" (register it with registerSettingsActions)`)
       return null
     }
     const ctx: ISettingsActionContext = { ...opts.deps, ...normalizeActionArgs((spec as { args?: unknown }).args) }
@@ -167,12 +167,12 @@ export function resolveSettingsAction(spec: SettingsActionSpec, opts: IResolveAc
     }
   }
   if (!opts.allowScriptStrings) {
-    warnOnce(`unknown:${spec}`, `Settings: azione "${spec}" sconosciuta (stringhe di script disabilitate: vedi allowScriptStrings)`)
+    warnOnce(`unknown:${spec}`, `Settings: unknown action "${spec}" (script strings disabled: see allowScriptStrings)`)
     return null
   }
   warnOnce(
     `script:${spec}`,
-    `Settings: esecuzione come codice (new Function) della stringa "${spec}" proveniente dallo schema del backend (allowScriptStrings attivo: richiede unsafe-eval nella CSP e fiducia nel backend). Preferire azioni nominate (registerSettingsActions).`
+    `Settings: executing as code (new Function) the string "${spec}" coming from the backend schema (allowScriptStrings enabled: requires unsafe-eval in the CSP and trust in the backend). Prefer named actions (registerSettingsActions).`
   )
   try {
     let factory = scriptCache.get(spec)
@@ -183,17 +183,17 @@ export function resolveSettingsAction(spec: SettingsActionSpec, opts: IResolveAc
     }
     return factory(opts.deps.$q, opts.deps.Dark) as SettingsResolvedHandler
   } catch (e) {
-    console.warn(`Settings: errore nello script "${spec}"`, e)
+    console.warn(`Settings: error in script "${spec}"`, e)
     return null
   }
 }
 
 /**
- * Risolve una mappa `{ evento: specifica }` in handler, scartando quelli non risolvibili.
+ * Resolves an `{ event: spec }` map into handlers, discarding the ones that cannot be resolved.
  *
- * @param map - mappa dallo schema
- * @param opts - dipendenze e modalità
- * @returns mappa `{ evento: handler }`
+ * @param map - map from the schema
+ * @param opts - dependencies and mode
+ * @returns `{ event: handler }` map
  */
 export function resolveSettingsActions(
   map: Record<string, SettingsActionSpec> | undefined,

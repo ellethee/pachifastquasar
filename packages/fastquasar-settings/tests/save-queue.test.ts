@@ -7,7 +7,7 @@ vi.mock('@ilpachi/pachi-i18n', () => ({ getPachiI18n: () => undefined, matchLoca
 import { setPachiSettingsOptions } from '../src/helpers/http'
 import { SettingsManager } from '../src/services/settings-manager'
 
-/** PUT finti: ognuno resta in sospeso finche' il test non lo risolve. */
+/** Fake PUTs: each one stays pending until the test resolves it. */
 const puts: Array<{ value: unknown, done: () => void }> = []
 
 beforeEach(() => {
@@ -28,8 +28,8 @@ beforeEach(() => {
 
 const tick = async () => { for (let i = 0; i < 8; i++) await Promise.resolve() }
 
-describe('salvataggio delle impostazioni', () => {
-  it('i PUT della stessa chiave sono serializzati: il secondo parte a fine del primo', async () => {
+describe('saving settings', () => {
+  it('PUTs of the same key are serialised: the second starts when the first ends', async () => {
     const m = SettingsManager.getInstance()
     m.set('preferences', 'tablePageSize', 25)
     const first = m.flushAll()
@@ -38,7 +38,7 @@ describe('salvataggio delle impostazioni', () => {
     m.set('preferences', 'tablePageSize', 50)
     const second = m.flushAll()
     await tick()
-    // il primo PUT non e' ancora finito: il secondo non deve essere partito
+    // the first PUT has not finished yet: the second must not have started
     expect(puts.map((p) => p.value)).toEqual([25])
     puts[0]!.done()
     await first
@@ -48,7 +48,7 @@ describe('salvataggio delle impostazioni', () => {
     await second
   })
 
-  it('flushAll invia subito i salvataggi in attesa del debounce', async () => {
+  it('flushAll sends saves waiting for the debounce immediately', async () => {
     const m = SettingsManager.getInstance()
     m.set('appearance', 'accent', 'teal')
     expect(puts).toHaveLength(0)

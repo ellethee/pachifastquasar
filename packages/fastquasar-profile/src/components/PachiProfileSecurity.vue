@@ -22,18 +22,18 @@ import PachiChangePasswordForm from './PachiChangePasswordForm.vue'
 import PachiMfaPanel from './PachiMfaPanel.vue'
 
 /**
- * Sezione «Sicurezza» del profilo: cambio password (attivo di default) e pannello MFA (opt-in, visibile solo
- * se il backend la espone).
+ * "Security" section of the profile: password change (on by default) and MFA panel (opt-in, visible only
+ * if the backend exposes it).
  */
 const props = withDefaults(defineProps<{
-  /** `false` nasconde la sezione; un oggetto sceglie i blocchi e le opzioni. Default: solo la password. */
+  /** `false` hides the section; an object chooses the blocks and options. Default: password only. */
   security?: boolean | IPachiProfileSecurityOptions
 }>(), {
   security: true,
 })
 
 const emit = defineEmits<{
-  /** Password cambiata: serve un nuovo login. */
+  /** Password changed: a new login is required. */
   (e: 'password-changed'): void
 }>()
 

@@ -1,6 +1,6 @@
 import { mdiFolderOutline } from '@quasar/extras/mdi-v7'
 
-/** Padre SENZA `component` con due figli: la shell mostra la dashboard dei figli (e2e: kit.spec.ts). */
+/** Parent WITHOUT `component` with two children: the shell shows the children's dashboard (e2e: kit.spec.ts). */
 export default [
   {
     path: '/section',

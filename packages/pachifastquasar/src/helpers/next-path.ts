@@ -1,4 +1,4 @@
-/** Vero se la stringa contiene caratteri di controllo (U+0000-U+001F, U+007F). */
+/** True if the string contains control characters (U+0000-U+001F, U+007F). */
 function hasControlChars(value: string): boolean {
   return [...value].some(char => {
     const code = char.charCodeAt(0)
@@ -7,12 +7,12 @@ function hasControlChars(value: string): boolean {
 }
 
 /**
- * Valida il parametro `?next=` del login: accetta solo percorsi interni all'app (iniziano con `/`,
- * non con `//` o `/\`, senza `://` né caratteri di controllo) per evitare open redirect.
+ * Validates the login `?next=` parameter: accepts only paths internal to the app (starting with `/`,
+ * not with `//` or `/\`, without `://` or control characters) to avoid open redirects.
  *
- * @param next - valore grezzo della query (stringa, array o altro)
- * @param fallback - percorso da usare se `next` non è valido
- * @returns il percorso sicuro oppure `fallback`
+ * @param next - raw query value (string, array or other)
+ * @param fallback - path to use if `next` is not valid
+ * @returns the safe path or `fallback`
  */
 export function safeNextPath(next: unknown, fallback: string): string {
   if (typeof next !== 'string' || !next) return fallback

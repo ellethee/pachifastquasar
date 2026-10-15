@@ -1,13 +1,13 @@
 import type { QUploaderProps } from 'quasar'
 
-/** Chiave i18n del label di default del `QUploader`. */
+/** i18n key of the default label of `QUploader`. */
 export const ADD_FILES_LABEL_KEY = 'pachiUploader.addFilesLabel'
 
 /**
- * Props di default del `QUploader`. `label` e' la CHIAVE i18n (`ADD_FILES_LABEL_KEY`), non il testo:
- * `usePachiUploader` la traduce dopo aver registrato i messaggi del package, cosi' leggere o copiare
- * questo oggetto (anche a livello di modulo, prima del primo render) non genera warning di chiave mancante.
- * Se passi `defaultUploaderProps` direttamente a un `QUploader` senza `usePachiUploader`, imposta tu `label`.
+ * Default props of `QUploader`. `label` is the i18n KEY (`ADD_FILES_LABEL_KEY`), not the text:
+ * `usePachiUploader` translates it after registering the package messages, so reading or copying
+ * this object (even at module level, before the first render) does not raise a missing-key warning.
+ * If you pass `defaultUploaderProps` directly to a `QUploader` without `usePachiUploader`, set `label` yourself.
  */
 export const defaultUploaderProps: QUploaderProps = {
   url: '',

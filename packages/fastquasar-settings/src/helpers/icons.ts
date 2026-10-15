@@ -11,7 +11,7 @@ import {
 } from '@quasar/extras/mdi-v7'
 
 /**
- * Mappa di default dai nomi (stile Material) inviati dal backend ai path SVG mdi importati.
+ * Default map from the (Material-style) names sent by the backend to the imported mdi SVG paths.
  */
 const DEFAULT_ICONS: Record<string, string> = {
   bug_report: mdiBug,
@@ -25,26 +25,26 @@ const DEFAULT_ICONS: Record<string, string> = {
   lock: mdiLock,
 }
 
-/** Mappa modificabile: parte dai default e può essere estesa dall'app. */
+/** Mutable map: starts from the defaults and can be extended by the app. */
 const iconMap: Record<string, string> = { ...DEFAULT_ICONS }
 
 /**
- * Estende (o sovrascrive) la mappa nome-icona usata da {@link resolveSettingsIcon}.
- * I valori devono essere path SVG (es. importati da `@quasar/extras/mdi-v7`).
- * @param map Coppie nome backend -> path SVG.
+ * Extends (or overrides) the name-to-icon map used by {@link resolveSettingsIcon}.
+ * Values must be SVG paths (e.g. imported from `@quasar/extras/mdi-v7`).
+ * @param map Backend name -> SVG path pairs.
  */
 export function setPachiSettingsIcons(map: Record<string, string>): void {
   Object.assign(iconMap, map)
 }
 
 /**
- * Risolve il nome di un'icona ricevuta dal backend in un valore utilizzabile da `q-icon`.
- * - `null`/vuoto: `undefined`;
- * - path SVG già valido (inizia con `M`/`m`): restituito così com'è;
- * - nome presente nella mappa: path SVG corrispondente;
- * - qualsiasi altro valore (es. `mdi-xxx` o nomi sconosciuti): `undefined` (nessuna icona).
- * @param name Nome dell'icona inviato dal backend.
- * @returns Path SVG oppure `undefined`.
+ * Resolves an icon name received from the backend into a value usable by `q-icon`.
+ * - `null`/empty: `undefined`;
+ * - already valid SVG path (starts with `M`/`m`): returned as is;
+ * - name present in the map: the corresponding SVG path;
+ * - any other value (e.g. `mdi-xxx` or unknown names): `undefined` (no icon).
+ * @param name Icon name sent by the backend.
+ * @returns SVG path or `undefined`.
  */
 export function resolveSettingsIcon(name: string | null | undefined): string | undefined {
   if (!name) return undefined

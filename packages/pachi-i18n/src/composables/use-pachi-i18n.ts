@@ -4,24 +4,24 @@ import { omitExisting } from '../helper/messages'
 import { requirePachiI18n, type PachiI18n } from '../services/i18n-instance'
 import type { PachiLocaleMessages, PachiMessageMap } from '../types'
 
-/** Coppie `lingua:namespace` già registrate, per istanza (con `lingua` = codice dell'app). */
+/** Already registered `locale:namespace` pairs, per instance (with `locale` = the app's code). */
 const registered = new WeakMap<PachiI18n, Set<string>>()
 
 /**
- * Registra i messaggi di un package nell'istanza globale, una sola volta per lingua e namespace.
- * Si registrano solo le lingue offerte dall'app (quelle già presenti nell'istanza), le altre sono ignorate;
- * per ogni lingua dell'app si sceglie la lingua del package con `matchLocale` (app `en-US` <- package `en`, app `it-IT` <- `it`).
- * Le chiavi già definite dall'app NON vengono sovrascritte. Ad ogni chiamata si rivalutano le lingue dell'istanza:
- * quelle aggiunte a runtime dall'app vengono riempite alla chiamata successiva (non per i componenti già montati).
+ * Registers a package's messages in the global instance, only once per locale and namespace.
+ * Only the locales offered by the app (those already present in the instance) are registered, the others are ignored;
+ * for each app locale the package locale is chosen with `matchLocale` (app `en-US` <- package `en`, app `it-IT` <- `it`).
+ * Keys already defined by the app are NOT overwritten. On every call the instance locales are re-evaluated:
+ * those added at runtime by the app are filled on the next call (not for already mounted components).
  *
- * @param messages - messaggi del package per lingua
+ * @param messages - package messages per locale
  */
 function registerMessages(messages: PachiMessageMap): void {
   const i18n = requirePachiI18n()
   const done = registered.get(i18n) ?? new Set<string>()
   registered.set(i18n, done)
   const global = i18n.global
-  // solo le lingue già presenti nell'istanza (cioè offerte dall'app): il fallback non ne aggiunge di visibili
+  // only locales already present in the instance (i.e. offered by the app): the fallback adds no visible ones
   const packageCodes = Object.keys(messages)
 
   for (const code of global.availableLocales) {
@@ -42,11 +42,11 @@ function registerMessages(messages: PachiMessageMap): void {
 }
 
 /**
- * Da chiamare in `setup()` di componenti/composable dei package con i PROPRI messaggi
- * (`{ it: { pachiTable2: {...} }, en: {...} }`). Li registra una sola volta nell'i18n globale
- * (senza sovrascrivere ciò che l'app ha già definito) e restituisce `{ t, locale }`.
+ * To be called in `setup()` of package components/composables with their OWN messages
+ * (`{ it: { pachiTable2: {...} }, en: {...} }`). Registers them once in the global i18n
+ * (without overwriting what the app has already defined) and returns `{ t, locale }`.
  *
- * @param messages - messaggi del package per lingua, con un namespace di primo livello
+ * @param messages - package messages per locale, with a top-level namespace
  */
 export function usePachiI18n(messages: PachiMessageMap): Pick<Composer, 't' | 'locale'> {
   registerMessages(messages)

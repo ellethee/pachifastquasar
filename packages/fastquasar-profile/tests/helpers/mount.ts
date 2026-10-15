@@ -3,27 +3,27 @@ import { mount, type ComponentMountingOptions } from '@vue/test-utils'
 import type { Component } from 'vue'
 import { createPachiI18n, disposePachiI18n } from '@ilpachi/pachi-i18n'
 
-// happy-dom non implementa screen.orientation, richiesto dal plugin Screen/Platform di Quasar
+// happy-dom does not implement screen.orientation, required by Quasar's Screen/Platform plugin
 if (!window.screen.orientation) {
   Object.defineProperty(window.screen, 'orientation', { value: { type: 'portrait-primary', addEventListener() {}, removeEventListener() {} }, configurable: true })
 }
 
-/** Crea l'istanza i18n (it) usata dai componenti sotto test. */
+/** Creates the i18n instance (it) used by the components under test. */
 export function setupI18n() {
   return createPachiI18n({ messages: { it: {} }, initialLocale: 'it' })
 }
 
-/** Rimuove l'istanza i18n globale e ripulisce il DOM tra un test e l'altro. */
+/** Removes the global i18n instance and cleans the DOM between tests. */
 export function teardown(): void {
   disposePachiI18n()
   document.body.innerHTML = ''
 }
 
 /**
- * Monta un componente con Quasar (Dialog + Notify) e pachi-i18n installati.
+ * Mounts a component with Quasar (Dialog + Notify) and pachi-i18n installed.
  *
- * @param component - componente da montare
- * @param options - opzioni di mount (props, slots, ...)
+ * @param component - component to mount
+ * @param options - mount options (props, slots, ...)
  */
 export function mountWithQuasar(component: Component, options: ComponentMountingOptions<any> = {}) {
   const i18n = setupI18n()

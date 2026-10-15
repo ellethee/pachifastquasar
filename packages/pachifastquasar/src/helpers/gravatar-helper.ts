@@ -1,4 +1,4 @@
-/** Costanti di SHA-256 (radici cubiche dei primi 64 numeri primi). */
+/** SHA-256 constants (cube roots of the first 64 prime numbers). */
 const K = [
   0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
   0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
@@ -11,12 +11,12 @@ const K = [
 ]
 
 /**
- * SHA-256 in JavaScript puro (esadecimale), per i contesti non sicuri (`http://` su un IP della LAN) dove
- * `crypto.subtle` non esiste. L'hash dell'email per Gravatar è un dato pubblico: non serve un'implementazione
- * "crittografica", solo il risultato corretto.
+ * Pure JavaScript SHA-256 (hexadecimal), for insecure contexts (`http://` on a LAN IP) where
+ * `crypto.subtle` does not exist. The email hash for Gravatar is public data: a "cryptographic"
+ * implementation is not needed, only the correct result.
  *
- * @param bytes - dati da calcolare
- * @returns hash esadecimale di 64 caratteri
+ * @param bytes - data to hash
+ * @returns 64-character hexadecimal hash
  */
 export function sha256Hex(bytes: Uint8Array): string {
   const h = [
@@ -75,12 +75,12 @@ export function sha256Hex(bytes: Uint8Array): string {
 }
 
 /**
- * Calcola l'hash SHA-256 (esadecimale) dell'email normalizzata (trim + lowercase),
- * come richiesto da Gravatar. Usa `crypto.subtle` quando c'è e ripiega su {@link sha256Hex} nei
- * contesti non sicuri (`http://` su un IP della LAN: lì `crypto.subtle` non è definito).
+ * Computes the SHA-256 hash (hexadecimal) of the normalized email (trim + lowercase),
+ * as required by Gravatar. Uses `crypto.subtle` when available and falls back to {@link sha256Hex} in
+ * insecure contexts (`http://` on a LAN IP: there `crypto.subtle` is not defined).
  *
- * @param email - indirizzo email
- * @returns hash esadecimale, oppure `null` se l'email è vuota
+ * @param email - email address
+ * @returns hexadecimal hash, or `null` if the email is empty
  */
 export async function gravatarHash(email: string): Promise<string | null> {
   const normalized = email.trim().toLowerCase()
@@ -93,22 +93,22 @@ export async function gravatarHash(email: string): Promise<string | null> {
 }
 
 /**
- * Costruisce l'URL Gravatar di un hash. Con `d=404` se l'utente non ha un avatar la richiesta fallisce
- * e il chiamante può mostrare le iniziali.
+ * Builds the Gravatar URL of a hash. With `d=404`, if the user has no avatar the request fails
+ * and the caller can show the initials.
  *
- * @param hash - hash SHA-256 dell'email
- * @param size - lato in pixel dell'immagine richiesta
- * @returns URL dell'avatar
+ * @param hash - SHA-256 hash of the email
+ * @param size - side in pixels of the requested image
+ * @returns avatar URL
  */
 export function gravatarUrl(hash: string, size = 200): string {
   return `https://www.gravatar.com/avatar/${hash}?s=${size}&d=404`
 }
 
 /**
- * Ricava le iniziali (max 2 lettere) da un nome completo.
+ * Derives the initials (max 2 letters) from a full name.
  *
- * @param fullName - nome completo
- * @returns iniziali in maiuscolo, stringa vuota se il nome è vuoto
+ * @param fullName - full name
+ * @returns uppercase initials, empty string if the name is empty
  */
 export function initialsOf(fullName: string): string {
   const parts = fullName.trim().split(/\s+/).filter(Boolean)

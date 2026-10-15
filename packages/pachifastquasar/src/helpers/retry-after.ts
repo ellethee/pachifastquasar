@@ -1,10 +1,10 @@
 /**
- * Interpreta il valore dell'header HTTP `Retry-After`: secondi interi (`120`) oppure una data HTTP
+ * Parses the value of the HTTP `Retry-After` header: integer seconds (`120`) or an HTTP date
  * (`Wed, 21 Oct 2026 07:28:00 GMT`).
  *
- * @param value - valore grezzo dell'header
- * @param now - istante di riferimento in millisecondi (default `Date.now()`), usato per le date
- * @returns i secondi di attesa (arrotondati per eccesso, mai negativi) oppure `null` se il valore manca o non è valido
+ * @param value - raw header value
+ * @param now - reference instant in milliseconds (default `Date.now()`), used for dates
+ * @returns the wait seconds (rounded up, never negative) or `null` if the value is missing or not valid
  */
 export function parseRetryAfter(value: unknown, now: number = Date.now()): number | null {
   if (typeof value !== 'string') return null
@@ -14,7 +14,7 @@ export function parseRetryAfter(value: unknown, now: number = Date.now()): numbe
     const seconds = Number(text)
     return Number.isSafeInteger(seconds) ? seconds : null
   }
-  // data HTTP: deve contenere lettere (es. il giorno/mese), così "-5" o "1.5" non vengono letti come date
+  // HTTP date: must contain letters (e.g. the day/month), so "-5" or "1.5" are not read as dates
   if (!/[a-z]/i.test(text)) return null
   const at = Date.parse(text)
   if (Number.isNaN(at)) return null
@@ -22,11 +22,11 @@ export function parseRetryAfter(value: unknown, now: number = Date.now()): numbe
 }
 
 /**
- * Legge `Retry-After` da un errore del client HTTP (`ResponseError.response.headers`).
+ * Reads `Retry-After` from an HTTP client error (`ResponseError.response.headers`).
  *
- * @param error - errore della richiesta (o altro)
- * @param now - istante di riferimento in millisecondi (default `Date.now()`)
- * @returns i secondi di attesa oppure `null` se l'header manca o non è valido
+ * @param error - request error (or other)
+ * @param now - reference instant in milliseconds (default `Date.now()`)
+ * @returns the wait seconds or `null` if the header is missing or not valid
  */
 export function retryAfterFromError(error: unknown, now: number = Date.now()): number | null {
   const headers = (error as { response?: { headers?: { get?: (name: string) => unknown } } } | null)
@@ -36,10 +36,10 @@ export function retryAfterFromError(error: unknown, now: number = Date.now()): n
 }
 
 /**
- * Formatta i secondi come `mm:ss` (i minuti possono superare 59).
+ * Formats seconds as `mm:ss` (minutes can exceed 59).
  *
- * @param seconds - secondi (i valori negativi o non finiti diventano 0)
- * @returns la stringa `mm:ss`
+ * @param seconds - seconds (negative or non-finite values become 0)
+ * @returns the `mm:ss` string
  */
 export function formatCountdown(seconds: number): string {
   const total = Number.isFinite(seconds) ? Math.max(0, Math.floor(seconds)) : 0

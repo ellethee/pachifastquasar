@@ -6,34 +6,34 @@ import { setQuasarInstance } from '../helpers/quasar-instance'
 import { applyLegacyLocalPrefs, getLastAppliedLocale } from './appliers'
 import { SettingsManager, userKeyOf } from './settings-manager'
 
-/** Evento di finestra emesso dalla shell quando cambia l'utente autenticato (dettaglio: {@link IAuthChangedDetail}). */
+/** Window event emitted by the shell when the authenticated user changes (detail: {@link IAuthChangedDetail}). */
 export const AUTH_CHANGED_EVENT = 'pachi:auth-changed'
-/** Evento di finestra emesso dalla shell quando l'utente cambia il tema dalla barra (dettaglio: `{ theme }`). */
+/** Window event emitted by the shell when the user changes the theme from the toolbar (detail: `{ theme }`). */
 export const THEME_CHANGED_EVENT = 'pachi:theme-changed'
 
-/** Dettaglio di `pachi:auth-changed`. */
+/** Detail of `pachi:auth-changed`. */
 export interface IAuthChangedDetail {
   authenticated: boolean
   userId?: string | null
   username?: string | null
 }
 
-/** Opzioni di {@link installPachiSettings}. */
+/** Options of {@link installPachiSettings}. */
 export interface IInstallPachiSettingsOptions extends IPachiSettingsOptions {
   /**
-   * App Vue (`ctx.app` del boot): da lì si ricava `$q`.
+   * Vue app (`ctx.app` of the boot): `$q` is taken from it.
    */
   app?: App
 }
 
-/** Funzione che annulla l'installazione precedente. */
+/** Function that undoes the previous installation. */
 let uninstallPrevious: (() => void) | null = null
 
 /**
- * Gestisce un evento di cambio utente: con una sessione valida carica le impostazioni (e applica la cache
- * dell'utente), senza sessione le svuota. Esportata per i test.
+ * Handles a user-change event: with a valid session it loads the settings (and applies the
+ * user's cache), without a session it clears them. Exported for tests.
  *
- * @param detail - dettaglio di `pachi:auth-changed`
+ * @param detail - detail of `pachi:auth-changed`
  */
 export async function handleAuthChanged(detail: IAuthChangedDetail | null | undefined): Promise<void> {
   const manager = SettingsManager.getInstance()
@@ -43,20 +43,20 @@ export async function handleAuthChanged(detail: IAuthChangedDetail | null | unde
 }
 
 /**
- * Gestisce il cambio di tema fatto dall'utente fuori dalla pagina (pulsante della barra): se c'è un campo con
- * applier `theme` lo salva sul backend. Esportata per i test.
+ * Handles a theme change made by the user outside the page (toolbar button): if there is a field with a
+ * `theme` applier it saves it to the backend. Exported for tests.
  *
- * @param theme - `dark` o `light`
+ * @param theme - `dark` or `light`
  */
 export function handleThemeChanged(theme: unknown): void {
   if (theme === 'dark' || theme === 'light' || theme === 'auto') SettingsManager.getInstance().setByApply('theme', theme)
 }
 
 /**
- * Gestisce il cambio di lingua (selettore della barra): se la lingua non è quella appena impostata dall'applier
- * la salva sul backend (campo con applier `locale`). Esportata per i test.
+ * Handles a language change (toolbar selector): if the language is not the one just set by the applier
+ * it saves it to the backend (field with a `locale` applier). Exported for tests.
  *
- * @param code - codice lingua attivo
+ * @param code - active language code
  */
 export function handleLocaleChanged(code: string): void {
   if (code === getLastAppliedLocale()) return
@@ -64,22 +64,22 @@ export function handleLocaleChanged(code: string): void {
 }
 
 /**
- * Installa l'integrazione del package con l'app. Da chiamare una volta nel boot, dopo `createPachiApp`:
+ * Installs the package integration with the app. Call once in the boot, after `createPachiApp`:
  *
  * ```ts
  * installPachiSettings({ app: ctx.app, getUser: () => AuthManager.getInstance().userInfo })
  * ```
  *
- * - ascolta `pachi:auth-changed` (emesso dalla shell `@ilpachi/pachifastquasar` a login, ripristino sessione,
- *   cambio utente e logout): carica le impostazioni (anche se la pagina non è mai aperta) o le svuota;
- * - applica subito la cache dell'utente corrente (se `getUser` lo fornisce) e le preferenze locali storiche;
- * - ascolta `pachi:theme-changed` e la lingua di `@ilpachi/pachi-i18n` per salvare sul backend le modifiche fatte
- *   fuori dalla pagina impostazioni.
+ * - listens to `pachi:auth-changed` (emitted by the `@ilpachi/pachifastquasar` shell on login, session restore,
+ *   user change and logout): loads the settings (even if the page was never opened) or clears them;
+ * - immediately applies the current user's cache (if `getUser` provides it) and the legacy local preferences;
+ * - listens to `pachi:theme-changed` and the `@ilpachi/pachi-i18n` language to save to the backend the changes made
+ *   outside the settings page.
  *
- * Il package non importa la shell: comunica solo con questi eventi. Una seconda chiamata sostituisce la prima.
+ * The package does not import the shell: it only communicates through these events. A second call replaces the first.
  *
- * @param options - opzioni del package (`getHttp`, `isAuthenticated`, `getUser`, ...) e `app`
- * @returns funzione che rimuove gli ascoltatori
+ * @param options - package options (`getHttp`, `isAuthenticated`, `getUser`, ...) and `app`
+ * @returns function that removes the listeners
  */
 export function installPachiSettings(options: IInstallPachiSettingsOptions = {}): () => void {
   uninstallPrevious?.()

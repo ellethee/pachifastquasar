@@ -2,18 +2,18 @@ import { getPachiI18n } from '@ilpachi/pachi-i18n'
 import type { IPachiApiError, IPachiErrorTranslator } from './api-error'
 import { resolveErrorMessage } from './api-error'
 
-/** Parte dell'API globale di vue-i18n usata qui (tipo ridotto: quelli completi sono troppo profondi). */
+/** Part of the vue-i18n global API used here (reduced type: the full ones are too deep). */
 interface I18nGlobalLite {
   te: (key: string, locale?: string) => boolean
   locale: unknown
 }
 
 /**
- * Crea il traduttore per {@link resolveErrorMessage}: `te` controlla la lingua corrente e `it`/`en`
- * (le lingue dei messaggi del package, sempre presenti), così il fallback di vue-i18n può risolvere `t`.
+ * Creates the translator for {@link resolveErrorMessage}: `te` checks the current language and `it`/`en`
+ * (the package message languages, always present), so the vue-i18n fallback can resolve `t`.
  *
- * @param t - funzione `t` del composer
- * @returns traduttore per i messaggi d'errore
+ * @param t - composer `t` function
+ * @returns translator for error messages
  */
 export function createErrorTranslator(
   t: (key: string, params?: Record<string, unknown>) => string
@@ -30,11 +30,11 @@ export function createErrorTranslator(
 }
 
 /**
- * Messaggio tradotto per un errore (vedi {@link resolveErrorMessage}).
+ * Translated message for an error (see {@link resolveErrorMessage}).
  *
- * @param error - errore normalizzato
- * @param t - funzione `t` del composer
- * @returns testo da mostrare
+ * @param error - normalized error
+ * @param t - composer `t` function
+ * @returns text to show
  */
 export function translateApiError(
   error: IPachiApiError,

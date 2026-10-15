@@ -5,8 +5,9 @@ import { getPachiProfileSecurity } from '../helpers/security-options'
 import { getPachiProfileUser } from '../helpers/user-source'
 
 /**
- * Componente della route `/user/profile`: mostra {@link PachiProfilePage} con l'utente fornito da
- * `setPachiProfileUser` e le opzioni di sicurezza da `setPachiProfileSecurity` e la modifica da `setPachiProfileEdit` (senza avatar personalizzato: per quello monta la pagina in una feature dell'app).
+ * Component of the `/user/profile` route: shows {@link PachiProfilePage} with the user provided by
+ * `setPachiProfileUser`, the security options from `setPachiProfileSecurity` and the editing from
+ * `setPachiProfileEdit` (no custom avatar: for that, mount the page in an app feature).
  */
 export default defineComponent({
   name: 'PachiProfileRoute',

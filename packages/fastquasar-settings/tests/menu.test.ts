@@ -2,11 +2,11 @@ import { mdiCog } from '@quasar/extras/mdi-v7'
 import { describe, expect, it, vi } from 'vitest'
 import getMenuItemDefault, { getMenuItem } from '../src/menu'
 
-// il package i18n importa quasar (richiede `window`): nei test non serve
+// the i18n package imports quasar (requires `window`): not needed in tests
 vi.mock('@ilpachi/pachi-i18n', () => ({ getPachiI18n: () => undefined, collectLocales: () => ({}) }))
 
-describe('menu: voce Impostazioni', () => {
-  it('restituisce la voce con testi tradotti, icona, route e ordine', () => {
+describe('menu: Settings entry', () => {
+  it('returns the entry with translated texts, icon, route and order', () => {
     const t = vi.fn((key: string) => `tr:${key}`)
     const item = getMenuItem({ t })
     expect(item).toEqual({
@@ -21,13 +21,13 @@ describe('menu: voce Impostazioni', () => {
     expect(t).toHaveBeenCalledWith('pachiSettings.menuCaption')
   })
 
-  it('rispetta config.auth.menu.showSettings', () => {
+  it('honours config.auth.menu.showSettings', () => {
     const t = (key: string): string => key
     expect(getMenuItem({ t, config: { auth: { menu: { showSettings: false } } } }).visible).toBe(false)
     expect(getMenuItem({ t, config: { auth: { menu: { showSettings: true } } } }).visible).toBe(true)
   })
 
-  it('è anche il default export del modulo', () => {
+  it('is also the module default export', () => {
     expect(getMenuItemDefault).toBe(getMenuItem)
   })
 })

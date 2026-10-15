@@ -3,8 +3,8 @@ import { computed } from 'vue'
 import type {QEditorCommand, QVueGlobals} from 'quasar'
 import type { IEditorButtons, IEditorOptions } from '../types/PachiDialog'
 /**
- * Opzioni di default dell'editor: oggetto congelato (da spalmare e personalizzare, es.
- * `{ ...defaultEditorOptions, editorHeight: '10em' }`); non va mutato perche' e' condiviso.
+ * Default editor options: frozen object (to be spread and customized, e.g.
+ * `{ ...defaultEditorOptions, editorHeight: '10em' }`); it must not be mutated because it is shared.
  */
 export const defaultEditorOptions: Readonly<IEditorOptions> = Object.freeze({
   editorHeight: '6em',
@@ -14,16 +14,16 @@ export const defaultEditorOptions: Readonly<IEditorOptions> = Object.freeze({
 })
 
 
-/** Comandi della toolbar che QEditor tratta come slot: senza una definizione restano segnaposto vuoti. */
+/** Toolbar commands that QEditor treats as slots: without a definition they remain empty placeholders. */
 const SLOT_COMMANDS = ['token', 'custom_btn'] as const
 
 /**
- * Toolbar di default del `QEditor`. `token` e `custom_btn` (comandi-slot di QEditor) sono inclusi
- * solo se presenti in `editorButtons`, altrimenti sarebbero segnaposto vuoti.
+ * Default `QEditor` toolbar. `token` and `custom_btn` (QEditor slot commands) are included
+ * only if present in `editorButtons`, otherwise they would be empty placeholders.
  *
- * @param $q - istanza Quasar (lingua e set di icone)
- * @param editorButtons - pulsanti custom: se contengono `token`/`custom_btn` questi occupano la loro posizione
- * @returns righe della toolbar
+ * @param $q - Quasar instance (language and icon set)
+ * @param editorButtons - custom buttons: if they contain `token`/`custom_btn` these take their position
+ * @returns toolbar rows
  */
 const useToolbar = ($q: QVueGlobals, editorButtons: Record<string, unknown> = {}) => {
   const has = (name: typeof SLOT_COMMANDS[number]) => name in editorButtons
@@ -81,7 +81,7 @@ const useToolbar = ($q: QVueGlobals, editorButtons: Record<string, unknown> = {}
 }
 export { useToolbar }
 export function useEditorOptions($q: QVueGlobals, text:Ref<string>, editorOptions: IEditorOptions) {
-  // un solo computed: non muta mai `editorOptions` (i pulsanti sono clonati con handler legati a `text`)
+  // a single computed: never mutates `editorOptions` (buttons are cloned with handlers bound to `text`)
   const built = computed(() => {
     const tbar = useToolbar($q, editorOptions?.editorButtons ?? {})
     const defs: {[commandName: string]: QEditorCommand} = {}
@@ -97,7 +97,7 @@ export function useEditorOptions($q: QVueGlobals, text:Ref<string>, editorOption
         def.toggled = (...args) => toggled(text, ...args)
       }
       defs[key] = def as QEditorCommand
-      // token/custom_btn sono gia' nella toolbar di default (posizione dedicata)
+      // token/custom_btn are already in the default toolbar (dedicated position)
       if (!(SLOT_COMMANDS as readonly string[]).includes(key)) buttons.push(key)
     })
     if (buttons.length) tbar.push(buttons)

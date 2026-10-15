@@ -1,24 +1,24 @@
 import type { IPachiProfileUser } from '../types/profile'
 
-/** Funzione che restituisce l'utente corrente (letta a ogni render, quindi reattiva se legge uno store). */
+/** Function returning the current user (read on every render, so reactive if it reads a store). */
 export type PachiProfileUserGetter = () => IPachiProfileUser | null | undefined
 
 let getter: PachiProfileUserGetter = () => null
 
 /**
- * Imposta la sorgente dell'utente usata dalla route `/user/profile` del package (che non conosce l'auth
- * dell'app). Va chiamata una volta all'avvio, es. `setPachiProfileUser(() => authManager.userInfo)`.
+ * Sets the user source used by the package's `/user/profile` route (which does not know the app's
+ * auth). Call it once at startup, e.g. `setPachiProfileUser(() => authManager.userInfo)`.
  *
- * @param fn - funzione che restituisce l'utente corrente
+ * @param fn - function returning the current user
  */
 export function setPachiProfileUser(fn: PachiProfileUserGetter): void {
   getter = fn
 }
 
 /**
- * Utente corrente secondo la sorgente impostata.
+ * Current user according to the configured source.
  *
- * @returns l'utente, o `null`/`undefined` se non disponibile
+ * @returns the user, or `null`/`undefined` if unavailable
  */
 export function getPachiProfileUser(): IPachiProfileUser | null | undefined {
   return getter()

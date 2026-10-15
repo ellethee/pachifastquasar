@@ -1,15 +1,15 @@
 import { getUseAlovaInstance } from '@ilpachi/use-alova'
 
-/** Opzioni di richiesta passate al client (per alova: `meta` con `autoError`/`spinner`). */
+/** Request options passed to the client (for alova: `meta` with `autoError`/`spinner`). */
 export interface IPachiAdminRequestConfig {
-  /** Opzioni per richiesta lette dal client dell'app (`@ilpachi/use-alova`). */
+  /** Per-request options read by the app's client (`@ilpachi/use-alova`). */
   meta?: { autoError?: boolean, spinner?: boolean }
   [key: string]: unknown
 }
 
 /**
- * Client HTTP minimale richiesto dal package. Un'istanza alova dell'app (con auth, refresh del token e gestione
- * errori) lo soddisfa. Le risposte senza corpo (204) possono risolvere `null`/`undefined`.
+ * Minimal HTTP client required by the package. An app alova instance (with auth, token refresh and error
+ * handling) satisfies it. Responses without a body (204) may resolve `null`/`undefined`.
  */
 export interface IPachiAdminHttp {
   Get<T = unknown>(url: string, config?: IPachiAdminRequestConfig): PromiseLike<T>
@@ -18,25 +18,25 @@ export interface IPachiAdminHttp {
   Delete<T = unknown>(url: string, data?: unknown, config?: IPachiAdminRequestConfig): PromiseLike<T>
 }
 
-/** Base URL di default delle API Admin. */
+/** Default base URL of the Admin APIs. */
 export const DEFAULT_BASE_PATH = '/api/admin/models'
 
-/** Richieste di lettura silenziose: nessun dialog di errore né overlay (l'errore è mostrato dal componente). */
+/** Silent read requests: no error dialog or overlay (the error is shown by the component). */
 export const SILENT_REQUEST: IPachiAdminRequestConfig = { meta: { autoError: false, spinner: false } }
 
-/** Richieste di scrittura: errori gestiti dal componente (niente dialog), overlay di default. */
+/** Write requests: errors handled by the component (no dialog), default overlay. */
 export const WRITE_REQUEST: IPachiAdminRequestConfig = { meta: { autoError: false } }
 
-/** Cache dei client creati: per factory restituita da `getUseAlovaInstance()` e per base URL. */
+/** Cache of created clients: one per factory returned by `getUseAlovaInstance()` and per base URL. */
 const clientCache = new WeakMap<object, Map<string, IPachiAdminHttp>>()
 
 /**
- * Client di default: l'istanza globale di `@ilpachi/use-alova` (registrata da `createPachiApp`), memorizzata per
- * identità della factory e base URL.
+ * Default client: the global `@ilpachi/use-alova` instance (registered by `createPachiApp`), memoized by
+ * factory identity and base URL.
  *
- * @param basePath - base URL delle API Admin
- * @returns client HTTP minimale
- * @throws Error se non esiste nessuna istanza di `@ilpachi/use-alova`
+ * @param basePath - base URL of the Admin APIs
+ * @returns minimal HTTP client
+ * @throws Error if no `@ilpachi/use-alova` instance exists
  */
 function defaultHttp(basePath: string): IPachiAdminHttp {
   let factory: ReturnType<typeof getUseAlovaInstance>
@@ -62,12 +62,12 @@ function defaultHttp(basePath: string): IPachiAdminHttp {
 }
 
 /**
- * Risolve il client HTTP. Ordine: `getHttp` delle opzioni, altrimenti l'istanza globale di `@ilpachi/use-alova`.
+ * Resolves the HTTP client. Order: `getHttp` from the options, otherwise the global `@ilpachi/use-alova` instance.
  *
- * @param basePath - base URL delle API Admin
- * @param getHttp - factory delle opzioni, se presente
- * @returns client HTTP minimale
- * @throws Error se manca `getHttp` e non esiste un'istanza di `@ilpachi/use-alova`
+ * @param basePath - base URL of the Admin APIs
+ * @param getHttp - options factory, if present
+ * @returns minimal HTTP client
+ * @throws Error if `getHttp` is missing and no `@ilpachi/use-alova` instance exists
  */
 export function resolveHttp(
   basePath: string,

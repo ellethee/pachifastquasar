@@ -4,17 +4,17 @@ import { findFormatter } from './options'
 import { fieldOptions } from './schema-text'
 import type { ITextResolver } from './schema-text'
 
-/** Testo mostrato per un valore assente. */
+/** Text shown for a missing value. */
 export const EMPTY_TEXT = '—'
 
-/** Lunghezza massima del JSON compatto nelle celle. */
+/** Maximum length of the compact JSON in cells. */
 const JSON_MAX = 80
 
 /**
- * Allineamento di una colonna dedotto dal tipo: numeri a destra, booleani al centro, il resto a sinistra.
+ * Column alignment derived from the type: numbers right, booleans center, the rest left.
  *
- * @param field - campo dello schema
- * @returns `left`, `right` o `center`
+ * @param field - schema field
+ * @returns `left`, `right` or `center`
  */
 export function alignFor(field: Pick<IAdminField, 'type' | 'component'>): 'left' | 'right' | 'center' {
   if (field.type === 'integer' || field.type === 'number') return 'right'
@@ -23,10 +23,10 @@ export function alignFor(field: Pick<IAdminField, 'type' | 'component'>): 'left'
 }
 
 /**
- * Interpreta una data `YYYY-MM-DD` come data locale (senza lo scarto di fuso di `new Date(string)`).
+ * Interprets a `YYYY-MM-DD` date as a local date (without the timezone shift of `new Date(string)`).
  *
- * @param value - stringa ISO della sola data
- * @returns la data, o `null` se non valida
+ * @param value - ISO string of the date only
+ * @returns the date, or `null` if invalid
  */
 export function parseDateOnly(value: string): Date | null {
   const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(value)
@@ -36,10 +36,10 @@ export function parseDateOnly(value: string): Date | null {
 }
 
 /**
- * JSON compatto troncato per le celle.
+ * Compact JSON truncated for cells.
  *
- * @param value - valore JSON
- * @param max - lunghezza massima
+ * @param value - JSON value
+ * @param max - maximum length
  */
 export function compactJson(value: unknown, max = JSON_MAX): string {
   let text: string
@@ -52,18 +52,18 @@ export function compactJson(value: unknown, max = JSON_MAX): string {
 }
 
 /**
- * Testo di una cella secondo il tipo del campo (senza i formatter registrati). I booleani si disegnano con
- * un'icona nel componente: qui producono `true`/`false`.
+ * Cell text according to the field type (without the registered formatters). Booleans are drawn with an
+ * icon in the component: here they produce `true`/`false`.
  *
- * - `integer`/`number` JSON: `Intl.NumberFormat` nella lingua attiva; un Decimal (stringa) resta com'è;
- * - `date`: data locale; `datetime`: data e ora locali; `time`: `HH:MM(:SS)`;
- * - `json`: JSON compatto troncato; `select`: etichetta dell'opzione (anche tradotta con `optionKeys`).
+ * - `integer`/`number` JSON: `Intl.NumberFormat` in the active language; a Decimal (string) stays as is;
+ * - `date`: local date; `datetime`: local date and time; `time`: `HH:MM(:SS)`;
+ * - `json`: truncated compact JSON; `select`: option label (also translated with `optionKeys`).
  *
- * @param value - valore grezzo
- * @param field - campo dello schema
- * @param locale - lingua (es. `it`)
- * @param resolver - risolutore per le etichette delle opzioni
- * @returns il testo (`—` se assente)
+ * @param value - raw value
+ * @param field - schema field
+ * @param locale - language (e.g. `it`)
+ * @param resolver - resolver for the option labels
+ * @returns the text (`—` if missing)
  */
 export function formatValue(
   value: unknown,
@@ -104,14 +104,14 @@ export function formatValue(
 }
 
 /**
- * Testo di una cella applicando i formatter registrati (`setPachiAdminOptions({ formatters })`):
- * prima quello del campo (`app.model.campo`), poi quello del tipo.
+ * Cell text applying the registered formatters (`setPachiAdminOptions({ formatters })`):
+ * first the field one (`app.model.field`), then the type one.
  *
- * @param schema - schema del modello
- * @param name - nome del campo
- * @param row - riga
- * @param locale - lingua attiva
- * @param resolver - risolutore per le etichette delle opzioni
+ * @param schema - model schema
+ * @param name - field name
+ * @param row - row
+ * @param locale - active language
+ * @param resolver - resolver for the option labels
  */
 export function formatCell(
   schema: IAdminSchema,

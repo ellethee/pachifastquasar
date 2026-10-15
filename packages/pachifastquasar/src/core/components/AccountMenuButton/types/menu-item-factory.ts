@@ -3,23 +3,23 @@ import type { IMenuButton } from './account-menu-button'
 import type { IAppConfig } from '../../../config/types/app-config'
 import type { IUserInfo } from '../../../../services/auth-manager/types/auth-manager'
 
-/** Contesto passato a {@link PachiMenuItemFactory}. */
+/** Context passed to {@link PachiMenuItemFactory}. */
 export interface PachiMenuItemContext {
-  /** Funzione di traduzione di vue-i18n (reattiva al cambio lingua se la factory è richiamata in un `computed`). */
+  /** vue-i18n translation function (reactive to language changes if the factory is called inside a `computed`). */
   t: (key: string, params?: Record<string, unknown>) => string
   router: Router
   config: IAppConfig
-  /** Utente autenticato (assente se non ancora disponibile o con auth disabilitata). */
+  /** Authenticated user (absent if not yet available or with auth disabled). */
   user?: IUserInfo | null
 }
 
-/** Voce del menu account. Stesso tipo delle voci predefinite. */
+/** Account menu item. Same type as the default items. */
 export type PachiMenuItem = IMenuButton
 
 /**
- * Contratto che un package `@ilpachi/*` implementa per aggiungere voci al menu account: un modulo `menu`
- * (`menu.ts`/`menu.js` accanto a `routes`, oppure `dist/menu.js`) con `export default` di questa funzione.
- * La shell la richiama (dentro un `computed`) ad ogni cambio lingua/utente e accetta una voce, un array o `null`.
+ * Contract that an `@ilpachi/*` package implements to add items to the account menu: a `menu` module
+ * (`menu.ts`/`menu.js` next to `routes`, or `dist/menu.js`) with a `export default` of this function.
+ * The shell calls it (inside a `computed`) on every language/user change and accepts an item, an array or `null`.
  */
 export type PachiMenuItemFactory = (
   ctx: PachiMenuItemContext

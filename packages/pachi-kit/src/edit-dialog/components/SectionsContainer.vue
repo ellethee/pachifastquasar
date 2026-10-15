@@ -38,7 +38,7 @@ import type {
 import { QCard, QExpansionItem } from 'quasar'
 const { sections, commonProps } = defineProps<{ sections: ISectionDefinition[], commonProps: Record<string, unknown> }>()
 
-// reattivo (shallow): sezioni aggiunte/attivate dopo il mount rendono `hasChanges` aggiornato
+// reactive (shallow): sections added/activated after mount keep `hasChanges` up to date
 const sectionRefs = shallowReactive<Record<string, ISectionExpose>>({})
 
 function setSectionRef(
@@ -51,8 +51,8 @@ function setSectionRef(
   else delete sectionRefs[key]
 }
 
-// setter stabili per chiave: con una funzione nuova a ogni render Vue chiamerebbe prima `null` poi `el`
-// a ogni patch, invalidando di continuo i computed che leggono `sectionRefs`
+// stable setters per key: with a new function on every render Vue would call `null` first, then `el`,
+// on every patch, continuously invalidating the computeds that read `sectionRefs`
 const setters = new Map<string, (el: Element | ComponentPublicInstance | null) => void>()
 function sectionRefSetter(key: string) {
   let fn = setters.get(key)
@@ -73,9 +73,9 @@ const orderedSections = computed(() => {
     }))
 })
 /**
- * Costruisce il componente contenitore di una sezione. `type` non viene passato come attributo DOM;
- * `title`/`icon` sono mappati su `label`/`icon` solo per `expansion` (QExpansionItem), per `card`
- * e `div` non sono renderizzati.
+ * Builds the container component of a section. `type` is not passed as a DOM attribute;
+ * `title`/`icon` are mapped to `label`/`icon` only for `expansion` (QExpansionItem); for `card`
+ * and `div` they are not rendered.
  */
 function getContainer(section: ISectionDefinition<unknown>): IContainerComponent | undefined {
   if (!section.container) return undefined
@@ -102,7 +102,7 @@ async function resetAll() {
   }
 }
 
-/** Rifà il baseline di tutte le sezioni dallo stato corrente (dopo un salvataggio riuscito). */
+/** Rebuilds the baseline of all sections from the current state (after a successful save). */
 function commitAll() {
   for (const section of Object.values(sectionRefs)) {
     section?.commit?.()

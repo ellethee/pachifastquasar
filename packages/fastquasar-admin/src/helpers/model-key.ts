@@ -1,8 +1,8 @@
 /**
- * Chiave testuale di un modello (`app.model`), usata per nascondere modelli e per i formatter/componenti per campo.
+ * Text key of a model (`app.model`), used to hide models and for per-field formatters/components.
  *
- * @param app - nome dell'app
- * @param model - nome del modello
+ * @param app - app name
+ * @param model - model name
  * @returns `app.model`
  */
 export function modelKey(app: string, model: string): string {
@@ -10,12 +10,12 @@ export function modelKey(app: string, model: string): string {
 }
 
 /**
- * Chiave testuale di un campo (`app.model.campo`).
+ * Text key of a field (`app.model.field`).
  *
- * @param app - nome dell'app
- * @param model - nome del modello
- * @param field - nome del campo (camelCase)
- * @returns `app.model.campo`
+ * @param app - app name
+ * @param model - model name
+ * @param field - field name (camelCase)
+ * @returns `app.model.field`
  */
 export function fieldKey(app: string, model: string, field: string): string {
   return `${app}.${model}.${field}`

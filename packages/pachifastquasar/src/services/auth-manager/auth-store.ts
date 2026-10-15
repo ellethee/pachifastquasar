@@ -5,20 +5,20 @@ import { decodeJwtExpiry } from '../../helpers/jwt-helper'
 import type { IEngineInfo, ITokenResponse, IUserInfo } from './types/auth-manager'
 
 /**
- * Storage di persistenza risolto in modo pigro: la config (`auth.storage`) è nota solo a runtime, dopo
- * `setPachiConfig`, mentre `defineStore` viene valutato al caricamento del modulo.
+ * Persistence storage resolved lazily: the config (`auth.storage`) is known only at runtime, after
+ * `setPachiConfig`, while `defineStore` is evaluated when the module loads.
  */
 const lazyStorage: Pick<Storage, 'getItem' | 'setItem'> = {
   getItem: key => pickStorage().getItem(key),
   setItem: (key, value) => pickStorage().setItem(key, value)
 }
 
-/** `sessionStorage` o `localStorage` secondo `config.auth.storage`. */
+/** `sessionStorage` or `localStorage` according to `config.auth.storage`. */
 function pickStorage(): Storage {
   return getPachiConfig().auth.storage === 'session' ? sessionStorage : localStorage
 }
 
-/** Stato persistito dello store di auth (solo i campi usati per la sincronizzazione tra schede). */
+/** Persisted state of the auth store (only the fields used for synchronization between tabs). */
 export interface PersistedAuth {
   access_token?: string | null
   token_type?: string | null
@@ -27,9 +27,9 @@ export interface PersistedAuth {
 }
 
 /**
- * Legge dallo storage la sessione persistita (chiave `auth`), che un'altra scheda può aver aggiornato.
+ * Reads from storage the persisted session (key `auth`), which another tab may have updated.
  *
- * @returns lo stato persistito oppure `null` se assente o illeggibile
+ * @returns the persisted state or `null` if absent or unreadable
  */
 export function readPersistedAuth(): PersistedAuth | null {
   try {
@@ -90,8 +90,8 @@ export const useAuthStore = defineStore(
     }
   },
   {
-    // token e userInfo restano nello storage del browser (localStorage di default, `QCLI_AUTH_STORAGE=session`
-    // per sessionStorage): vedi la sezione sicurezza del README
+    // token and userInfo stay in the browser storage (localStorage by default, `QCLI_AUTH_STORAGE=session`
+    // for sessionStorage): see the security section of the README
     persist: {
       omit: ['userInfoVersion'],
       storage: lazyStorage

@@ -1,35 +1,35 @@
 import { getUseAlovaInstance } from '@ilpachi/use-alova'
 
-/** Client HTTP minimale richiesto dai widget (un'istanza alova dell'app lo soddisfa se avvolta). */
+/** Minimal HTTP client required by the widgets (an app alova instance satisfies it if wrapped). */
 export interface IPachiWidgetsHttp {
   Get<T = unknown>(url: string, config?: Record<string, unknown>): PromiseLike<T>
 }
 
-/** Restituisce il client HTTP dei widget. */
+/** Returns the widgets HTTP client. */
 export type PachiWidgetsHttpFactory = () => IPachiWidgetsHttp
 
 let factory: PachiWidgetsHttpFactory | null = null
 
-/** Cache del client ricavato da `@ilpachi/use-alova`, legata all'identità della factory che l'ha prodotto. */
+/** Cache of the client obtained from `@ilpachi/use-alova`, tied to the identity of the factory that produced it. */
 let cached: { source: unknown; client: IPachiWidgetsHttp } | null = null
 
 /**
- * Sostituisce il client HTTP di default (es. per aggiungere auth e gestione errori).
- * Da chiamare una sola volta all'avvio dell'app.
+ * Replaces the default HTTP client (e.g. to add auth and error handling).
+ * Call it only once at app startup.
  *
- * @param f - factory che restituisce il client HTTP
+ * @param f - factory returning the HTTP client
  */
 export function setPachiWidgetsHttp(f: PachiWidgetsHttpFactory): void {
   factory = f
 }
 
 /**
- * Restituisce il client HTTP corrente. Ordine: factory impostata con `setPachiWidgetsHttp`; altrimenti
- * l'istanza globale di `@ilpachi/use-alova` (`getUseAlovaInstance()`, registrata da `createPachiApp`),
- * con auth, refresh del token ed errori. Il client ricavato è in cache finché la factory globale non cambia.
+ * Returns the current HTTP client. Order: factory set with `setPachiWidgetsHttp`; otherwise
+ * the global `@ilpachi/use-alova` instance (`getUseAlovaInstance()`, registered by `createPachiApp`),
+ * with auth, token refresh and errors. The obtained client is cached until the global factory changes.
  *
- * @returns client HTTP
- * @throws Error se non c'è né un client registrato né un'istanza di use-alova
+ * @returns HTTP client
+ * @throws Error if there is neither a registered client nor a use-alova instance
  */
 export function getPachiWidgetsHttp(): IPachiWidgetsHttp {
   if (factory) return factory()
@@ -49,7 +49,7 @@ export function getPachiWidgetsHttp(): IPachiWidgetsHttp {
   return cached.client
 }
 
-/** Solo per i test: azzera il client registrato e la cache. */
+/** Tests only: resets the registered client and the cache. */
 export function resetPachiWidgetsHttp(): void {
   factory = null
   cached = null

@@ -5,7 +5,7 @@ vi.mock('@ilpachi/use-alova', () => ({ getUseAlovaInstance: getInstance }))
 
 import { defaultGetHttp, getPachiSettingsOptions, setPachiSettingsOptions } from '../src/helpers/http'
 
-/** Crea una factory finta che restituisce un client nuovo a ogni chiamata. */
+/** Creates a fake factory that returns a new client on every call. */
 function makeFactory() {
   return vi.fn((_opts?: { url?: string }) => ({ alova: { Get: vi.fn(), Put: vi.fn() } }))
 }
@@ -15,7 +15,7 @@ beforeEach(() => {
   setPachiSettingsOptions({ baseUrl: '/api/auth' })
 })
 
-describe('client HTTP di default', () => {
+describe('default HTTP client', () => {
   it('usa getUseAlovaInstance()({ url: baseUrl }).alova', () => {
     const factory = makeFactory()
     getInstance.mockReturnValue(factory)
@@ -25,7 +25,7 @@ describe('client HTTP di default', () => {
     expect(http).toBe(factory.mock.results[0]!.value.alova)
   })
 
-  it('memorizza il client finché factory e baseUrl non cambiano', () => {
+  it('caches the client until factory and baseUrl change', () => {
     const factory = makeFactory()
     getInstance.mockReturnValue(factory)
     setPachiSettingsOptions({ baseUrl: '/a' })
@@ -42,12 +42,12 @@ describe('client HTTP di default', () => {
     expect(other).toHaveBeenCalledTimes(1)
   })
 
-  it('senza istanza use-alova lancia un errore chiaro', () => {
+  it('throws a clear error without a use-alova instance', () => {
     getInstance.mockImplementation(() => { throw new Error('no instance') })
     expect(() => defaultGetHttp()).toThrow(/needs an @ilpachi\/use-alova client.*createUseAlova\(\).*getHttp/)
   })
 
-  it('getHttp personalizzato ha la precedenza', () => {
+  it('custom getHttp takes precedence', () => {
     const custom = { Get: vi.fn(), Put: vi.fn() }
     setPachiSettingsOptions({ getHttp: () => custom })
     expect(getPachiSettingsOptions().getHttp()).toBe(custom)

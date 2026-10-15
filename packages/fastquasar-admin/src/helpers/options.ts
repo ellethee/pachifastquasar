@@ -10,55 +10,55 @@ import { DEFAULT_BASE_PATH } from './http'
 import { sharedState } from './shared-state'
 import type { IPachiAdminHttp } from './http'
 
-/** Contesto passato a un formatter di cella. */
+/** Context passed to a cell formatter. */
 export interface IAdminFormatContext {
-  /** Valore grezzo della cella. */
+  /** Raw value of the cell. */
   value: unknown
-  /** Riga completa. */
+  /** Full row. */
   row: AdminRow
-  /** Nome del campo (camelCase). */
+  /** Field name (camelCase). */
   name: string
   field: IAdminField
   schema: IAdminSchema
-  /** Lingua attiva (es. `it`). */
+  /** Active language (e.g. `it`). */
   locale: string
-  /** Testo che il package avrebbe mostrato (formattazione predefinita). */
+  /** Text the package would have shown (default formatting). */
   defaultText: string
 }
 
-/** Formatter di cella: restituisce il testo da mostrare. */
+/** Cell formatter: returns the text to show. */
 export type AdminFormatter = (ctx: IAdminFormatContext) => string
 
-/** Opzioni globali del package (da impostare una volta all'avvio con `setPachiAdminOptions`). */
+/** Global package options (to be set once at startup with `setPachiAdminOptions`). */
 export interface IPachiAdminOptions {
   /**
-   * Restituisce il client HTTP in funzione della base URL (`basePath`). Default: il client dell'istanza globale di
-   * `@ilpachi/use-alova` (registrata da `createPachiApp`, con auth e gestione errori).
+   * Returns the HTTP client given the base URL (`basePath`). Default: the client of the global instance of
+   * `@ilpachi/use-alova` (registered by `createPachiApp`, with auth and error handling).
    */
   getHttp?: ((basePath: string) => IPachiAdminHttp) | undefined
-  /** Prefisso delle API Admin. Default `/api/admin/models`. */
+  /** Prefix of the Admin APIs. Default `/api/admin/models`. */
   basePath?: string
   /**
-   * Componenti sostitutivi dei controlli del form. Chiave: nome del campo completo `app.model.campo`, oppure il
-   * nome del controllo (`input`, `number`, `select`, ...). Il componente riceve `modelValue`, `field`, `name`,
-   * `label`, `readonly`, `error`, `schema` ed emette `update:modelValue`. Vince la chiave per campo.
+   * Replacement components for the form controls. Key: full field name `app.model.field`, or the control
+   * name (`input`, `number`, `select`, ...). The component receives `modelValue`, `field`, `name`,
+   * `label`, `readonly`, `error`, `schema` and emits `update:modelValue`. The per-field key wins.
    */
   components?: Record<string, Component> | undefined
   /**
-   * Formatter delle celle della tabella. Chiave: `app.model.campo` oppure un tipo (`date`, `boolean`, `json`, ...).
-   * Vince la chiave per campo.
+   * Table cell formatters. Key: `app.model.field` or a type (`date`, `boolean`, `json`, ...).
+   * The per-field key wins.
    */
   formatters?: Record<string, AdminFormatter> | undefined
   /**
-   * Testi che sostituiscono quelli dello schema, per chiave di messaggio del backend
-   * (es. `admin.demo.item.title`) o per nome completo di campo. Hanno la precedenza sulle traduzioni.
+   * Texts replacing those of the schema, by backend message key
+   * (e.g. `admin.demo.item.title`) or by full field name. They take precedence over translations.
    */
   labels?: Record<string, string> | undefined
-  /** Modelli da nascondere: elenco di `app.model` oppure predicato. */
+  /** Models to hide: list of `app.model` or predicate. */
   hideModels?: string[] | ((model: IAdminModelInfo) => boolean) | undefined
 }
 
-/** Opzioni con i default applicati. */
+/** Options with defaults applied. */
 export interface IResolvedAdminOptions {
   getHttp: ((basePath: string) => IPachiAdminHttp) | undefined
   basePath: string
@@ -68,7 +68,7 @@ export interface IResolvedAdminOptions {
   hideModels: string[] | ((model: IAdminModelInfo) => boolean)
 }
 
-/** @returns le opzioni di default */
+/** @returns the default options */
 function defaults(): IResolvedAdminOptions {
   return {
     getHttp: undefined,
@@ -81,10 +81,10 @@ function defaults(): IResolvedAdminOptions {
 }
 
 /**
- * Configura il package. `components`, `formatters` e `labels` si UNISCONO a quanto già registrato; le altre opzioni
- * sostituiscono il valore precedente. Da chiamare una volta all'avvio (boot file).
+ * Configures the package. `components`, `formatters` and `labels` are MERGED with what is already registered;
+ * the other options replace the previous value. To be called once at startup (boot file).
  *
- * @param opts - opzioni parziali
+ * @param opts - partial options
  */
 export function setPachiAdminOptions(opts: IPachiAdminOptions): void {
   const options = getPachiAdminOptions()
@@ -99,25 +99,25 @@ export function setPachiAdminOptions(opts: IPachiAdminOptions): void {
 }
 
 /**
- * Opzioni correnti.
+ * Current options.
  *
- * @returns opzioni complete
+ * @returns complete options
  */
 export function getPachiAdminOptions(): IResolvedAdminOptions {
   const state = sharedState()
   return (state.options ??= defaults())
 }
 
-/** Ripristina i default (per i test). */
+/** Restores the defaults (for tests). */
 export function resetPachiAdminOptions(): void {
   sharedState().options = defaults()
 }
 
 /**
- * Indica se un modello è nascosto dalle opzioni.
+ * Tells whether a model is hidden by the options.
  *
- * @param model - voce dell'elenco modelli
- * @returns `true` se va nascosto
+ * @param model - entry of the model list
+ * @returns `true` if it must be hidden
  */
 export function isModelHidden(model: IAdminModelInfo): boolean {
   const hide = getPachiAdminOptions().hideModels
@@ -126,11 +126,11 @@ export function isModelHidden(model: IAdminModelInfo): boolean {
 }
 
 /**
- * Formatter registrato per un campo (per campo, poi per tipo).
+ * Formatter registered for a field (per field, then per type).
  *
- * @param key - `app.model.campo`
- * @param type - tipo del campo
- * @returns il formatter, se esiste
+ * @param key - `app.model.field`
+ * @param type - field type
+ * @returns the formatter, if any
  */
 export function findFormatter(key: string, type: AdminFieldType): AdminFormatter | undefined {
   const { formatters } = getPachiAdminOptions()
@@ -138,11 +138,11 @@ export function findFormatter(key: string, type: AdminFieldType): AdminFormatter
 }
 
 /**
- * Componente sostitutivo registrato per un campo (per campo, poi per tipo di controllo).
+ * Replacement component registered for a field (per field, then per control type).
  *
- * @param key - `app.model.campo`
- * @param component - nome del controllo dello schema
- * @returns il componente, se esiste
+ * @param key - `app.model.field`
+ * @param component - schema control name
+ * @returns the component, if any
  */
 export function findComponent(key: string, component: string): Component | undefined {
   const { components } = getPachiAdminOptions()

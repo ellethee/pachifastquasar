@@ -1,9 +1,9 @@
 /**
- * Scadenza (`exp`) di un JWT in millisecondi.
- * Il payload è base64url (`-`, `_`, senza padding): `atob` da solo lancerebbe con certi token.
+ * Expiry (`exp`) of a JWT in milliseconds.
+ * The payload is base64url (`-`, `_`, no padding): `atob` alone would throw with some tokens.
  *
- * @param token - access token JWT
- * @returns la scadenza in ms dall'epoca, o `null` se il token non è un JWT valido o non ha `exp`
+ * @param token - JWT access token
+ * @returns the expiry in ms since the epoch, or `null` if the token is not a valid JWT or has no `exp`
  */
 export function decodeJwtExpiry(token: string | null | undefined): number | null {
   try {

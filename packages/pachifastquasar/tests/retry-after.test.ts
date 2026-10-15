@@ -6,12 +6,12 @@ describe('parseRetryAfter', () => {
     expect(parseRetryAfter('120')).toBe(120)
     expect(parseRetryAfter(' 0 ')).toBe(0)
   })
-  it('legge una data HTTP rispetto a now', () => {
+  it('reads an HTTP date relative to now', () => {
     const now = Date.parse('Wed, 21 Oct 2026 07:00:00 GMT')
     expect(parseRetryAfter('Wed, 21 Oct 2026 07:01:30 GMT', now)).toBe(90)
     expect(parseRetryAfter('Wed, 21 Oct 2026 06:00:00 GMT', now)).toBe(0)
   })
-  it('ignora i valori non validi', () => {
+  it('ignores invalid values', () => {
     for (const v of [undefined, null, 5, '', '  ', '-5', '1.5', 'abc', '12abc', '1e3']) {
       expect(parseRetryAfter(v)).toBeNull()
     }
@@ -19,11 +19,11 @@ describe('parseRetryAfter', () => {
 })
 
 describe('retryAfterFromError', () => {
-  it('legge l\'header dalla response', () => {
+  it('reads the header from the response', () => {
     const error = { status: 429, response: { headers: new Headers({ 'Retry-After': '45' }) } }
     expect(retryAfterFromError(error)).toBe(45)
   })
-  it('null senza header o senza response', () => {
+  it('null without header or without response', () => {
     expect(retryAfterFromError({ response: { headers: new Headers() } })).toBeNull()
     expect(retryAfterFromError(new Error('x'))).toBeNull()
     expect(retryAfterFromError(null)).toBeNull()

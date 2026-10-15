@@ -1,14 +1,14 @@
-/** Regola di validazione come quelle di `q-input`: restituisce `true` se valido, altrimenti `false` o il messaggio d'errore. */
+/** Validation rule like those of `q-input`: returns `true` if valid, otherwise `false` or the error message. */
 export type PachiRule = (val: string | number | null | undefined) => boolean | string
 
 /**
- * Indica se un valore rispetta tutte le regole (sincrone), con la stessa semantica di `q-input`:
- * e' non valido solo un risultato `false` o una stringa (messaggio d'errore); `true`, `undefined`,
- * `null` e un risultato non sincrono (Promise, ignorato) sono validi.
+ * Tells whether a value satisfies all the (synchronous) rules, with the same semantics as `q-input`:
+ * only a `false` result or a string (error message) is invalid; `true`, `undefined`,
+ * `null` and a non-synchronous result (Promise, ignored) are valid.
  *
- * @param rules - regole di validazione
- * @param value - valore da verificare
- * @returns true se tutte le regole sono soddisfatte
+ * @param rules - validation rules
+ * @param value - value to check
+ * @returns true if all rules are satisfied
  */
 export function passesRules(rules: readonly PachiRule[] | undefined, value: string | number | null | undefined): boolean {
   return (rules ?? []).every((rule) => {

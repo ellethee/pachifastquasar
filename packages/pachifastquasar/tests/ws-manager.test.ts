@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { WebSocketManager } from 'src/services/ws-manager/ws-manager'
 
-/** WebSocket finto: registra le istanze create e permette di simulare gli eventi. */
+/** Fake WebSocket: records the created instances and allows simulating events. */
 class FakeSocket {
   static instances: FakeSocket[] = []
   static CONNECTING = 0
@@ -32,7 +32,7 @@ describe('WebSocketManager', () => {
     vi.unstubAllGlobals()
   })
 
-  it('4401: non riconnette e notifica il close code', () => {
+  it('4401: does not reconnect and notifies the close code', () => {
     const onClose = vi.fn()
     const m = new WebSocketManager('ws://x')
     m.addHandler('__conn__', { onClose })
@@ -45,7 +45,7 @@ describe('WebSocketManager', () => {
     expect(FakeSocket.instances).toHaveLength(1)
   })
 
-  it('4403: riconnette subito, senza backoff', () => {
+  it('4403: reconnects immediately, without backoff', () => {
     const m = new WebSocketManager('ws://x')
     m.connect()
     FakeSocket.instances[0]!.open()
@@ -54,7 +54,7 @@ describe('WebSocketManager', () => {
     expect(m.isActive).toBe(true)
   })
 
-  it('4403 ravvicinati: il secondo passa dal backoff (niente loop)', () => {
+  it('4403 in quick succession: the second goes through backoff (no loop)', () => {
     const m = new WebSocketManager('ws://x')
     m.connect()
     FakeSocket.instances[0]!.open()
@@ -62,13 +62,13 @@ describe('WebSocketManager', () => {
     expect(FakeSocket.instances).toHaveLength(2)
     FakeSocket.instances[1]!.open()
     FakeSocket.instances[1]!.fail(4403)
-    // entro 1s dal precedente: nessuna riapertura immediata, solo il timer di riconnessione
+    // within 1s of the previous one: no immediate reopening, only the reconnection timer
     expect(FakeSocket.instances).toHaveLength(2)
     vi.advanceTimersByTime(1000)
     expect(FakeSocket.instances).toHaveLength(3)
   })
 
-  it('4403 distanziati di più di 1s: riconnette sempre subito', () => {
+  it('4403 spaced more than 1s apart: always reconnects immediately', () => {
     const m = new WebSocketManager('ws://x')
     m.connect()
     FakeSocket.instances[0]!.open()
@@ -79,7 +79,7 @@ describe('WebSocketManager', () => {
     expect(FakeSocket.instances).toHaveLength(3)
   })
 
-  it('backoff esponenziale con tetto a 30s dopo la prima apertura', () => {
+  it('exponential backoff capped at 30s after the first open', () => {
     const m = new WebSocketManager('ws://x')
     m.connect()
     FakeSocket.instances[0]!.open()
@@ -93,7 +93,7 @@ describe('WebSocketManager', () => {
     }
   })
 
-  it('rinuncia dopo 5 fallimenti iniziali senza mai aprire', () => {
+  it('gives up after 5 initial failures without ever opening', () => {
     const m = new WebSocketManager('ws://x')
     m.connect()
     for (let i = 0; i < 5; i++) {
@@ -104,7 +104,7 @@ describe('WebSocketManager', () => {
     expect(m.isActive).toBe(false)
   })
 
-  it('l\'URL getter è ricalcolato a ogni riconnessione', () => {
+  it('the URL getter is recomputed on every reconnection', () => {
     let token = 'old'
     const m = new WebSocketManager(() => `ws://x?token=${token}`)
     m.connect()
@@ -115,7 +115,7 @@ describe('WebSocketManager', () => {
     expect(FakeSocket.instances[1]!.url).toBe('ws://x?token=new')
   })
 
-  it('disconnect ferma la riconnessione e ignora gli eventi del vecchio socket', () => {
+  it('disconnect stops reconnection and ignores events from the old socket', () => {
     const onClose = vi.fn()
     const m = new WebSocketManager('ws://x')
     m.addHandler('__conn__', { onClose })
@@ -129,7 +129,7 @@ describe('WebSocketManager', () => {
     expect(m.isActive).toBe(false)
   })
 
-  it('smista i messaggi per tipo e ignora ping e JSON non valido', () => {
+  it('dispatches messages by type and ignores ping and invalid JSON', () => {
     const onMessage = vi.fn()
     const m = new WebSocketManager('ws://x')
     m.addHandler('activity', { onMessage })
@@ -138,12 +138,12 @@ describe('WebSocketManager', () => {
     s.open()
     s.onmessage?.({ data: JSON.stringify({ type: 'activity', data: { a: 1 } }) })
     s.onmessage?.({ data: JSON.stringify({ type: 'ping' }) })
-    s.onmessage?.({ data: 'non json' })
+    s.onmessage?.({ data: 'not json' })
     expect(onMessage).toHaveBeenCalledTimes(1)
     expect(onMessage).toHaveBeenCalledWith({ a: 1 })
   })
 
-  it('URL asincrono (ticket): nuovo URL a ogni riconnessione', async () => {
+  it('async URL (ticket): new URL on every reconnection', async () => {
     let n = 0
     const m = new WebSocketManager(() => Promise.resolve(`ws://x?ticket=t${++n}`))
     m.connect()
@@ -155,7 +155,7 @@ describe('WebSocketManager', () => {
     expect(FakeSocket.instances[1]!.url).toBe('ws://x?ticket=t2')
   })
 
-  it('URL asincrono: errore con closeCode 4401 non riconnette e notifica', async () => {
+  it('async URL: error with closeCode 4401 does not reconnect and notifies', async () => {
     const onClose = vi.fn()
     const m = new WebSocketManager(() => Promise.reject(Object.assign(new Error('401'), { closeCode: 4401 })))
     m.addHandler('__conn__', { onClose })
@@ -166,7 +166,7 @@ describe('WebSocketManager', () => {
     expect(m.isActive).toBe(false)
   })
 
-  it('URL asincrono: disconnect prima della risposta non apre il socket', async () => {
+  it('async URL: disconnect before the response does not open the socket', async () => {
     let resolve!: (url: string) => void
     const m = new WebSocketManager(() => new Promise<string>((r) => { resolve = r }))
     m.connect()
@@ -176,8 +176,8 @@ describe('WebSocketManager', () => {
     expect(FakeSocket.instances).toHaveLength(0)
   })
 
-  it('URL asincrono: errore generico riprova con backoff', async () => {
-    const m = new WebSocketManager(() => Promise.reject(new Error('rete')))
+  it('async URL: generic error retries with backoff', async () => {
+    const m = new WebSocketManager(() => Promise.reject(new Error('network')))
     m.connect()
     await vi.advanceTimersByTimeAsync(1000)
     await vi.advanceTimersByTimeAsync(2000)

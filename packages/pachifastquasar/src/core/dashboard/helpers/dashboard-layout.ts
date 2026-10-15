@@ -1,13 +1,13 @@
-/** Valore di colonne ammesso da configurazione e `route.meta`: numero di colonne o `grid-template-columns` completo. */
+/** Columns value allowed by configuration and `route.meta`: number of columns or a full `grid-template-columns`. */
 export type PachiDashboardColumns = number | string
 
 /**
- * Converte le colonne della dashboard in un valore CSS `grid-template-columns`.
- * Un numero intero (anche come stringa, es. `'3'`) diventa `repeat(n, 1fr)`; qualunque altra stringa
- * (es. `'repeat(auto-fill, minmax(220px, 1fr))'`) è usata così com'è.
+ * Converts the dashboard columns into a CSS `grid-template-columns` value.
+ * An integer (also as a string, e.g. `'3'`) becomes `repeat(n, 1fr)`; any other string
+ * (e.g. `'repeat(auto-fill, minmax(220px, 1fr))'`) is used as is.
  *
- * @param value - numero di colonne o valore CSS
- * @returns il valore CSS, o `undefined` se assente o non valido (numero < 1)
+ * @param value - number of columns or CSS value
+ * @returns the CSS value, or `undefined` if absent or invalid (number < 1)
  */
 export function resolveDashboardColumns(value: unknown): string | undefined {
   if (typeof value === 'number') {
@@ -21,10 +21,10 @@ export function resolveDashboardColumns(value: unknown): string | undefined {
 }
 
 /**
- * Larghezza massima della dashboard come valore CSS.
+ * Maximum dashboard width as a CSS value.
  *
- * @param value - lunghezza CSS (es. `'1400px'`, `'90%'`, `'none'`) o numero di pixel
- * @returns il valore CSS, o `undefined` se assente o vuoto
+ * @param value - CSS length (e.g. `'1400px'`, `'90%'`, `'none'`) or number of pixels
+ * @returns the CSS value, or `undefined` if absent or empty
  */
 export function resolveDashboardMaxWidth(value: unknown): string | undefined {
   if (typeof value === 'number') return Number.isFinite(value) && value > 0 ? `${value}px` : undefined

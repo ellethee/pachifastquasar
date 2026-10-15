@@ -1,20 +1,20 @@
 import { mdiCog } from '@quasar/extras/mdi-v7'
 import { ensureMessages } from './helpers/register-messages'
 
-/** Percorso della pagina impostazioni (stesso di `src/routes.ts`). */
+/** Settings page path (same as `src/routes.ts`). */
 export const SETTINGS_PATH = '/user/settings'
 
 /**
- * Contesto passato dalla shell `@ilpachi/pachifastquasar` (tipo strutturale locale: il package non importa la shell).
+ * Context passed by the `@ilpachi/pachifastquasar` shell (local structural type: the package does not import the shell).
  */
 export interface IPachiSettingsMenuContext {
-  /** Funzione di traduzione di vue-i18n. */
+  /** vue-i18n translation function. */
   t: (key: string) => string
-  /** Configurazione risolta della shell (si legge solo `auth.menu.showSettings`). */
+  /** Resolved shell configuration (only `auth.menu.showSettings` is read). */
   config?: { auth?: { menu?: { showSettings?: boolean } } }
 }
 
-/** Voce di menu compatibile con `IMenuButton` della shell. */
+/** Menu item compatible with the shell's `IMenuButton`. */
 export interface IPachiSettingsMenuItem {
   label: string
   caption: string
@@ -25,11 +25,11 @@ export interface IPachiSettingsMenuItem {
 }
 
 /**
- * Factory della voce "Impostazioni" del menu account (contratto `PachiMenuItemFactory` di
- * `@ilpachi/pachifastquasar`, esportata come default del modulo `menu`).
+ * Factory of the "Settings" account menu item (`PachiMenuItemFactory` contract of
+ * `@ilpachi/pachifastquasar`, exported as the default of the `menu` module).
  *
- * @param ctx - contesto del menu (`t`, `config`)
- * @returns la voce Impostazioni (ordine 20)
+ * @param ctx - menu context (`t`, `config`)
+ * @returns the Settings item (order 20)
  */
 export function getMenuItem(ctx: IPachiSettingsMenuContext): IPachiSettingsMenuItem {
   ensureMessages()

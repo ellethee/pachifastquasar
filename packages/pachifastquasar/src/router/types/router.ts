@@ -3,48 +3,48 @@ import type { IDashboardCardStat, IDashboardWidget } from '../../core/dashboard/
 
 declare module 'vue-router' {
   interface RouteMeta {
-    /** Pagina pubblica, non richiede autenticazione */
+    /** Public page, does not require authentication */
     noAuth?: boolean
-    /** Route montata a livello root (fuori dal layout principale) */
+    /** Route mounted at root level (outside the main layout) */
     root?: boolean
-    /** Forza (true) o esclude (false) la dashboard automatica di card per questa route con figli; default `QCLI_APP_AUTO_DASHBOARD`. */
+    /** Forces (true) or excludes (false) the automatic card dashboard for this route with children; default `QCLI_APP_AUTO_DASHBOARD`. */
     dashboard?: boolean
-    /** Larghezza massima della dashboard di questa route (lunghezza CSS o pixel); default `app.dashboardMaxWidth`, poi `1080px`. */
+    /** Maximum width of the dashboard of this route (CSS length or pixels); default `app.dashboardMaxWidth`, then `1080px`. */
     dashboardMaxWidth?: string | number
-    /** Colonne della griglia di card di questa route: numero o `grid-template-columns` CSS; default `app.dashboardColumns`, poi 4. */
+    /** Columns of the card grid of this route: number or CSS `grid-template-columns`; default `app.dashboardColumns`, then 4. */
     dashboardColumns?: number | string
-    /** Animazione del titolo della card di questa route nella dashboard (`rubber-band`, `pulse`, `shake`, `wobble`, `tada`, `bounce`, `none`); default `app.titleAnimation`. */
+    /** Title animation of this route's card in the dashboard (`rubber-band`, `pulse`, `shake`, `wobble`, `tada`, `bounce`, `none`); default `app.titleAnimation`. */
     titleAnimation?: string
-    /** Avvolge la pagina in un contenitore scrollabile (`pachi-page-scroll`) entro il limite inferiore; default false. Per scrollare solo una parte della pagina usare `PachiScrollArea`. */
+    /** Wraps the page in a scrollable container (`pachi-page-scroll`) within the bottom limit; default false. To scroll only part of the page use `PachiScrollArea`. */
     pageScroll?: boolean
-    /** Nascosta dalla dashboard e dai menu */
+    /** Hidden from the dashboard and menus */
     hidden?: boolean
-    /** Titolo letterale (retrocompatibile); se presente `titleKey` ha la precedenza. */
+    /** Literal title (backward compatible); if `titleKey` is present it takes precedence. */
     title?: string
-    /** Chiave i18n del titolo, risolta con `t()` e reattiva al cambio lingua. */
+    /** i18n key of the title, resolved with `t()` and reactive to language changes. */
     titleKey?: string
     description?: string
-    /** Chiave i18n della descrizione (precedenza su `description`). */
+    /** i18n key of the description (takes precedence over `description`). */
     descriptionKey?: string
     icon?: string
     iconColor?: string
-    /** Immagine di sfondo a tema (card dashboard + sfondo pagina), import statico. */
+    /** Themed background image (dashboard card + page background), static import. */
     img?: string
     order?: number
     useMyIcon?: boolean
     bgStyle?: Record<string, string>
     statsUrl?: string
     stats?: IDashboardCardStat[] | (() => IDashboardCardStat[])
-    /** Permessi specifici richiesti (tutti devono essere presenti) */
+    /** Specific permissions required (all must be present) */
     permissions?: string[]
-    /** Richiede is_staff=true (o is_superuser) */
+    /** Requires is_staff=true (or is_superuser) */
     requireStaff?: boolean
-    /** Richiede is_superuser=true */
+    /** Requires is_superuser=true */
     requireSuperuser?: boolean
-    /** Widget mostrati sotto le card della dashboard di questa route (es. da `@ilpachi/fastquasar-dashboard-widgets`). */
+    /** Widgets shown below the dashboard cards of this route (e.g. from `@ilpachi/fastquasar-dashboard-widgets`). */
     widgets?: IDashboardWidget[]
   }
 }
 
-/** `RouteMeta` con le proprietà aggiunte dalla shell (importare questo tipo carica l'estensione di `vue-router`). */
+/** `RouteMeta` with the properties added by the shell (importing this type loads the `vue-router` extension). */
 export type PachiRouteMeta = RouteMeta

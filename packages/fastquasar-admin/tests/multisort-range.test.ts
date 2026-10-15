@@ -15,13 +15,13 @@ afterEach(() => {
   vi.useRealTimers()
 })
 
-describe('ordinamento multiplo', () => {
-  it('orderBy con più campi separati da virgola', () => {
+describe('multiple sorting', () => {
+  it('orderBy with several comma-separated fields', () => {
     const qs = buildListQuery({ page: 1, pageSize: 25, sorts: [{ field: 'status', descending: true }, { field: 'number', descending: false }] })
     expect(new URLSearchParams(qs).get('orderBy')).toBe('-status,number')
   })
 
-  it('clic semplice: asc, desc, nessuno; sostituisce il multiplo', () => {
+  it('plain click: asc, desc, none; replaces the multiple sorting', () => {
     let s = nextSorts([], 'a', false)
     expect(s).toEqual([{ field: 'a', descending: false }])
     s = nextSorts(s, 'a', false)
@@ -30,7 +30,7 @@ describe('ordinamento multiplo', () => {
     expect(nextSorts([{ field: 'a', descending: false }, { field: 'b', descending: false }], 'a', false)).toEqual([{ field: 'a', descending: false }])
   })
 
-  it('Maiusc+clic accumula, inverte e toglie', () => {
+  it('Shift+click accumulates, flips and removes', () => {
     let s = nextSorts([{ field: 'a', descending: true }], 'b', true)
     expect(s.map((x) => x.field)).toEqual(['a', 'b'])
     s = nextSorts(s, 'b', true)
@@ -39,8 +39,8 @@ describe('ordinamento multiplo', () => {
   })
 })
 
-describe('filtri a intervallo', () => {
-  it('uguaglianza senza range, __gte/__lte con range', () => {
+describe('range filters', () => {
+  it('equality without range, __gte/__lte with range', () => {
     const filters = [
       { field: 'status', component: 'input' },
       { field: 'price', component: 'number', range: true },
@@ -51,7 +51,7 @@ describe('filtri a intervallo', () => {
     })
   })
 
-  it('datetime con la sola data: inizio e fine giorno in ISO UTC', () => {
+  it('datetime with the date only: start and end of day in ISO UTC', () => {
     const gte = new Date(rangeValue('datetime', 'gte', '2026-01-01') as string)
     const lte = new Date(rangeValue('datetime', 'lte', '2026-01-01') as string)
     expect(gte.getHours()).toBe(0)
@@ -61,22 +61,22 @@ describe('filtri a intervallo', () => {
     expect(rangeValue('number', 'gte', 5)).toBe(5)
   })
 
-  it('422 su query: errore sul filtro giusto (dueDate__gte non si spezza)', () => {
+  it('422 on query: error on the right filter (dueDate__gte is not split)', () => {
     expect(camelize('dueDate__gte')).toBe('dueDate__gte')
     expect(itemField({ loc: ['query', 'dueDate__gte'] })).toBe('dueDate__gte')
-    const d = describeError({ status: 422, items: [{ msg: 'Data non valida', loc: ['query', 'dueDate__gte'] }, { msg: 'orderBy non valido', code: 'api.invalid_order_by', loc: ['query', 'orderBy'] }] }, tr)
-    expect(d.fields).toEqual({ dueDate__gte: 'Data non valida' })
-    expect(d.message).toBe('orderBy non valido')
+    const d = describeError({ status: 422, items: [{ msg: 'Invalid date', loc: ['query', 'dueDate__gte'] }, { msg: 'Invalid orderBy', code: 'api.invalid_order_by', loc: ['query', 'orderBy'] }] }, tr)
+    expect(d.fields).toEqual({ dueDate__gte: 'Invalid date' })
+    expect(d.message).toBe('Invalid orderBy')
   })
 })
 
-describe('titoli delle righe', () => {
-  it('riassunto con "altre k"', () => {
+describe('row titles', () => {
+  it('summary with "k more"', () => {
     expect(summarizeLabels(['a', 'b', 'c', 'd', 'e', 'f'], 9)).toEqual({ shown: ['a', 'b', 'c', 'd', 'e'], more: 4 })
     expect(summarizeLabels([], 0)).toEqual({ shown: [], more: 0 })
   })
 
-  it('una sola chiamata _options?ids= e ordine delle ids', async () => {
+  it('a single _options?ids= call and ids order', async () => {
     const options = vi.fn().mockResolvedValue({ items: [{ value: 13, label: 'B' }, { value: 12, label: 'A' }] })
     const labels = await loadRowLabels({ options } as unknown as IAdminApi, 'demo', 'item', [12, 13])
     expect(labels).toEqual(['A', 'B'])
@@ -87,14 +87,14 @@ describe('titoli delle righe', () => {
 })
 
 describe('history', () => {
-  it('changes vuoto o null non manda in crash', () => {
+  it('empty or null changes does not crash', () => {
     expect(historyChanges({ changes: {} })).toEqual([])
     expect(historyChanges({ changes: null as never })).toEqual([])
   })
 })
 
-describe('elenco modelli: richieste condivise', () => {
-  it('chiamate ravvicinate usano una sola richiesta', async () => {
+describe('model list: shared requests', () => {
+  it('close calls use a single request', async () => {
     const listModels = vi.fn().mockResolvedValue([])
     const api = { listModels } as unknown as IAdminApi
     await Promise.all([fetchAdminModels(api), fetchAdminModels(api), fetchAdminModels(api)])
@@ -102,7 +102,7 @@ describe('elenco modelli: richieste condivise', () => {
     expect(listModels).toHaveBeenCalledTimes(1)
   })
 
-  it('un errore non resta in cache', async () => {
+  it('an error is not kept in cache', async () => {
     const listModels = vi.fn().mockRejectedValueOnce(new Error('x')).mockResolvedValue([])
     const api = { listModels } as unknown as IAdminApi
     await expect(fetchAdminModels(api)).rejects.toThrow()

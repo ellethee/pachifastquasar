@@ -8,7 +8,7 @@ let dir = ''
 afterEach(() => dir && rmSync(dir, { recursive: true, force: true }))
 
 describe('readIlpachiDependencies', () => {
-  it('elenca solo i pacchetti @ilpachi/* di dependencies e devDependencies', () => {
+  it('lists only the @ilpachi/* packages from dependencies and devDependencies', () => {
     dir = mkdtempSync(path.join(tmpdir(), 'pachi-deps-'))
     writeFileSync(
       path.join(dir, 'package.json'),
@@ -19,21 +19,21 @@ describe('readIlpachiDependencies', () => {
     )
     expect(readIlpachiDependencies(dir).sort()).toEqual(['@ilpachi/a', '@ilpachi/b'])
   })
-  it('senza package.json o con JSON non valido restituisce []', () => {
+  it('without package.json or with invalid JSON returns []', () => {
     dir = mkdtempSync(path.join(tmpdir(), 'pachi-deps-'))
     expect(readIlpachiDependencies(dir)).toEqual([])
-    writeFileSync(path.join(dir, 'package.json'), '{ non json')
+    writeFileSync(path.join(dir, 'package.json'), '{ not json')
     expect(readIlpachiDependencies(dir)).toEqual([])
   })
 })
 
 describe('readPrebundleDependencies', () => {
-  it('restituisce le entry di alova se l\'app dipende da alova', () => {
+  it('returns the alova entries if the app depends on alova', () => {
     dir = mkdtempSync(path.join(tmpdir(), 'pachi-deps-'))
     writeFileSync(path.join(dir, 'package.json'), JSON.stringify({ dependencies: { alova: '^3', vue: '^3' } }))
     expect(readPrebundleDependencies(dir)).toEqual(ALOVA_PREBUNDLE_ENTRIES)
   })
-  it('senza alova (o senza package.json) restituisce []', () => {
+  it('without alova (or without package.json) returns []', () => {
     dir = mkdtempSync(path.join(tmpdir(), 'pachi-deps-'))
     expect(readPrebundleDependencies(dir)).toEqual([])
     writeFileSync(path.join(dir, 'package.json'), JSON.stringify({ dependencies: { vue: '^3' } }))

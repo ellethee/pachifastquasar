@@ -4,7 +4,7 @@ import { gravatarHash, gravatarUrl, initialsOf, sha256Hex } from 'src/helpers/gr
 
 const enc = (text: string) => new TextEncoder().encode(text)
 
-describe('sha256Hex (fallback senza crypto.subtle)', () => {
+describe('sha256Hex (fallback without crypto.subtle)', () => {
   it('vettori noti', () => {
     expect(sha256Hex(enc(''))).toBe(
       'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
@@ -16,7 +16,7 @@ describe('sha256Hex (fallback senza crypto.subtle)', () => {
       '248d6a61d20638b8e5c026930c3e6039a33ce45964ff2167f6ecedd419db06c1'
     )
   })
-  it('coincide con Node su lunghezze diverse (blocchi, padding, byte non ASCII)', () => {
+  it('matches Node across different lengths (blocks, padding, non-ASCII bytes)', () => {
     for (const n of [0, 1, 55, 56, 63, 64, 65, 119, 120, 1000]) {
       const bytes = new Uint8Array(randomBytes(n))
       expect(sha256Hex(bytes)).toBe(createHash('sha256').update(bytes).digest('hex'))
@@ -30,10 +30,10 @@ describe('sha256Hex (fallback senza crypto.subtle)', () => {
 describe('gravatarHash', () => {
   afterEach(() => vi.unstubAllGlobals())
   const expected = createHash('sha256').update('mario.rossi@example.com').digest('hex')
-  it('normalizza (trim e minuscole) e usa crypto.subtle quando disponibile', async () => {
+  it('normalizes (trim and lowercase) and uses crypto.subtle when available', async () => {
     expect(await gravatarHash('  Mario.Rossi@Example.com ')).toBe(expected)
   })
-  it('senza crypto.subtle (contesto non sicuro) ripiega sul calcolo in JS con lo stesso risultato', async () => {
+  it('without crypto.subtle (insecure context) falls back to the JS computation with the same result', async () => {
     vi.stubGlobal('crypto', {})
     expect(await gravatarHash('Mario.Rossi@example.com')).toBe(expected)
   })
@@ -43,7 +43,7 @@ describe('gravatarHash', () => {
 })
 
 describe('gravatarUrl e initialsOf', () => {
-  it('URL con d=404', () => {
+  it('URL with d=404', () => {
     expect(gravatarUrl('abc', 100)).toBe('https://www.gravatar.com/avatar/abc?s=100&d=404')
   })
   it('iniziali', () => {

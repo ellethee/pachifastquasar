@@ -5,15 +5,15 @@ import { SectionContextKey } from '../types/sections'
 import { cloneValue } from '../utils/clone-value'
 import { isEqualValue } from '../utils/equal'
 
-/** Risultato di `useSection`. */
+/** Result of `useSection`. */
 export interface IUseSection<T> {
   state: Ref<T>
-  /** Baseline corrente (sola lettura). */
+  /** Current baseline (read-only). */
   originalState: Readonly<Ref<T>>
   reset: () => void
-  /** Imposta baseline e stato correnti (es. quando arriva il record da modificare). */
+  /** Sets the current baseline and state (e.g. when the record to edit arrives). */
   setOriginalState: (value: T) => void
-  /** Rifà il baseline dallo stato corrente (da chiamare dopo un salvataggio riuscito). */
+  /** Rebuilds the baseline from the current state (to be called after a successful save). */
   commit: () => void
   getResults: () => T
   hasChanges: ComputedRef<boolean>
@@ -22,21 +22,21 @@ export interface IUseSection<T> {
   getSharedValue: ISectionContext['getSharedValue'] | undefined
 }
 
-/** Opzioni di `useSection`. */
+/** Options of `useSection`. */
 export interface IUseSectionOptions<T> {
   /**
-   * Getter del valore iniziale reattivo (es. `() => props.initialValue`): a ogni cambio
-   * (anche dopo il mount, record asincrono) baseline e stato vengono reimpostati, ma solo se il
-   * CONTENUTO e' diverso dall'ultimo applicato: un nuovo riferimento con lo stesso contenuto
-   * (es. riassegnazione del record dal parent) non cancella le modifiche dell'utente.
+   * Getter of the reactive initial value (e.g. `() => props.initialValue`): on every change
+   * (even after mount, async record) baseline and state are reset, but only if the
+   * CONTENT differs from the last applied one: a new reference with the same content
+   * (e.g. the parent reassigning the record) does not erase the user's changes.
    */
   initialValue?: () => T | undefined
 }
 
 /**
- * Stato locale di una sezione con baseline, reset e dirty-check.
- * @param initialState stato di partenza
- * @param options opzioni (watch sul valore iniziale)
+ * Local state of a section with baseline, reset and dirty-check.
+ * @param initialState initial state
+ * @param options options (watch on the initial value)
  */
 export function useSection<T>(initialState: T, options: IUseSectionOptions<T> = {}): IUseSection<T> {
   const state = ref(cloneValue(initialState)) as Ref<T>

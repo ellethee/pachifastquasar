@@ -13,7 +13,7 @@ function makeDeps() {
 }
 
 describe('mapLegacyScript', () => {
-  it('riconosce le due forme storiche', () => {
+  it('recognises the two legacy forms', () => {
     expect(mapLegacyScript('() => $q.dark.toggle()')).toBe('darkToggle')
     expect(mapLegacyScript("(newValue) => Dark.set(newValue === 'dark')")).toBe('darkSetWhenEquals:dark')
     expect(mapLegacyScript('() => alert(1)')).toBeNull()
@@ -21,7 +21,7 @@ describe('mapLegacyScript', () => {
 })
 
 describe('resolveSettingsAction', () => {
-  it('esegue le azioni predefinite', () => {
+  it('runs the default actions', () => {
     const deps = makeDeps()
     resolveSettingsAction('darkToggle', { deps })?.()
     expect(deps.Dark.toggle).toHaveBeenCalled()
@@ -29,17 +29,17 @@ describe('resolveSettingsAction', () => {
     expect(deps.Dark.set).toHaveBeenLastCalledWith(true)
     resolveSettingsAction('darkSet', { deps })?.('light')
     expect(deps.Dark.set).toHaveBeenLastCalledWith(false)
-    resolveSettingsAction('notify:Ciao', { deps })?.()
-    expect(deps.Notify.create).toHaveBeenCalledWith({ message: 'Ciao' })
+    resolveSettingsAction('notify:Hello', { deps })?.()
+    expect(deps.Notify.create).toHaveBeenCalledWith({ message: 'Hello' })
   })
-  it('esegue le azioni registrate dall\'app', () => {
+  it('runs the actions registered by the app', () => {
     const fn = vi.fn()
     registerSettingsActions({ refreshMenu: fn })
     resolveSettingsAction('refreshMenu:x', { deps: makeDeps() })?.(42)
     expect(fn).toHaveBeenCalledWith(expect.objectContaining({ arg: 'x' }), 42)
     expect(listSettingsActions()).toContain('refreshMenu')
   })
-  it('rifiuta gli script se allowScriptStrings è false', () => {
+  it('rejects scripts if allowScriptStrings is false', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     const g = globalThis as Record<string, unknown>
     g.__pwned = false
@@ -48,11 +48,11 @@ describe('resolveSettingsAction', () => {
     expect(resolveSettingsAction('toString', { deps: makeDeps() })).toBeNull()
     warn.mockRestore()
   })
-  it('esegue gli script solo con allowScriptStrings', () => {
+  it('runs scripts only with allowScriptStrings', () => {
     const h = resolveSettingsAction('(x) => x * 2', { deps: makeDeps(), allowScriptStrings: true })
     expect(h?.(4)).toBe(8)
   })
-  it('avvisa (una volta) quando esegue uno script', () => {
+  it('warns (once) when it runs a script', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     const opts = { deps: makeDeps(), allowScriptStrings: true }
     resolveSettingsAction('(x) => x + 1', opts)
@@ -60,7 +60,7 @@ describe('resolveSettingsAction', () => {
     expect(warn.mock.calls.filter(c => String(c[0]).includes('new Function'))).toHaveLength(1)
     warn.mockRestore()
   })
-  it('resolveSettingsActions scarta le specifiche non risolvibili', () => {
+  it('resolveSettingsActions discards unresolvable specs', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     const out = resolveSettingsActions({ a: 'darkToggle', b: 'nope()' }, { deps: makeDeps() })
     expect(Object.keys(out)).toEqual(['a'])
@@ -68,8 +68,8 @@ describe('resolveSettingsAction', () => {
   })
 })
 
-describe('formato oggetto { action, args }', () => {
-  it('esegue le azioni predefinite con args come oggetto, array o valore singolo', () => {
+describe('object format { action, args }', () => {
+  it('runs the default actions with args as object, array or single value', () => {
     const deps = makeDeps()
     resolveSettingsAction({ action: 'darkSet', args: { mode: 'dark' } }, { deps })?.()
     expect(deps.Dark.set).toHaveBeenLastCalledWith(true)
@@ -81,12 +81,12 @@ describe('formato oggetto { action, args }', () => {
     expect(deps.Dark.set).toHaveBeenLastCalledWith(true)
     resolveSettingsAction({ action: 'darkToggle' }, { deps })?.()
     expect(deps.Dark.toggle).toHaveBeenCalled()
-    resolveSettingsAction({ action: 'notify', args: { message: 'Ciao' } }, { deps })?.()
-    expect(deps.Notify.create).toHaveBeenCalledWith({ message: 'Ciao' })
+    resolveSettingsAction({ action: 'notify', args: { message: 'Hello' } }, { deps })?.()
+    expect(deps.Notify.create).toHaveBeenCalledWith({ message: 'Hello' })
     resolveSettingsAction({ action: 'darkSetWhenEquals', args: { value: 'night' } }, { deps })?.('night')
     expect(deps.Dark.set).toHaveBeenLastCalledWith(true)
   })
-  it('passa args/params/arg alle azioni registrate', () => {
+  it('passes args/params/arg to registered actions', () => {
     const fn = vi.fn()
     registerSettingsActions({ objAction: fn })
     resolveSettingsAction({ action: 'objAction', args: { from_value: true, n: 1 } }, { deps: makeDeps() })?.('v')
@@ -97,7 +97,7 @@ describe('formato oggetto { action, args }', () => {
     resolveSettingsAction({ action: 'objAction', args: [7, 'x'] }, { deps: makeDeps() })?.()
     expect(fn).toHaveBeenLastCalledWith(expect.objectContaining({ arg: '7', args: [7, 'x'], params: {} }))
   })
-  it('non esegue mai codice per le forme oggetto e avvisa una sola volta', () => {
+  it('never runs code for object forms and warns only once', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     resetSettingsWarnings()
     const opts = { deps: makeDeps(), allowScriptStrings: true }
@@ -106,7 +106,7 @@ describe('formato oggetto { action, args }', () => {
     expect(warn).toHaveBeenCalledTimes(1)
     warn.mockRestore()
   })
-  it('un formato sconosciuto produce un warning (una volta) invece di sparire', () => {
+  it('an unknown format produces a warning (once) instead of vanishing', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     resetSettingsWarnings()
     const map = { a: 42, b: { nope: true }, c: 42 } as never
@@ -114,7 +114,7 @@ describe('formato oggetto { action, args }', () => {
     expect(warn).toHaveBeenCalledTimes(2)
     warn.mockRestore()
   })
-  it('resolveSettingsActions accetta stringhe e oggetti insieme', () => {
+  it('resolveSettingsActions accepts strings and objects together', () => {
     const deps = makeDeps()
     const out = resolveSettingsActions(
       { 'update:modelValue': { action: 'darkSet', args: {} }, other: 'darkToggle' },

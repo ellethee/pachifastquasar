@@ -1,21 +1,21 @@
 import { computed, type ComputedRef, type WritableComputedRef } from 'vue'
 import { requirePachiI18n } from '../services/i18n-instance'
 
-/** Valore restituito da {@link useLocale}. */
+/** Value returned by {@link useLocale}. */
 export interface UseLocale {
-  /** Lingua attiva (scrivibile). */
+  /** Active locale (writable). */
   locale: WritableComputedRef<string>
-  /** Lingue disponibili (derivate dai messaggi registrati). */
+  /** Available locales (derived from the registered messages). */
   availableLocales: ComputedRef<string[]>
-  /** Cambia la lingua attiva (ignora codici non disponibili). */
+  /** Changes the active locale (ignores unavailable codes). */
   setLocale: (code: string) => void
-  /** Nome nativo della lingua (es. `it` -> `Italiano`), con fallback al codice. */
+  /** Native name of the locale (e.g. `it` -> `Italiano`), falling back to the code. */
   labelOf: (code: string) => string
 }
 
 /**
- * Gestione della lingua attiva: utilizzabile anche fuori da `setup()`.
- * `createPachiI18n` deve essere già stato chiamato.
+ * Active locale management: also usable outside `setup()`.
+ * `createPachiI18n` must have already been called.
  */
 export function useLocale(): UseLocale {
   const { global } = requirePachiI18n()

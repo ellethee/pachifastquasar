@@ -1,32 +1,32 @@
 import { readStorage, removeStorage, writeStorage } from '../helpers/storage'
 import type { SettingsApplyMap } from '../helpers/apply'
 
-/** Prefisso della chiave localStorage della cache (una per utente). */
+/** localStorage key prefix of the cache (one per user). */
 export const SETTINGS_CACHE_PREFIX = 'pachi-settings-cache:'
 
-/** Cache dei soli valori legati a un applier, per riapplicarli al boot prima della risposta del backend. */
+/** Cache of only the values bound to an applier, to reapply them at boot before the backend responds. */
 export interface ISettingsCache {
-  /** Versione del formato. */
+  /** Format version. */
   v: 1
-  /** `categoria.campo` -> nome dell'applier. */
+  /** `category.field` -> applier name. */
   apply: SettingsApplyMap
-  /** `categoria.campo` -> ultimo valore noto. */
+  /** `category.field` -> last known value. */
   values: Record<string, unknown>
 }
 
 /**
- * Chiave localStorage della cache di un utente.
+ * localStorage key of a user's cache.
  *
- * @param userKey - identificativo dell'utente (id o username)
+ * @param userKey - user identifier (id or username)
  */
 export function settingsCacheKey(userKey: string): string {
   return `${SETTINGS_CACHE_PREFIX}${userKey}`
 }
 
 /**
- * Legge la cache di un utente; `null` se assente o illeggibile.
+ * Reads a user's cache; `null` if missing or unreadable.
  *
- * @param userKey - identificativo dell'utente
+ * @param userKey - user identifier
  */
 export function readSettingsCache(userKey: string): ISettingsCache | null {
   const raw = readStorage(settingsCacheKey(userKey))
@@ -41,19 +41,19 @@ export function readSettingsCache(userKey: string): ISettingsCache | null {
 }
 
 /**
- * Salva la cache di un utente.
+ * Saves a user's cache.
  *
- * @param userKey - identificativo dell'utente
- * @param cache - contenuto
+ * @param userKey - user identifier
+ * @param cache - content
  */
 export function writeSettingsCache(userKey: string, cache: ISettingsCache): void {
   writeStorage(settingsCacheKey(userKey), JSON.stringify(cache))
 }
 
 /**
- * Elimina la cache di un utente.
+ * Deletes a user's cache.
  *
- * @param userKey - identificativo dell'utente
+ * @param userKey - user identifier
  */
 export function removeSettingsCache(userKey: string): void {
   removeStorage(settingsCacheKey(userKey))

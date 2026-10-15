@@ -1,13 +1,13 @@
 import type { IFieldDef, IFieldsState } from '../types'
 
-/** `pageSize` di default richiesto al backend per un select remoto (una sola fetch, niente paginazione). */
+/** Default `pageSize` requested from the backend for a remote select (a single fetch, no pagination). */
 export const REMOTE_SELECT_PAGE_SIZE = 1000
 
 /**
- * Costruisce la query string della GET delle opzioni di un select remoto.
+ * Builds the query string of the options GET of a remote select.
  *
- * @param field - definizione del campo (`pageSize` opzionale per sovrascrivere il default)
- * @returns parametri di query
+ * @param field - field definition (optional `pageSize` to override the default)
+ * @returns query parameters
  */
 export function buildRemoteQuery(
   field: Pick<IFieldDef, 'pageSize' | 'params' | 'dependsOn'>,
@@ -20,16 +20,16 @@ export function buildRemoteQuery(
   }
 }
 
-/** `true` se il valore è considerato vuoto (`null`, `undefined`, `''`, array vuoto). */
+/** `true` if the value is considered empty (`null`, `undefined`, `''`, empty array). */
 export function isEmptyValue(value: unknown): boolean {
   return value === null || value === undefined || value === '' || (Array.isArray(value) && !value.length)
 }
 
 /**
- * Nomi dei campi da cui dipende `field` (`dependsOn` normalizzato in array).
+ * Names of the fields `field` depends on (`dependsOn` normalized to an array).
  *
  * @param field - definizione del campo
- * @returns elenco dei nomi (vuoto se non ci sono dipendenze)
+ * @returns list of names (empty if there are no dependencies)
  */
 export function dependencyNames(field: Pick<IFieldDef, 'dependsOn'>): string[] {
   const deps = field.dependsOn
@@ -38,22 +38,22 @@ export function dependencyNames(field: Pick<IFieldDef, 'dependsOn'>): string[] {
 }
 
 /**
- * `true` se tutte le dipendenze del campo hanno un valore (un campo senza dipendenze è sempre pronto).
+ * `true` if all the field's dependencies have a value (a field without dependencies is always ready).
  *
  * @param field - definizione del campo
- * @param values - valori correnti della sezione
+ * @param values - current values of the section
  */
 export function dependenciesReady(field: Pick<IFieldDef, 'dependsOn'>, values: IFieldsState): boolean {
   return dependencyNames(field).every((name) => !isEmptyValue(values[name]))
 }
 
 /**
- * Query param extra di un campo: `params` (oggetto o funzione dei valori) oppure, se assente,
- * le dipendenze come `<campo>=<valore>`. Scarta i valori vuoti; gli array diventano `a,b`.
+ * Extra query params of a field: `params` (object or function of the values) or, if absent,
+ * the dependencies as `<field>=<value>`. Discards empty values; arrays become `a,b`.
  *
  * @param field - definizione del campo
- * @param values - valori correnti della sezione
- * @returns parametri pronti per la query string
+ * @param values - current values of the section
+ * @returns parameters ready for the query string
  */
 export function resolveFieldParams(
   field: Pick<IFieldDef, 'params' | 'dependsOn'>,
@@ -72,18 +72,18 @@ export function resolveFieldParams(
   return out
 }
 
-/** Risultato normalizzato di una risposta di lista. */
+/** Normalized result of a list response. */
 export interface IParsedRemoteResponse {
   items: unknown[]
-  /** Totale dichiarato dal backend (solo risposta paginata). */
+  /** Total declared by the backend (paginated response only). */
   total?: number
 }
 
 /**
- * Normalizza la risposta del backend: accetta sia `{ items, total, ... }` sia un array puro.
+ * Normalizes the backend response: accepts both `{ items, total, ... }` and a plain array.
  *
- * @param res - corpo JSON della risposta
- * @returns elementi e totale (se noto)
+ * @param res - JSON body of the response
+ * @returns items and total (if known)
  */
 export function parseRemoteResponse(res: unknown): IParsedRemoteResponse {
   if (Array.isArray(res)) return { items: res }

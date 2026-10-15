@@ -31,23 +31,23 @@ export const pachiTable2Emits = [
 type EmitFn = (event: string, ...args: unknown[]) => void
 
 /**
- * Logica della tabella (richieste, ordinamento, selezione, CRUD).
+ * Table logic (requests, sorting, selection, CRUD).
  *
- * Reattivita': `options` puo' essere un oggetto, una ref o (consigliato dentro un componente) un getter
+ * Reactivity: `options` can be an object, a ref or (recommended inside a component) a getter
  * `() => ({ ...props })`. `url`, `columns`, `rowKey`, `extraParams`, `watchingStates`, `nullsLast`, `initialSort`
- * sono riletti a ogni cambio: un cambio di `url` o di `watchingStates` ricarica i dati dalla prima pagina,
- * un cambio di `columns` ricostruisce le colonne, un cambio di `initialSort` riazzera l'ordinamento.
- * `useColActions`, `canEdit` e `canDelete` sono reattivi (la colonna azioni compare/scompare);
+ * are re-read on every change: a change of `url` or `watchingStates` reloads the data from the first page,
+ * a change of `columns` rebuilds the columns, a change of `initialSort` resets the sorting.
+ * `useColActions`, `canEdit` and `canDelete` are reactive (the actions column appears/disappears);
  * `localPagination`, `useSkeleton`, `rezDelay`, `rezOffset`, `lazyLoadingTimeout`
- * sono letti al momento dell'uso e non fanno ricaricare nulla.
+ * are read at the time of use and do not trigger any reload.
  *
- * @param options - opzioni (oggetto, ref o getter)
- * @param emit - funzione emit del componente
- * @returns stato e API della tabella
+ * @param options - options (object, ref or getter)
+ * @param emit - component's emit function
+ * @returns table state and API
  */
 export function usePachiTable2<T>(options: MaybeRefOrGetter<IPachiTable2Props>, emit?: EmitFn) {
   const { t } = usePachiI18n(messages)
-  // $q dell'app risolto in setup (indipendente dalla copia di quasar vista dal package)
+  // the app's $q resolved in setup (independent of the copy of quasar seen by the package)
   const $q = resolveQuasar()
   const opts = computed(() => toValue(options))
   const _emit: EmitFn = emit ?? (() => { })
@@ -56,7 +56,7 @@ export function usePachiTable2<T>(options: MaybeRefOrGetter<IPachiTable2Props>, 
   const useSkeleton = opts.value.useSkeleton ?? false
   const filter = ref<string>('')
 
-  // L'istanza alova dipende dalla url: viene ricreata solo quando la url cambia.
+  // The alova instance depends on the url: it is recreated only when the url changes.
   let alovaUrl = opts.value.url
   let alovaInstance = createPachiAlova({ url: alovaUrl })
   function currentAlova(): AlovaExt {
@@ -150,8 +150,8 @@ export function usePachiTable2<T>(options: MaybeRefOrGetter<IPachiTable2Props>, 
 
   const extraParamsComputed = computed(() => toValue(opts.value.extraParams) ?? {})
 
-  // Lista stabile degli stati osservati: cambia identita' solo se cambia un elemento (un array letterale
-  // ricreato a ogni render del genitore non deve provocare ricariche a vuoto). Include la url.
+  // Stable list of the watched states: it changes identity only if an element changes (a literal array
+  // recreated on every parent render must not cause idle reloads). Includes the url.
   const watchedList = computed<unknown[]>(() => [opts.value.url, ...(opts.value.watchingStates ?? []).map(s => toValue(s))])
   const stableWatched = shallowRef<unknown[]>(watchedList.value)
   watch(watchedList, (next) => {
@@ -241,7 +241,7 @@ export function usePachiTable2<T>(options: MaybeRefOrGetter<IPachiTable2Props>, 
   }
   const keyOf = (item: T) => String(item[rowKey() as keyof T])
 
-  /** Dopo una cancellazione: se la pagina corrente si svuota torna alla precedente (il cambio pagina ricarica), altrimenti ricarica. */
+  /** After a deletion: if the current page becomes empty go back to the previous one (the page change reloads), otherwise reload. */
   async function reloadAfterDelete(removed: number) {
     selected.value = []
     if (!localPagination && page.value > 1 && removed >= rows.value.length) {
@@ -251,7 +251,7 @@ export function usePachiTable2<T>(options: MaybeRefOrGetter<IPachiTable2Props>, 
     await paginationHook.reload()
   }
 
-  /** Mostra un errore all'utente (Notify) senza far fallire il chiamante. */
+  /** Shows an error to the user (Notify) without making the caller fail. */
   function notifyError(error: unknown) {
     const message = error instanceof Error ? error.message : String(error)
     try {
@@ -261,13 +261,13 @@ export function usePachiTable2<T>(options: MaybeRefOrGetter<IPachiTable2Props>, 
     }
   }
 
-  /** Esegue in parallelo le richieste e restituisce gli elementi riusciti; a fallimento parziale lancia un errore riepilogativo. */
+  /** Runs the requests in parallel and returns the successful items; on partial failure it throws a summary error. */
   async function runMultiple(items: T[], doneEvent: string, request: (item: T) => Promise<unknown>): Promise<T[]> {
     const results = await Promise.allSettled(items.map(request))
     const done = items.filter((_, i) => results[i]?.status === 'fulfilled')
     if (done.length < items.length) {
       const reasons = results.filter((r): r is PromiseRejectedResult => r.status === 'rejected').map(r => r.reason)
-      // le righe già eseguite non esistono più (o sono cambiate): restano selezionate solo quelle fallite
+      // the rows already processed no longer exist (or have changed): only the failed ones stay selected
       selected.value = items.filter((_, i) => results[i]?.status === 'rejected')
       await paginationHook.reload()
       if (done.length > 0) _emit(doneEvent, done)
@@ -331,8 +331,8 @@ export function usePachiTable2<T>(options: MaybeRefOrGetter<IPachiTable2Props>, 
     await multipleDelete(selected.value)
   }
   /**
-   * Apre il dialog di conferma e, se confermato, esegue `action` attendendola. Un errore dell'azione viene
-   * mostrato con Notify (nessuna unhandled rejection) e la promise risolve comunque `true` (confermato).
+   * Opens the confirmation dialog and, if confirmed, runs `action` and awaits it. An action error is
+   * shown with Notify (no unhandled rejection) and the promise still resolves `true` (confirmed).
    */
   function confirmAction(message: string, action: (payload?: T) => void | Promise<void>, payload?: T): Promise<boolean> {
     return new Promise((resolve) => {
@@ -374,7 +374,7 @@ export function usePachiTable2<T>(options: MaybeRefOrGetter<IPachiTable2Props>, 
       if (el.style.height !== height) el.style.height = height
     }, opts.value.rezDelay ?? 100)
   }
-  // ricalcola anche quando cambia il layout attorno alla tabella (finestra ridimensionata, filtri o barre che crescono)
+  // also recompute when the layout around the table changes (resized window, growing filters or bars)
   let resizeObserver: ResizeObserver | undefined
   onMounted(() => {
     doResize()
@@ -394,7 +394,7 @@ export function usePachiTable2<T>(options: MaybeRefOrGetter<IPachiTable2Props>, 
   async function reload() {
     await paginationHook.reload()
   }
-  /** Aggiornamento parziale (`PATCH /<chiave>`): invia solo i campi passati (la chiave resta nell'URL). */
+  /** Partial update (`PATCH /<key>`): sends only the passed fields (the key stays in the URL). */
   async function patchRecord(item: T, options?: IPachiTable2RequestOptions): Promise<T> {
     const result = await currentAlova().Patch<T>(`/${encodeKey(keyOf(item))}`, item as RequestBody, { cacheFor: null, ...(options?.meta ? { meta: options.meta } : {}) })
     await paginationHook.reload()
@@ -419,7 +419,7 @@ export function usePachiTable2<T>(options: MaybeRefOrGetter<IPachiTable2Props>, 
     multipleDeleteSelected,
     setSelected,
     setFilter,
-    /** Istanza alova corrente (snapshot: se la `url` cambia usa `Get/Post/Put/Delete`, che seguono la url). */
+    /** Current alova instance (snapshot: if the `url` changes use `Get/Post/Put/Delete`, which follow the url). */
     get alova() { return currentAlova() },
     Get: ((...args: Parameters<AlovaExt['Get']>) => currentAlova().Get(...args)) as AlovaExt['Get'],
     Post: ((...args: Parameters<AlovaExt['Post']>) => currentAlova().Post(...args)) as AlovaExt['Post'],

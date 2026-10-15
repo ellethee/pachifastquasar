@@ -33,14 +33,14 @@ const { column, getMultiSortColumnInfo, sortByColumn } = defineProps<{
 }>()
 const colInfo = computed(() => getMultiSortColumnInfo(column.name))
 
-/** Classi della cella: allineamento, `headerClasses` della colonna e `sortable` solo se la colonna e' ordinabile. */
+/** Cell classes: alignment, the column's `headerClasses` and `sortable` only if the column is sortable. */
 const classes = computed(() => [
   `text-${column.align ?? 'left'}`,
   column.headerClasses,
   { sortable: !!column.sortable },
 ])
 
-/** Valore ARIA dell'ordinamento corrente (solo per colonne ordinabili). */
+/** ARIA value of the current sort (sortable columns only). */
 const ariaSort = computed(() => {
   if (!column.sortable) return undefined
   if (colInfo.value.direction === 'asc') return 'ascending'

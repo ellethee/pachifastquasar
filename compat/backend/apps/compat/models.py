@@ -1,4 +1,4 @@
-"""Tabella di prova per il CRUD admin generico."""
+"""Test table for the generic admin CRUD."""
 
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column
@@ -7,7 +7,7 @@ from pachifast.database import Base
 
 
 class CompatItem(Base):
-    """Riga di prova: stringa, intero, booleano e stato."""
+    """Test row: string, integer, boolean and status."""
 
     __tablename__ = "compat_item"
 

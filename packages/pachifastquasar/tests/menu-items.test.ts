@@ -16,23 +16,23 @@ const tos = (items: { to?: string | undefined }[]) => items.map(i => i.to)
 describe('buildMenuItems', () => {
   beforeEach(() => registerPachiMenus([]))
 
-  it('senza package: solo home', () => {
+  it('no packages: home only', () => {
     expect(tos(buildMenuItems(ctx()))).toEqual(['/'])
   })
-  it('voci di profilo e impostazioni dei package: una sola per ciascuna, senza doppioni', () => {
+  it('package profile and settings entries: only one of each, no duplicates', () => {
     registerPachiMenus([
       () => ({ label: 'Profilo', to: '/user/profile', order: 10 }),
       () => ({ label: 'Impostazioni', to: '/user/settings', order: 20 })
     ])
     expect(tos(buildMenuItems(ctx()))).toEqual(['/user/profile', '/user/settings', '/'])
   })
-  it('una factory che fornisce / sostituisce la home predefinita', () => {
+  it('a factory that provides / replaces the default home', () => {
     registerPachiMenus([() => ({ label: 'H', to: '/', order: 5 })])
     const items = buildMenuItems(ctx())
     expect(items.filter(i => i.to === '/')).toHaveLength(1)
     expect(items[0]?.label).toBe('H')
   })
-  it('accetta array, null e ignora le factory che lanciano', () => {
+  it('accepts arrays, null and ignores factories that throw', () => {
     registerPachiMenus([
       () => [{ label: 'a', to: '/a' }, { label: 'b', to: '/b' }],
       () => null,

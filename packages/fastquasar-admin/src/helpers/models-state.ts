@@ -6,22 +6,22 @@ import { sharedState } from './shared-state'
 import type { IAdminModelInfo } from '../types/admin'
 
 
-/** Finestra (ms) in cui un elenco già richiesto è riusato invece di rifare la richiesta. */
+/** Window (ms) in which an already requested list is reused instead of making the request again. */
 const LIST_REUSE_MS = 30_000
 
-/** Attesa (ms) prima di ritentare dopo un errore transitorio (rete, 5xx). */
+/** Wait (ms) before retrying after a transient error (network, 5xx). */
 const RETRY_AFTER_FAILURE_MS = 10_000
 
-/** Stati che dicono in modo definitivo "nessun accesso all'admin" (l'elenco resta vuoto, niente nuovi tentativi). */
+/** Statuses that definitively mean "no access to the admin" (the list stays empty, no retries). */
 const DEFINITIVE_STATUSES = new Set([401, 403, 404])
 
 /**
- * Elenco grezzo dei modelli con una sola richiesta in volo: menu e pagina che partono insieme (o a pochi
- * istanti di distanza) condividono la stessa promise. Un errore non resta in cache.
+ * Raw list of models with a single in-flight request: menu and page starting together (or a few moments
+ * apart) share the same promise. An error is not kept in cache.
  *
- * @param api - client API
- * @param force - ignora l'elenco già richiesto (pulsante «Riprova»)
- * @returns i modelli restituiti dal backend
+ * @param api - API client
+ * @param force - ignores the already requested list ("Retry" button)
+ * @returns the models returned by the backend
  */
 export function fetchAdminModels(api: IAdminApi, force = false): Promise<IAdminModelInfo[]> {
   const state = sharedState()
@@ -36,38 +36,38 @@ export function fetchAdminModels(api: IAdminApi, force = false): Promise<IAdminM
 }
 
 /**
- * Filtra i modelli con `permissions.view` e quelli nascosti dalle opzioni (`hideModels`).
+ * Filters the models with `permissions.view` and those hidden by the options (`hideModels`).
  *
- * @param list - risposta di `GET /admin/models`
- * @returns i modelli da mostrare
+ * @param list - response of `GET /admin/models`
+ * @returns the models to show
  */
 export function visibleModels(list: IAdminModelInfo[]): IAdminModelInfo[] {
   return list.filter((m) => m.permissions?.view !== false && !isModelHidden(m))
 }
 
 /**
- * Salva l'elenco dei modelli (lo fa la pagina quando lo carica, così il menu resta allineato).
+ * Stores the list of models (the page does it when it loads it, so the menu stays aligned).
  *
- * @param list - modelli già filtrati
+ * @param list - already filtered models
  */
 export function setAdminModels(list: IAdminModelInfo[] | null): void {
   sharedState().models.value = list
 }
 
 /**
- * Elenco dei modelli in cache (reattivo).
+ * Cached list of models (reactive).
  *
- * @returns i modelli, o `null` se non ancora caricati
+ * @returns the models, or `null` if not yet loaded
  */
 export function getAdminModels(): IAdminModelInfo[] | null {
   return sharedState().models.value
 }
 
 /**
- * Carica i modelli dal backend FUORI da un componente (usa `getHttp` o l'istanza globale di
- * `@ilpachi/use-alova`). Gli errori (401/403/rete) sono silenziosi: l'elenco resta vuoto.
+ * Loads the models from the backend OUTSIDE a component (uses `getHttp` or the global instance of
+ * `@ilpachi/use-alova`). Errors (401/403/network) are silent: the list stays empty.
  *
- * @param force - ricarica anche se già in cache
+ * @param force - reload even if already cached
  */
 export function loadAdminModels(force = false): Promise<void> {
   if (!force && sharedState().models.value !== null) return Promise.resolve()
@@ -80,13 +80,13 @@ export function loadAdminModels(force = false): Promise<void> {
   try {
     api = createAdminApi(resolveHttp(basePath, getHttp))
   } catch {
-    // nessun client (es. `@ilpachi/use-alova` non ancora creato): niente richieste, nuovo tentativo dopo una pausa
+    // no client (e.g. `@ilpachi/use-alova` not yet created): no requests, retry after a pause
     state.failedAt = Date.now()
     return Promise.resolve()
   }
   const run = fetchAdminModels(api)
     .then((list) => {
-      // risposta di un utente precedente (logout/login durante la richiesta): scartata
+      // response of a previous user (logout/login during the request): discarded
       if (state.epoch !== epoch) return
       state.failedAt = 0
       state.models.value = visibleModels(list)
@@ -98,7 +98,7 @@ export function loadAdminModels(force = false): Promise<void> {
         state.models.value = []
         return
       }
-      // errore transitorio: l'elenco resta "non noto" e si riprova dopo una pausa (non diventa un "nessun modello")
+      // transient error: the list stays "unknown" and is retried after a pause (it does not become "no models")
       state.failedAt = Date.now()
     })
     .finally(() => {
@@ -109,9 +109,9 @@ export function loadAdminModels(force = false): Promise<void> {
 }
 
 /**
- * Vero se l'utente vede almeno un modello. Reattivo; la prima lettura avvia il caricamento (silenzioso).
+ * True if the user sees at least one model. Reactive; the first read starts the (silent) loading.
  *
- * @returns `true` solo con almeno un modello visibile
+ * @returns `true` only with at least one visible model
  */
 export function hasAdminModels(): boolean {
   if (sharedState().models.value === null) void loadAdminModels()
@@ -119,17 +119,17 @@ export function hasAdminModels(): boolean {
 }
 
 /**
- * Vero se un elenco è già stato richiesto e non è fallito (richiesta in volo o riuscita nella finestra di
- * riuso): `fetchAdminModels` toglie dalla cache le richieste fallite.
+ * True if a list has already been requested and has not failed (in-flight request or succeeded within the
+ * reuse window): `fetchAdminModels` removes failed requests from the cache.
  *
- * @returns `true` se un nuovo caricamento sarebbe una richiesta duplicata
+ * @returns `true` if a new load would be a duplicate request
  */
 export function hasRequestedAdminModels(): boolean {
   const list = sharedState().list
   return list !== null && Date.now() - list.at < LIST_REUSE_MS
 }
 
-/** Svuota la cache (cambio utente o logout). */
+/** Clears the cache (user change or logout). */
 export function resetAdminModels(): void {
   const state = sharedState()
   state.epoch += 1

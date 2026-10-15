@@ -171,13 +171,13 @@ type QTablePaginationSetter = (
 defineSlots<{
   'toolbar-actions'?(scope: PachiTable2ToolbarScope<T>): unknown
   'selection-dialog'?(scope: PachiTable2SelectionScope<T>): unknown
-  /** Stato di errore del caricamento lista (sostituisce il banner di `error-banner`). */
+  /** List loading error state (replaces the `error-banner` banner). */
   error?(scope: PachiTable2ErrorScope<T>): unknown
-  /** Celle del corpo, per colonna: `#body-cell-<nome>="{ slotProps, api }"`. */
+  /** Body cells, per column: `#body-cell-<name>="{ slotProps, api }"`. */
   [key: `body-cell-${string}`]: ((scope: PachiTable2SlotScope<T>) => unknown) | undefined
-  /** Celle di intestazione, per colonna: `#header-cell-<nome>`. */
+  /** Header cells, per column: `#header-cell-<name>`. */
   [key: `header-cell-${string}`]: ((scope: PachiTable2SlotScope<T>) => unknown) | undefined
-  /** Altri slot di QTable (`body`, `top`, `no-data`, `loading`, ...). */
+  /** Other QTable slots (`body`, `top`, `no-data`, `loading`, ...). */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: ((scope: any) => unknown) | undefined
 }>()
@@ -190,29 +190,29 @@ const props = defineProps<{
   rezDelay?: number,
   rezOffset?: number | undefined,
   useColActions?: boolean | 'emit-delete',
-  /** Mostra il bottone di modifica (`false` lo nasconde; funzione = per riga). Reattiva. Default `true`. */
+  /** Show the edit button (`false` hides it; function = per row). Reactive. Default `true`. */
   canEdit?: boolean | ((row: T) => boolean),
-  /** Mostra il bottone di eliminazione (`false` lo nasconde; funzione = per riga). Reattiva. Default `true`. */
+  /** Show the delete button (`false` hides it; function = per row). Reactive. Default `true`. */
   canDelete?: boolean | ((row: T) => boolean),
-  /** Mostra un banner con messaggio e "Riprova" quando il caricamento della lista fallisce (alternativa: slot `error`). */
+  /** Show a banner with a message and "Retry" when loading the list fails (alternative: `error` slot). */
   errorBanner?: boolean,
   lazyLoadingTimeout?: number,
   columns: QTableColumn[],
   useSkeleton?: boolean,
-  /** Ordinamento iniziale (colonne e direzioni). */
+  /** Initial sort (columns and directions). */
   initialSort?: IOrderState[],
-  /** Alias storico (typo) di `initialSort`, mantenuto per retrocompatibilita'. */
+  /** Historical alias (typo) of `initialSort`, kept for backward compatibility. */
   initalSort?: IOrderState[],
   localPagination?: boolean,
   nullsLast?: boolean | string[],
 }>()
 const { t } = usePachiI18n(messages)
 const emit = defineEmits<{
-  /** Stato di ordinamento multiplo aggiornato. */
+  /** Updated multi-sort state. */
   'pt2:update:multi-sort': [state: IOrderState[]]
-  /** Evento di successo di alova (la risposta paginata è in `.data`); vedi anche `pt2:data`. */
+  /** Alova success event (the paginated response is in `.data`); see also `pt2:data`. */
   'pt2:loaded': [event: PachiTable2LoadedEvent<T>]
-  /** Risposta paginata `{ items, total, page, pageSize }`. */
+  /** Paginated response `{ items, total, page, pageSize }`. */
   'pt2:data': [response: IPaginatedResponse<T>]
   'pt2:load-error': [error: unknown]
   'pt2:request': [filter: string]
@@ -224,10 +224,10 @@ const emit = defineEmits<{
 }>()
 const slots = useSlots() as unknown as Slots
 const instance = getCurrentInstance()
-// `@pt2:edit-item` e `@pt2:editItem` (SFC) producono `onPt2:editItem`; da JSX/render `onPt2:edit-item`: li gestiamo tutti
+// `@pt2:edit-item` and `@pt2:editItem` (SFC) produce `onPt2:editItem`; from JSX/render `onPt2:edit-item`: we handle them all
 const hasEditHandler = computed(() => hasEventListener(instance?.vnode.props, 'pt2:edit-item'))
 const actionsVisible = computed(() => shouldShowActionsColumn(props.useColActions, props.canEdit, props.canDelete))
-/** Slot propri del componente, non inoltrati a QTable. */
+/** The component's own slots, not forwarded to QTable. */
 const ownSlots = ['toolbar-actions', 'selection-dialog', 'error']
 const forwardedSlotNames = computed(() => Object.keys(slots).filter(n => !ownSlots.includes(n)))
 const qtable = ref<{ setPagination: QTablePaginationSetter } | null>(null)
@@ -253,7 +253,7 @@ const {
   retryLoad,
   api,
 } = usePachiTable2<T>(
-  // getter: url, columns, rowKey, extraParams, watchingStates, nullsLast e initialSort restano reattivi alle props
+  // getter: url, columns, rowKey, extraParams, watchingStates, nullsLast and initialSort stay reactive to the props
   () => ({
     url: props.url,
     watchingStates: props.watchingStates ?? [],
@@ -333,9 +333,9 @@ defineExpose({ ...api, api, rows, selected, filter, loading, error: loadError })
   }
 }
 
-// ── Altezza ───────────────────────────────────────────────────────────────────
-// il contenitore ha l'altezza calcolata (resto del viewport): toolbar a parte, la tabella prende lo spazio rimasto
-// (senza, toolbar + tabella al 100% superano il contenitore e la paginazione esce dal viewport)
+// ── Height ───────────────────────────────────────────────────────────────────
+// the container has the computed height (rest of the viewport): toolbar aside, the table takes the remaining space
+// (without it, toolbar + table at 100% exceed the container and the pagination leaves the viewport)
 .pachi-table2--container {
   display: flex;
   flex-direction: column;
@@ -346,7 +346,7 @@ defineExpose({ ...api, api, rows, selected, filter, loading, error: loadError })
   }
 }
 
-// ── Toolbar del filtro ────────────────────────────────────────────────────────
+// ── Filter toolbar ────────────────────────────────────────────────────────
 .pachi-table2--container>.q-toolbar {
   padding: 0 8px;
   min-height: 48px;
@@ -368,7 +368,7 @@ defineExpose({ ...api, api, rows, selected, filter, loading, error: loadError })
   max-width: unset !important;
 }
 
-// ── Barra selezione multipla ──────────────────────────────────────────────────
+// ── Multiple selection bar ──────────────────────────────────────────────────
 .pachi-selection-dialog {
   position: fixed !important;
   top: 118px !important;
@@ -381,7 +381,7 @@ defineExpose({ ...api, api, rows, selected, filter, loading, error: loadError })
   justify-content: right !important;
 }
 
-// ── Transizioni slide ────────────────────────────────────────────────────────
+// ── Slide transitions ────────────────────────────────────────────────────────
 .pachi-slide-card-slow-enter-active,
 .pachi-slide-card-slow-leave-active {
   transition: transform 0.95s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.45s ease;

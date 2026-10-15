@@ -1,9 +1,9 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    // skipLibCheck true: con false emergono errori di librerie di terze parti (vue-router, alova, @quasar/app-vite)
-    // e TS2344 su `GlobalComponents` in PachiEditDialog.vue.d.ts (output di vite-plugin-dts, non toccabile dal sorgente).
-    // I d.ts del kit sono comunque verificati dall'uso (tipi di eventi/props).
+    // skipLibCheck true: with false, errors from third-party libraries surface (vue-router, alova, @quasar/app-vite)
+    // and TS2344 on `GlobalComponents` in PachiEditDialog.vue.d.ts (vite-plugin-dts output, not fixable from the source).
+    // The kit's d.ts files are still verified by usage (event/props types).
     "skipLibCheck": true,
     "exactOptionalPropertyTypes": true,
     "noEmit": true,

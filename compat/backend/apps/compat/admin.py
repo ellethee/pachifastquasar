@@ -1,4 +1,4 @@
-"""Admin generico del modello di prova (ricerca, filtri, azione in blocco)."""
+"""Generic admin of the test model (search, filters, bulk action)."""
 
 from pachifast.admin import ModelAdmin, admin_action, register_admin
 
@@ -7,7 +7,7 @@ from .models import CompatItem
 
 @register_admin(CompatItem)
 class ItemAdmin(ModelAdmin):
-    """Elementi di prova."""
+    """Test items."""
 
     name = "item"
     title = "Item"
@@ -18,7 +18,7 @@ class ItemAdmin(ModelAdmin):
 
     @admin_action(label="Archive selected")
     async def archive(self, session, rows) -> str:
-        """Imposta lo stato delle righe selezionate su archived."""
+        """Sets the status of the selected rows to archived."""
         for row in rows:
             row.status = "archived"
         return f"{len(rows)} archived"

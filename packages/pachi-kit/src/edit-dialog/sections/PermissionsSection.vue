@@ -49,24 +49,24 @@ const {
   users: []
 }, { initialValue: () => props.initialValue })
 
-// testo grezzo: il parse avviene su blur o in `getResults` (non a ogni tasto)
+// raw text: parsing happens on blur or in `getResults` (not on every keystroke)
 const rolesText = ref(formatList(state.value.roles))
 const usersText = ref(formatList(state.value.users))
 
-/** Stato ricavato dal testo grezzo (puro, non muta nulla). */
+/** State derived from the raw text (pure, mutates nothing). */
 function parsedState(): PermissionsState {
   return { roles: parseList(rolesText.value), users: parseList(usersText.value) }
 }
 
-/** Applica il testo grezzo allo stato (senza riscrivere il testo). */
+/** Applies the raw text to the state (without rewriting the text). */
 function commitText() {
   const parsed = parsedState()
   state.value.roles = parsed.roles
   state.value.users = parsed.users
 }
 
-// quando lo stato cambia dall'esterno (reset, initialValue) riallinea il testo,
-// ma solo se differisce dal parse corrente (così non si cancellano virgole/spazi in digitazione)
+// when the state changes from outside (reset, initialValue) realign the text,
+// but only if it differs from the current parse (so commas/spaces are not erased while typing)
 watch(() => JSON.stringify(state.value), () => {
   const parsed = parsedState()
   if (JSON.stringify(parsed.roles) !== JSON.stringify(state.value.roles)) {
@@ -84,7 +84,7 @@ function getResults(): PermissionsState {
   return getState()
 }
 
-/** Dopo il salvataggio: il baseline è lo stato parsato. */
+/** After saving: the baseline is the parsed state. */
 function commit() {
   commitText()
   commitState()

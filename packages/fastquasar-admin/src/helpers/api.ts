@@ -13,7 +13,7 @@ import type { IPachiAdminHttp } from './http'
 import { buildListQuery, buildOptionsQuery } from './query'
 import type { IAdminListQuery } from './query'
 
-/** Client delle API Admin (percorsi relativi alla `basePath` del client HTTP). */
+/** Admin API client (paths relative to the HTTP client's `basePath`). */
 export interface IAdminApi {
   listModels(): Promise<IAdminModelInfo[]>
   getSchema(app: string, model: string): Promise<IAdminSchema>
@@ -32,31 +32,31 @@ export interface IAdminApi {
 }
 
 /**
- * Percorso di un modello (`/<app>/<model>`), con i segmenti codificati.
+ * Path of a model (`/<app>/<model>`), with encoded segments.
  *
  * @param app - app
- * @param model - modello
+ * @param model - model
  */
 export function modelPath(app: string, model: string): string {
   return `/${encodeURIComponent(app)}/${encodeURIComponent(model)}`
 }
 
 /**
- * Percorso di una riga (`/<app>/<model>/<pk>`); la pk (int, uuid o stringa) è codificata.
+ * Path of a row (`/<app>/<model>/<pk>`); the pk (int, uuid or string) is encoded.
  *
  * @param app - app
- * @param model - modello
- * @param pk - chiave primaria
+ * @param model - model
+ * @param pk - primary key
  */
 export function rowPath(app: string, model: string, pk: AdminPk): string {
   return `${modelPath(app, model)}/${encodeURIComponent(String(pk))}`
 }
 
 /**
- * Crea il client delle API Admin sopra un client HTTP.
+ * Creates the Admin API client on top of an HTTP client.
  *
- * @param http - client HTTP (base URL = `basePath`)
- * @returns il client
+ * @param http - HTTP client (base URL = `basePath`)
+ * @returns the client
  */
 export function createAdminApi(http: IPachiAdminHttp): IAdminApi {
   const read = async <T>(url: string): Promise<T> => (await http.Get<T>(url, SILENT_REQUEST)) as T

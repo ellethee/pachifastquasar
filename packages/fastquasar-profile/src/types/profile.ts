@@ -1,4 +1,4 @@
-/** Dati dell'utente mostrati dalla pagina profilo. */
+/** User data shown by the profile page. */
 export interface IPachiProfileUser {
   id: number | string
   username: string
@@ -8,14 +8,14 @@ export interface IPachiProfileUser {
   isActive?: boolean
   isStaff?: boolean
   isSuperuser?: boolean
-  /** Data di verifica dell'email (ISO 8601 UTC), `null` se non verificata. */
+  /** Email verification date (ISO 8601 UTC), `null` if not verified. */
   emailVerifiedAt?: string | null
-  /** Data dell'ultimo accesso (ISO 8601 UTC). */
+  /** Last login date (ISO 8601 UTC). */
   lastLoginAt?: string | null
-  /** Data di creazione dell'account (ISO 8601 UTC). */
+  /** Account creation date (ISO 8601 UTC). */
   createdAt?: string | null
-  /** Permessi dell'utente. */
+  /** User permissions. */
   permissions?: string[]
-  /** Dati aggiuntivi dell'utente (oggetto libero, backend pachifast 0.15.0+); nessuna UI lo usa. */
+  /** Additional user data (free-form object, pachifast backend 0.15.0+); no UI uses it. */
   profile?: Record<string, unknown>
 }

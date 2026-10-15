@@ -1,9 +1,9 @@
 /**
- * Confronto strutturale tra due valori (usato per il dirty-check delle sezioni): indipendente
- * dall'ordine delle chiavi; una proprieta' `undefined` equivale a una proprieta' mancante;
- * `Date` confrontate per istante; primitivi con `Object.is` (quindi `NaN` e' uguale a `NaN`).
- * @param a primo valore
- * @param b secondo valore
+ * Structural comparison of two values (used for the sections' dirty-check): independent
+ * of key order; an `undefined` property is equivalent to a missing property;
+ * `Date` compared by instant; primitives with `Object.is` (so `NaN` equals `NaN`).
+ * @param a first value
+ * @param b second value
  */
 export function isEqualValue(a: unknown, b: unknown): boolean {
   if (Object.is(a, b)) return true

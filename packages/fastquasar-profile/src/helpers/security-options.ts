@@ -1,14 +1,14 @@
 import type { IPachiProfileSecurityOptions } from '../types/security'
 
-/** Opzioni risolte: i due blocchi sono sempre booleani. */
+/** Resolved options: the two blocks are always booleans. */
 export type IResolvedSecurityOptions = IPachiProfileSecurityOptions & { password: boolean, mfa: boolean }
 
 /**
- * Normalizza la prop `security`: `true`/assente = solo password; `false` = niente; oggetto = password attiva
- * salvo `password: false`, MFA attiva solo con `mfa: true`.
+ * Normalizes the `security` prop: `true`/missing = password only; `false` = nothing; object = password enabled
+ * unless `password: false`, MFA enabled only with `mfa: true`.
  *
- * @param input - valore della prop
- * @returns opzioni complete per i blocchi
+ * @param input - prop value
+ * @returns complete options for the blocks
  */
 export function resolveSecurityOptions(input: boolean | IPachiProfileSecurityOptions | undefined): IResolvedSecurityOptions {
   if (input === false) return { password: false, mfa: false }
@@ -19,19 +19,19 @@ export function resolveSecurityOptions(input: boolean | IPachiProfileSecurityOpt
 let configured: boolean | IPachiProfileSecurityOptions | undefined
 
 /**
- * Imposta le opzioni della sezione Sicurezza usate dalla route `/user/profile` del package (`PachiProfileRoute`),
- * che non ha props: da chiamare una volta all'avvio dell'app, ad esempio `setPachiProfileSecurity({ mfa: true })`.
+ * Sets the Security section options used by the package's `/user/profile` route (`PachiProfileRoute`),
+ * which has no props: call it once at app startup, for example `setPachiProfileSecurity({ mfa: true })`.
  *
- * @param options - stesso valore della prop `security` di `PachiProfilePage`
+ * @param options - same value as the `security` prop of `PachiProfilePage`
  */
 export function setPachiProfileSecurity(options: boolean | IPachiProfileSecurityOptions | undefined): void {
   configured = options
 }
 
 /**
- * Restituisce le opzioni impostate con {@link setPachiProfileSecurity}.
+ * Returns the options set with {@link setPachiProfileSecurity}.
  *
- * @returns opzioni, o `undefined` se non impostate (default: solo cambio password)
+ * @returns options, or `undefined` if not set (default: password change only)
  */
 export function getPachiProfileSecurity(): boolean | IPachiProfileSecurityOptions | undefined {
   return configured

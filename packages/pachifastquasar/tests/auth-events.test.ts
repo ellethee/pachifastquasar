@@ -7,7 +7,7 @@ import {
   resetPachiAuthNotification
 } from 'src/helpers/auth-events'
 
-describe('eventi auth/tema per i package', () => {
+describe('auth/theme events for packages', () => {
   const dispatched: CustomEvent[] = []
 
   beforeEach(() => {
@@ -17,20 +17,20 @@ describe('eventi auth/tema per i package', () => {
   })
   afterEach(() => vi.unstubAllGlobals())
 
-  it('emette al login con id e username', () => {
+  it('emits on login with id and username', () => {
     notifyPachiAuthChanged({ id: 'u1', username: 'ann' })
     expect(dispatched).toHaveLength(1)
     expect(dispatched[0]!.type).toBe(PACHI_AUTH_CHANGED_EVENT)
     expect(dispatched[0]!.detail).toEqual({ authenticated: true, userId: 'u1', username: 'ann' })
   })
 
-  it('non ripete lo stesso utente (refresh dei dati)', () => {
+  it('does not repeat the same user (data refresh)', () => {
     notifyPachiAuthChanged({ id: 'u1', username: 'ann' })
     notifyPachiAuthChanged({ id: 'u1', username: 'ann' })
     expect(dispatched).toHaveLength(1)
   })
 
-  it('con force emette comunque', () => {
+  it('with force emits anyway', () => {
     notifyPachiAuthChanged({ id: 'u1', username: 'ann' })
     notifyPachiAuthChanged({ id: 'u1', username: 'ann' }, true)
     expect(dispatched).toHaveLength(2)
@@ -44,18 +44,18 @@ describe('eventi auth/tema per i package', () => {
     expect(dispatched[1]!.detail.authenticated).toBe(false)
   })
 
-  it('usa lo username se manca l\'id', () => {
+  it('uses the username if the id is missing', () => {
     notifyPachiAuthChanged({ username: 'ann' })
     expect(dispatched[0]!.detail.userId).toBe('ann')
   })
 
-  it('notifica il tema', () => {
+  it('notifies the theme', () => {
     notifyPachiThemeChanged('light')
     expect(dispatched[0]!.type).toBe(PACHI_THEME_CHANGED_EVENT)
     expect(dispatched[0]!.detail).toEqual({ theme: 'light' })
   })
 
-  it('è un no-op fuori dal browser', () => {
+  it('is a no-op outside the browser', () => {
     vi.unstubAllGlobals()
     expect(() => notifyPachiAuthChanged({ id: 'x' })).not.toThrow()
   })

@@ -10,14 +10,14 @@ import type { PachiLogo } from '../config'
 import { pachiLogo } from '../../extras/pachi-icons'
 
 /**
- * Logo dell'app: usa `config.logo` (path SVG, `img:<url>` o componente Vue) con il logo Pachi come default.
- * Il `logo` può essere passato anche come prop (precedenza sulla config).
+ * App logo: uses `config.logo` (SVG path, `img:<url>` or Vue component) with the Pachi logo as default.
+ * The `logo` can also be passed as a prop (takes precedence over the config).
  */
 const props = withDefaults(
   defineProps<{
-    /** logo da mostrare al posto di `config.logo` */
+    /** logo to show instead of `config.logo` */
     value?: PachiLogo | undefined
-    /** dimensione dell'icona (CSS) */
+    /** icon size (CSS) */
     size?: string
   }>(),
   { value: undefined, size: '20px' }

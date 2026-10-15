@@ -1,13 +1,13 @@
 import { getUseAlovaInstance } from '@ilpachi/use-alova'
 
-/** Client HTTP minimale richiesto dai select remoti: una GET che restituisce il JSON già decodificato. */
+/** Minimal HTTP client required by remote selects: a GET returning already-decoded JSON. */
 export interface IPachiFieldsHttp {
   /**
-   * Esegue una GET.
+   * Performs a GET.
    *
-   * @param url - URL dell'endpoint (es. `/api/genere`)
-   * @param params - query string opzionale
-   * @returns il corpo JSON della risposta
+   * @param url - endpoint URL (es. `/api/genere`)
+   * @param params - optional query string
+   * @returns the JSON body of the response
    */
   get<T = unknown>(url: string, params?: Record<string, string | number>): PromiseLike<T>
 }
@@ -17,22 +17,22 @@ let cachedFactory: unknown = null
 let cachedHttp: IPachiFieldsHttp | null = null
 
 /**
- * Sostituisce il client HTTP usato dai select remoti (es. per aggiungere header di
- * autenticazione o gestione errori dell'app). Da chiamare una sola volta all'avvio.
+ * Replaces the HTTP client used by remote selects (e.g. to add authentication headers
+ * or app error handling). Call it once at startup.
  *
- * @param http - client HTTP che implementa {@link IPachiFieldsHttp}
+ * @param http - HTTP client implementing {@link IPachiFieldsHttp}
  */
 export function setPachiFieldsHttp(http: IPachiFieldsHttp): void {
   fieldsHttp = http
 }
 
 /**
- * Restituisce il client HTTP corrente. Ordine: client impostato con `setPachiFieldsHttp`; altrimenti il client di
- * `@ilpachi/use-alova` (istanza globale creata da `createUseAlova()`, cablata da `createPachiApp`), con auth,
- * refresh del token ed errori. Il client derivato è memorizzato finché la factory dell'istanza non cambia.
+ * Returns the current HTTP client. Order: client set with `setPachiFieldsHttp`; otherwise the
+ * `@ilpachi/use-alova` client (global instance created by `createUseAlova()`, wired by `createPachiApp`), with auth,
+ * token refresh and errors. The derived client is memoized until the instance factory changes.
  *
- * @returns client HTTP in uso
- * @throws Error se non è registrato alcun client e use-alova non è stato inizializzato
+ * @returns HTTP client in use
+ * @throws Error if no client is registered and use-alova has not been initialized
  */
 export function getPachiFieldsHttp(): IPachiFieldsHttp {
   if (fieldsHttp) return fieldsHttp

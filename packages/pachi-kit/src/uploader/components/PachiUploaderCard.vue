@@ -87,7 +87,7 @@
         />
       </div>
 
-      <!-- inert: durante/dopo l'upload il form non e' modificabile ne' da mouse ne' da tastiera (l'anteprima resta attiva) -->
+      <!-- inert: during/after the upload the form cannot be edited by mouse or keyboard (the preview stays active) -->
       <div
         class="pachi-fuc__form"
         :class="{ 'no-pointer-events': isUploaded || isUploading }"

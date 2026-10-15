@@ -1,21 +1,21 @@
-/** Metodo MFA attivabile dal profilo. */
+/** MFA method that can be enabled from the profile. */
 export type PachiMfaMethod = 'totp' | 'email' | 'sms'
 
-/** Opzioni della sezione Sicurezza del profilo. */
+/** Options of the profile Security section. */
 export interface IPachiProfileSecurityOptions {
-  /** Mostra il form di cambio password (default `true`). */
+  /** Shows the change-password form (default `true`). */
   password?: boolean
-  /** Mostra il pannello MFA, se il backend la espone (`GET /api/mfa/status` 2xx). Default `false`. */
+  /** Shows the MFA panel, if the backend exposes it (`GET /api/mfa/status` 2xx). Default `false`. */
   mfa?: boolean
-  /** Metodi MFA offerti per l'attivazione (default `['totp']`; email e SMS richiedono il canale di invio sul backend). */
+  /** MFA methods offered for activation (default `['totp']`; email and SMS require the sending channel on the backend). */
   mfaMethods?: PachiMfaMethod[]
-  /** Lunghezza minima della nuova password (default 12, aggiornata da `params.min_length` del 422). */
+  /** Minimum length of the new password (default 12, updated from the 422 `params.min_length`). */
   minPasswordLength?: number
-  /** Base URL delle API (default `/api`). */
+  /** API base URL (default `/api`). */
   apiBase?: string
   /**
-   * Chiamata dopo il cambio password riuscito (al posto del logout della shell `pachiLogout`). Va gestito il
-   * logout locale e il nuovo login.
+   * Called after a successful password change (instead of the shell's `pachiLogout` logout). The local
+   * logout and the new login must be handled.
    */
   onPasswordChanged?: () => void | Promise<void>
 }

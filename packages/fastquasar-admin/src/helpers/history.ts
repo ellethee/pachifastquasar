@@ -1,21 +1,21 @@
 import type { IAdminHistoryEntry } from '../types/admin'
 
-/** Una riga del diff di una voce di cronologia. */
+/** A row of the diff of a history entry. */
 export interface IHistoryChange {
-  /** Nome del campo (camelCase). */
+  /** Field name (camelCase). */
   field: string
   old: unknown
   new: unknown
 }
 
-/** Tipo di una voce di cronologia. */
+/** Type of a history entry. */
 export type HistoryActionKind = 'add' | 'change' | 'delete' | 'action' | 'other'
 
 /**
- * Elenco ordinato delle modifiche di una voce (`changes` → righe `campo: vecchio → nuovo`).
+ * Sorted list of the changes of an entry (`changes` → rows `field: old → new`).
  *
- * @param entry - voce di cronologia
- * @returns modifiche in ordine alfabetico di campo
+ * @param entry - history entry
+ * @returns changes in alphabetical order of field
  */
 export function historyChanges(entry: Pick<IAdminHistoryEntry, 'changes'>): IHistoryChange[] {
   return Object.entries(entry.changes ?? {})
@@ -24,10 +24,10 @@ export function historyChanges(entry: Pick<IAdminHistoryEntry, 'changes'>): IHis
 }
 
 /**
- * Famiglia e nome di un'azione di cronologia (`add`, `change`, `delete`, `action:<nome>`).
+ * Family and name of a history action (`add`, `change`, `delete`, `action:<name>`).
  *
- * @param action - valore di `action`
- * @returns tipo e, per le azioni in blocco, il nome dell'azione
+ * @param action - value of `action`
+ * @returns type and, for bulk actions, the action name
  */
 export function parseHistoryAction(action: string): { kind: HistoryActionKind, name?: string } {
   if (action === 'add' || action === 'change' || action === 'delete') return { kind: action }
@@ -36,10 +36,10 @@ export function parseHistoryAction(action: string): { kind: HistoryActionKind, n
 }
 
 /**
- * Testo di un valore nel diff: `—` per assente, JSON per oggetti, stringa altrimenti.
+ * Text of a value in the diff: `—` for missing, JSON for objects, string otherwise.
  *
- * @param value - valore vecchio o nuovo
- * @returns testo breve
+ * @param value - old or new value
+ * @returns short text
  */
 export function formatHistoryValue(value: unknown): string {
   if (value === null || value === undefined) return '—'

@@ -127,7 +127,7 @@ const appConfig = getPachiConfig()
 const router = useRouter()
 const { t } = useI18n()
 const { userInfo, userInfoVersion } = storeToRefs(useAuthStore())
-/** Voci del menu (package, predefinite, app): ricalcolate al cambio lingua o utente. */
+/** Menu items (packages, defaults, app): recomputed when the language or user changes. */
 const menuItems = computed(() =>
   buildMenuItems({ t, router, config: appConfig, user: userInfo.value })
 )
@@ -146,7 +146,7 @@ const userPermissionsChanged: IWebSocketManagerHandler = {
     const eventUserId = payload?.userId
     if (eventUserId === undefined || String(eventUserId) === userInfo.value?.id) {
       void authManager.refreshUserInfo().catch(err => {
-        console.error('Errore aggiornando extra info dopo cambio permessi', err)
+        console.error('Error updating extra info after permissions change', err)
       })
     }
   }
@@ -165,7 +165,7 @@ onUnmounted(() => {
   if (!appConfig.auth.enabled) return
   usePachiEventsStore().removeHandler('user_permissions_changed', userPermissionsChanged)
 })
-/** Vero se `to` risolve su una route reale (non sul catch-all): profilo/impostazioni sono opzionali (package). */
+/** True if `to` resolves to a real route (not the catch-all): profile/settings are optional (packages). */
 function routeExists(to?: string) {
   if (!to) return true
   const matched = router.resolve(to).matched
@@ -192,13 +192,13 @@ function checkIfMenuShouldBeShown(button: IMenuButton) {
   }
 }
 
-// Definiamo i colori personalizzati basati sul logo Pachi
+// Custom colors based on the Pachi logo
 :root {
   --pachi-gold-1: #fffde7;
   --pachi-gold-2: #fff9c4;
   --pachi-gold-8: #fbc02d;
-  --pachi-gold-10: #f57f17; // Il colore "dorato" principale del logo
-  --pachi-gold-10-rgb: 245, 127, 23; // stesso colore in RGB (per rgba() con trasparenza)
+  --pachi-gold-10: #f57f17; // The main "gold" color of the logo
+  --pachi-gold-10-rgb: 245, 127, 23; // same color in RGB (for rgba() with transparency)
 }
 
 .pachi-text-gold-10 {
@@ -209,10 +209,10 @@ function checkIfMenuShouldBeShown(button: IMenuButton) {
   background-color: var(--pachi-gold-2);
 }
 
-// 🎨 CSS STYLING PER IL MENU PROFILO BENTO-STYLE 🎨
+// 🎨 CSS STYLING FOR THE BENTO-STYLE PROFILE MENU 🎨
 
 .pachi-bento-profile-menu {
-  width: 380px; // Un po' più largo del menu standard
+  width: 380px; // A bit wider than the standard menu
   border: 1px solid rgb(0 0 0 / 5%);
   box-shadow: 0 10px 30px rgb(0 0 0 / 10%);
   border-radius: var(--pachi-card-r);
@@ -225,24 +225,24 @@ function checkIfMenuShouldBeShown(button: IMenuButton) {
     // background-color: #fafafa;
   }
 
-  // 👇 LA CHIAVE PER IL LOOK MODERNO 👇
+  // 👇 THE KEY TO THE MODERN LOOK 👇
   .pachi-bento-tile {
     // background-color: white;
-    border: 1px solid rgb(0 0 0 / 3%); // Bordo quasi invisibile
-    transition: all 0.3s ease; // Animazione dolce al passaggio del mouse
-    height: 100%; // Forza l'altezza uniforme nelle righe
+    border: 1px solid rgb(0 0 0 / 3%); // Almost invisible border
+    transition: all 0.3s ease; // Smooth animation on mouse hover
+    height: 100%; // Forces uniform height across rows
 
-    // Effetto Hover moderno: leggera ombra e sollevamento
+    // Modern hover effect: slight shadow and lift
     &:hover {
-      // background-color: white !important; // Evitiamo il grigio di default
-      border-color: rgb(var(--pachi-gold-10-rgb), 0.2); // Bordo dorato tenue
-      transform: translateY(-2px); // Si alza leggermente
-      box-shadow: 0 4px 12px rgb(0 0 0 / 5%); // Ombra morbida
+      // background-color: white !important; // Avoid the default grey
+      border-color: rgb(var(--pachi-gold-10-rgb), 0.2); // Soft gold border
+      transform: translateY(-2px); // Lifts slightly
+      box-shadow: 0 4px 12px rgb(0 0 0 / 5%); // Soft shadow
     }
 
-    // Una tile speciale per far risaltare un'azione (es: Il Mio Profilo)
+    // A special tile to highlight an action (e.g. My Profile)
     &.pachi-bento-tile--primary {
-      // background-color: var(--pachi-gold-1); // Sfondo dorato chiarissimo
+      // background-color: var(--pachi-gold-1); // Very light gold background
       border-color: rgb(var(--pachi-gold-10-rgb), 0.1);
 
       &:hover {
@@ -250,7 +250,7 @@ function checkIfMenuShouldBeShown(button: IMenuButton) {
       }
     }
 
-    // Formattazione interna delle tile
+    // Internal tile formatting
     .q-item__section--avatar {
       min-width: 40px;
       padding-right: 12px;

@@ -46,7 +46,7 @@
         <q-btn flat no-caps type="button" color="primary" :label="t('pachiSettings.retry')" @click="reload" />
       </div>
       <template v-else>
-      <!-- Sezione locale "Aspetto" (solo se il backend non ha la sezione `appearance`) -->
+      <!-- Local "Appearance" section (only if the backend has no `appearance` section) -->
       <template v-if="activeSection === 'appearance' && !settingsSchema['appearance']">
         <div class="pachi-st-card">
           <div class="pachi-st-section-head">
@@ -98,7 +98,7 @@
         </div>
       </template>
 
-      <!-- Sezioni generate dallo schema (anche accanto a quella locale se la chiave coincide) -->
+      <!-- Sections generated from the schema (also next to the local one if the key matches) -->
         <template v-if="currentSectionSchema">
           <div class="pachi-st-card">
             <div class="pachi-st-section-head">
@@ -200,25 +200,25 @@ import { getPachiI18n, usePachiI18n } from '@ilpachi/pachi-i18n'
 import { messages } from '../locales'
 
 /**
- * Pagina impostazioni utente: sezione "Aspetto" locale (tema, accent, densità in localStorage)
- * più sezioni generate dallo schema del backend (vedi `SettingsManager`).
+ * User settings page: local "Appearance" section (theme, accent, density in localStorage)
+ * plus sections generated from the backend schema (see `SettingsManager`).
  */
 const props = defineProps<{
   /**
-   * Componenti custom risolvibili dal campo `component` dello schema
-   * (es. `{ 'theme-toggle': ToggleThemeButton }`). Se il nome non è presente
-   * si ricade su QInput/QToggle.
+   * Custom components resolvable from the schema `component` field
+   * (e.g. `{ 'theme-toggle': ToggleThemeButton }`). If the name is not present
+   * it falls back to QInput/QToggle.
    */
   components?: Record<string, Component>
 }>()
 
-// $q dell'app (indipendente dalla copia di quasar vista dal package); useQuasar() solo come ripiego
+// the app's $q (independent of the quasar copy seen by the package); useQuasar() only as a fallback
 const $q = resolveQuasar() ?? useQuasar()
 const { t, locale } = usePachiI18n(messages)
 const { capitalize } = format
 const settingsManager = SettingsManager.getInstance()
 
-/** Icone e chiavi i18n delle sezioni note (chiavi dello schema o sezione locale `appearance`). */
+/** Icons and i18n keys of known sections (schema keys or the local `appearance` section). */
 const KNOWN_SECTION_ICONS: Record<string, string> = {
   profile: mdiAccountCircleOutline,
   notifications: mdiBellOutline,
@@ -228,10 +228,10 @@ const KNOWN_SECTION_ICONS: Record<string, string> = {
   api: mdiKeyVariant,
 }
 
-/** Sezioni mostrate finché lo schema non è arrivato (o se il caricamento fallisce). */
+/** Sections shown until the schema has arrived (or if loading fails). */
 const FALLBACK_SECTIONS = ['profile', 'notifications', 'editor', 'database', 'appearance', 'api']
 
-/** Voce della barra laterale. */
+/** Sidebar entry. */
 interface ISidebarSection {
   key: string
   label: string
@@ -239,7 +239,7 @@ interface ISidebarSection {
   icon: string
 }
 
-/** Voce di una sezione nota con i testi del package. */
+/** Entry of a known section with the package texts. */
 function knownSection(key: string): ISidebarSection {
   return {
     key,
@@ -250,9 +250,9 @@ function knownSection(key: string): ISidebarSection {
 }
 
 /**
- * Sezioni della barra laterale: le categorie dello schema (titolo da `titleKey`/`title`, icona da `icon`)
- * più la sezione locale `appearance`. Se lo schema ha già una categoria `appearance`, la voce è unica
- * e mostra entrambe. Prima dell'arrivo dello schema si usano le sei sezioni fisse.
+ * Sidebar sections: the schema categories (title from `titleKey`/`title`, icon from `icon`)
+ * plus the local `appearance` section. If the schema already has an `appearance` category, the entry is single
+ * and shows both. Before the schema arrives the six fixed sections are used.
  */
 const sections = computed<ISidebarSection[]>(() => {
   void locale.value
@@ -270,14 +270,14 @@ const sections = computed<ISidebarSection[]>(() => {
   return list
 })
 
-/** Opzioni delle scelte della sezione locale (testi del package). */
+/** Options of the local section choices (package texts). */
 const themeOptions = computed(() => ['dark', 'light', 'auto'].map((value) => ({ value, label: t(`pachiSettings.themes.${value}`) })))
 const accentOptions = computed(() =>
   Object.keys(ACCENT_PRESETS).map((value) => ({ value, label: t(`pachiSettings.accents.${value}`) }))
 )
 
 const DENSITY_KEYS: SettingsDensity[] = ['comf', 'compact']
-/** Chiave i18n dell'etichetta di ogni densità (invariate rispetto alle versioni precedenti). */
+/** i18n key of each density label (unchanged from previous versions). */
 const DENSITY_LABEL_KEYS: Record<SettingsDensity, string> = { comf: 'comf', compact: 'comp' }
 
 const densityOptions = computed(() => DENSITY_KEYS.map((key) => ({ value: key, label: t(`pachiSettings.densities.${DENSITY_LABEL_KEYS[key]}`) })))
@@ -289,14 +289,14 @@ const activeAccent  = ref(readStorage(ACCENT_STORAGE_KEY) ?? 'teal')
 
 const settingsSchema = ref<ISettingsSchemaResponse>({})
 const schemaLoaded = ref(false)
-/** Campi con applier (`categoria.campo` -> nome), dallo schema. */
+/** Fields with an applier (`category.field` -> name), from the schema. */
 const applyMap = ref<SettingsApplyMap>({})
 const loading = ref(true)
 const schemaError = ref(false)
 
 const currentSectionSchema = computed(() => settingsSchema.value[activeSection.value] ?? null)
 
-/** Esegue l'applier e ricorda la scelta locale (fallback senza sezione `appearance` del backend). */
+/** Runs the applier and remembers the local choice (fallback without a backend `appearance` section). */
 function setLocalPref(name: string, storageKey: string, value: string): void {
   writeStorage(storageKey, value)
   runSettingsApplier(name, value, { source: 'set' })
@@ -325,12 +325,12 @@ function resetPrefs() {
   setDensity('comf')
 }
 
-/** Applier di un campo dello schema (`apply` o default dei campi standard). */
+/** Applier of a schema field (`apply` or defaults of the standard fields). */
 function applyNameOf(category: string, key: string): string | undefined {
   return applyMap.value[`${category}.${key}`]
 }
 
-/** Aspetto del selettore dedicato per gli applier `theme`, `accent`, `density` (altrimenti il componente dello schema). */
+/** Look of the dedicated picker for the `theme`, `accent`, `density` appliers (otherwise the schema component). */
 const PICKER_VARIANTS: Record<string, 'theme' | 'accent' | 'segmented'> = {
   theme: 'theme',
   accent: 'accent',
@@ -338,8 +338,8 @@ const PICKER_VARIANTS: Record<string, 'theme' | 'accent' | 'segmented'> = {
 }
 
 /**
- * Aspetto del selettore dedicato di un campo: componente `theme`/`accent` oppure `select` con applier
- * `theme`/`accent`/`density`; `undefined` se il campo usa il componente dello schema.
+ * Look of a field's dedicated picker: `theme`/`accent` component or `select` with a
+ * `theme`/`accent`/`density` applier; `undefined` if the field uses the schema component.
  */
 function pickerVariantOf(field: ISettingsSchema, applyName?: string): 'theme' | 'accent' | 'segmented' | undefined {
   if (field.component === 'theme' || field.component === 'accent') return PICKER_VARIANTS[field.component]
@@ -362,12 +362,12 @@ function getComponentFromProperty(property: ISettingsSchema, settingValue: unkno
   }
 }
 
-/** Cache degli handler già risolti per oggetto `events` (evita di ricrearli a ogni render). */
+/** Cache of handlers already resolved per `events` object (avoids recreating them on every render). */
 const eventsCache = new WeakMap<object, Record<string, SettingsResolvedHandler>>()
 
 /**
- * Risolve gli `events` dello schema in handler tramite azioni nominate (vedi `registerSettingsActions`);
- * le stringhe di script sono eseguite solo con `setPachiSettingsOptions({ allowScriptStrings: true })`.
+ * Resolves the schema `events` into handlers through named actions (see `registerSettingsActions`);
+ * script strings are run only with `setPachiSettingsOptions({ allowScriptStrings: true })`.
  */
 function resolveEvents(events?: Record<string, SettingsActionSpec>): Record<string, SettingsResolvedHandler> {
   if (!events) return {}
@@ -382,13 +382,13 @@ function resolveEvents(events?: Record<string, SettingsActionSpec>): Record<stri
   return handlers
 }
 
-/** Titolo della sezione tradotto dalla chiave dello schema (reattivo al cambio lingua). */
+/** Section title translated from the schema key (reactive to language changes). */
 function sectionTitleText(category: ISettingsCategory): string {
   void locale.value
   return sectionTitle(category)
 }
 
-/** Proprietà del campo con i testi tradotti dalle chiavi dello schema (reattive al cambio lingua). */
+/** Field properties with texts translated from the schema keys (reactive to language changes). */
 function fieldProps(field: ISettingsSchema & { pickerVariant?: string }): Record<string, unknown> {
   void locale.value
   const properties = fieldProperties(field)
@@ -400,7 +400,7 @@ function fieldProps(field: ISettingsSchema & { pickerVariant?: string }): Record
 
 function reload() { window.location.reload() }
 
-/** Modello di un campo numerico: QInput emette stringhe, il backend vuole un numero (vuoto = `null`). */
+/** Model of a numeric field: QInput emits strings, the backend wants a number (empty = `null`). */
 function numberModel(category: string, key: string) {
   return computed<number | null | undefined>({
     get: () => settingsManager.get(category, key) as number | null | undefined,
@@ -412,7 +412,7 @@ function numberModel(category: string, key: string) {
   })
 }
 
-/** Opzioni del campo lingua: "automatica" (`null`) più le lingue offerte dall'app (nome nativo). */
+/** Language field options: "automatic" (`null`) plus the languages offered by the app (native name). */
 function buildLocaleOptions(): { label: string; value: string | null }[] {
   const available = (getPachiI18n()?.global.availableLocales ?? []) as string[]
   const options = available.map((code) => {
@@ -421,7 +421,7 @@ function buildLocaleOptions(): { label: string; value: string | null }[] {
       const name = new Intl.DisplayNames([code], { type: 'language' }).of(code)
       if (name) label = name.charAt(0).toLocaleUpperCase(code) + name.slice(1)
     } catch {
-      // codice non riconosciuto: si mostra il codice
+      // unrecognised code: show the code itself
     }
     return { label, value: code as string | null }
   })
@@ -429,9 +429,9 @@ function buildLocaleOptions(): { label: string; value: string | null }[] {
 }
 
 /**
- * Riporta ai valori predefiniti i campi di `appearance` presenti nello schema (salvataggio sul backend).
- * Il default è quello dello schema (`default`, anche `null`); i default scritti nel frontend valgono solo per i
- * backend senza `default` nello schema.
+ * Resets to their default values the `appearance` fields present in the schema (saved on the backend).
+ * The default is the schema one (`default`, also `null`); defaults written in the frontend apply only to
+ * backends without a `default` in the schema.
  */
 function resetSchemaAppearance() {
   const fields = settingsSchema.value['appearance']?.fields ?? {}
@@ -441,12 +441,12 @@ function resetSchemaAppearance() {
   }
 }
 
-/** Componenti dello schema che l'app non rende nella pagina (compat: il tema ora è il campo `appearance.theme`). */
+/** Schema components the app does not render in the page (compat: the theme is now the `appearance.theme` field). */
 const HIDDEN_COMPONENTS = new Set(['theme-toggle'])
 
 onMounted(async () => {
   try {
-    // le impostazioni partono già al login (`installPachiSettings`): qui si riusa il caricamento in corso o concluso
+    // settings already start loading at login (`installPachiSettings`): here the load in progress or completed is reused
     await settingsManager.ensureLoaded()
     const schema = settingsManager.schema
     applyMap.value = collectApplyMap(schema)

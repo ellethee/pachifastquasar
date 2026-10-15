@@ -104,9 +104,9 @@ const useBatch = defineModel('useBatch', { type: Boolean, default: false })
 const dryRun = defineModel('dryRun', { type: Boolean, default: false })
 const { scope, color = undefined, showToggles = false, onUploadClick = undefined } = defineProps<{
   scope: IUploaderHeaderScope
-  /** Colore dei pulsanti (toolbar interna); assente quando le azioni sono teleportate nel dialog. */
+  /** Button color (internal toolbar); absent when the actions are teleported into the dialog. */
   color?: string | undefined
-  /** Mostra i toggle batch / dry run. */
+  /** Shows the batch / dry run toggles. */
   showToggles?: boolean
   onUploadClick?: (() => void) | undefined
 }>()

@@ -1,6 +1,6 @@
 /**
- * Entry Node `@ilpachi/pachifastquasar/quasar`: helper per `quasar.config.ts`. Non importa Vue né i
- * componenti della shell.
+ * Entry Node `@ilpachi/pachifastquasar/quasar`: helpers for `quasar.config.ts`. It does not import Vue nor the
+ * shell components.
  */
 export {
   createPachiQuasarBase,

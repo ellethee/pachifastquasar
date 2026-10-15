@@ -1,7 +1,7 @@
 /* eslint-disable */
-// Generato: un loader per ogni language pack di Quasar (quasar/lang/*.js). Import dinamici con specifier
-// statici: li risolve e li divide in chunk il bundler dell'app (Vite), anche se questo file è nel pacchetto.
-/** Loader dei language pack di Quasar, per nome del pack (es. `it`, `en-US`, `pt-BR`). */
+// Generated: one loader for each Quasar language pack (quasar/lang/*.js). Dynamic imports with static specifiers:
+// the app bundler (Vite) resolves them and splits them into chunks, even though this file is in the package.
+/** Quasar language pack loaders, by pack name (e.g. `it`, `en-US`, `pt-BR`). */
 export const quasarLangLoaders: Record<string, () => Promise<{ default: unknown }>> = {
   ar: () => import('quasar/lang/ar.js'),
   'ar-TN': () => import('quasar/lang/ar-TN.js'),

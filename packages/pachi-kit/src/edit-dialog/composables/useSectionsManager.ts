@@ -7,8 +7,8 @@ import type {
 } from '../types/sections'
 
 /**
- * Crea e fornisce (provide) il contesto condiviso tra le sezioni.
- * @param initialSharedState stato condiviso iniziale (clonato)
+ * Creates and provides the context shared between sections.
+ * @param initialSharedState initial shared state (cloned)
  */
 export function useSectionsManager(initialSharedState: ISectionSharedState = {}) {
   const sharedState = ref<ISectionSharedState>(cloneValue(initialSharedState))

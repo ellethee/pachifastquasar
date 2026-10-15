@@ -1,47 +1,47 @@
-/** Ordinamento di una colonna. */
+/** Sorting of a column. */
 export interface IAdminSort {
   field: string
   descending: boolean
 }
 
-/** Parametri di una richiesta di lista. */
+/** Parameters of a list request. */
 export interface IAdminListQuery {
   page: number
   pageSize: number
-  /** Ordinamento scelto dall'utente (uno solo); assente = default del backend. */
+  /** Sorting chosen by the user (only one); missing = backend default. */
   sort?: IAdminSort | null | undefined
-  /** Ordinamento multiplo (priorità = ordine dell'array); ha la precedenza su `sort`. */
+  /** Multiple sorting (priority = array order); takes precedence over `sort`. */
   sorts?: IAdminSort[] | undefined
   search?: string | undefined
-  /** Valori dei filtri per nome di campo (vuoti omessi). */
+  /** Filter values by field name (empty ones omitted). */
   filters?: Record<string, unknown> | undefined
 }
 
-/** Dimensioni di pagina offerte. */
+/** Offered page sizes. */
 export const PAGE_SIZE_OPTIONS = [10, 25, 50, 100, 200] as const
 
-/** Dimensione di pagina di default (quella del backend). */
+/** Default page size (the backend one). */
 export const DEFAULT_PAGE_SIZE = 25
 
 /**
- * Interpreta una voce di `list.ordering` (`campo` o `-campo`).
+ * Interprets an entry of `list.ordering` (`field` or `-field`).
  *
- * @param entry - voce dell'ordinamento
- * @returns campo e direzione
+ * @param entry - sorting entry
+ * @returns field and direction
  */
 export function parseOrdering(entry: string): IAdminSort {
   return entry.startsWith('-') ? { field: entry.slice(1), descending: true } : { field: entry, descending: false }
 }
 
 /**
- * Ordinamento successivo dopo il clic su una colonna. Senza `multi` (clic semplice) sostituisce l'ordinamento
- * con quella colonna: crescente, poi decrescente, poi nessuno. Con `multi` (Maiusc+clic) aggiunge la colonna in
- * coda (o ne inverte la direzione, o la toglie dopo il decrescente) mantenendo le altre.
+ * Next sorting after a click on a column. Without `multi` (plain click) it replaces the sorting with that
+ * column: ascending, then descending, then none. With `multi` (Shift+click) it appends the column at the
+ * end (or flips its direction, or removes it after descending) keeping the others.
  *
- * @param current - ordinamento corrente
- * @param field - colonna cliccata
- * @param multi - `true` per l'ordinamento multiplo
- * @returns il nuovo ordinamento
+ * @param current - current sorting
+ * @param field - clicked column
+ * @param multi - `true` for multiple sorting
+ * @returns the new sorting
  */
 export function nextSorts(current: IAdminSort[], field: string, multi: boolean): IAdminSort[] {
   const existing = current.find((s) => s.field === field)
@@ -55,20 +55,20 @@ export function nextSorts(current: IAdminSort[], field: string, multi: boolean):
 }
 
 /**
- * Valore del parametro `orderBy` (`campo` o `-campo`).
+ * Value of the `orderBy` parameter (`field` or `-field`).
  *
- * @param sort - ordinamento
+ * @param sort - sorting
  */
 export function toOrderBy(sort: IAdminSort): string {
   return `${sort.descending ? '-' : ''}${sort.field}`
 }
 
 /**
- * Query string di una lista: `page`, `pageSize`, `orderBy`, `search` e un parametro per ogni filtro valorizzato.
- * I booleani diventano `true`/`false`; `null`, `undefined`, `''` e array vuoti sono omessi.
+ * Query string of a list: `page`, `pageSize`, `orderBy`, `search` and one parameter for each filled filter.
+ * Booleans become `true`/`false`; `null`, `undefined`, `''` and empty arrays are omitted.
  *
- * @param query - parametri
- * @returns query string senza `?` (stringa vuota se non ci sono parametri)
+ * @param query - parameters
+ * @returns query string without `?` (empty string if there are no parameters)
  */
 export function buildListQuery(query: IAdminListQuery): string {
   const params = new URLSearchParams()
@@ -90,10 +90,10 @@ export function buildListQuery(query: IAdminListQuery): string {
 }
 
 /**
- * Query string di `_options` (lookup): ricerca, pagina e/o `ids` per risolvere i valori già salvati.
+ * Query string of `_options` (lookup): search, page and/or `ids` to resolve already saved values.
  *
- * @param opts - `search`, `page`, `pageSize` oppure `ids`
- * @returns query string senza `?`
+ * @param opts - `search`, `page`, `pageSize` or `ids`
+ * @returns query string without `?`
  */
 export function buildOptionsQuery(opts: {
   search?: string | undefined
@@ -111,14 +111,14 @@ export function buildOptionsQuery(opts: {
 }
 
 /**
- * Valore di un estremo di intervallo. Per un filtro `datetime` con la sola data, `__gte` è l'inizio del giorno e
- * `__lte` la fine del giorno (ora locale dell'utente) in ISO UTC; un valore con l'ora è convertito in ISO UTC.
- * Gli altri tipi (numeri, `date`, `time`) restano com'è.
+ * Value of a range bound. For a `datetime` filter with the date only, `__gte` is the start of the day and
+ * `__lte` the end of the day (user's local time) in ISO UTC; a value with the time is converted to ISO UTC.
+ * Other types (numbers, `date`, `time`) stay as is.
  *
- * @param component - tipo del filtro
- * @param bound - `gte` o `lte`
- * @param value - valore dell'input
- * @returns il valore da inviare
+ * @param component - filter type
+ * @param bound - `gte` or `lte`
+ * @param value - input value
+ * @returns the value to send
  */
 export function rangeValue(component: string, bound: 'gte' | 'lte', value: unknown): unknown {
   if (component !== 'datetime' || typeof value !== 'string') return value
@@ -133,12 +133,12 @@ export function rangeValue(component: string, bound: 'gte' | 'lte', value: unkno
 }
 
 /**
- * Parametri di filtro per la richiesta: uguaglianza `?campo=valore`; per i filtri con `range` i parametri
- * `campo__gte` e `campo__lte` (i valori dell'input stanno in `values` con le stesse chiavi).
+ * Filter parameters for the request: equality `?field=value`; for filters with `range` the parameters
+ * `field__gte` and `field__lte` (the input values are in `values` with the same keys).
  *
- * @param filters - filtri dello schema
- * @param values - valori degli input per chiave (`campo`, `campo__gte`, `campo__lte`)
- * @returns i parametri valorizzati
+ * @param filters - schema filters
+ * @param values - input values by key (`field`, `field__gte`, `field__lte`)
+ * @returns the filled parameters
  */
 export function filterQueryParams(
   filters: Array<{ field: string, component: string, range?: boolean | undefined }>,

@@ -1,6 +1,6 @@
 [project]
 name = "compat-backend"
 version = "0.0.0"
-description = "Backend pachifast minimo per lo smoke di compatibilita' dei package @ilpachi"
+description = "Minimal pachifast backend for the compatibility smoke of the @ilpachi packages"
 requires-python = ">=3.10"
 dependencies = ["pachifast"]

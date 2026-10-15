@@ -1,4 +1,4 @@
-/** Voce di attività recente restituita dall'endpoint delle attività. */
+/** Recent activity entry returned by the activity endpoint. */
 export interface IDashboardActivity {
   timestamp: string
   user_id?: number
@@ -11,7 +11,7 @@ export interface IDashboardActivity {
   description?: string
 }
 
-/** Informazioni di sistema restituite dall'endpoint di stato. */
+/** System information returned by the status endpoint. */
 export interface IDashboardSystemInfo {
   version?: string
   environment?: string

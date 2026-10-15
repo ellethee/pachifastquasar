@@ -146,20 +146,20 @@ import { findComponent } from '../helpers/options'
 import { fieldOptions } from '../helpers/schema-text'
 
 /**
- * Controllo di un campo del form, scelto da `field.component`. Un componente registrato con
- * `setPachiAdminOptions({ components })` (per campo `app.model.campo` o per tipo di controllo) lo sostituisce.
+ * Form field control, chosen by `field.component`. A component registered with
+ * `setPachiAdminOptions({ components })` (per field `app.model.field` or per control type) replaces it.
  */
 const props = withDefaults(defineProps<{
   schema: IAdminSchema
-  /** Nome del campo (camelCase). */
+  /** Field name (camelCase). */
   name: string
   field: IAdminField
   modelValue?: unknown
-  /** Etichetta già risolta (traduzione + asterisco se obbligatorio). */
+  /** Already resolved label (translation + asterisk if required). */
   label: string
-  /** Campo di sola lettura (readonly dello schema o permesso `change` mancante). */
+  /** Read-only field (schema readonly or missing `change` permission). */
   readonly?: boolean
-  /** Messaggio d'errore (client o 422). */
+  /** Error message (client or 422). */
   error?: string
 }>(), { readonly: false, error: '' })
 
@@ -172,7 +172,7 @@ const { t } = usePachiI18n(messages)
 const custom = computed(() => findComponent(fieldKey(props.schema.app, props.schema.model, props.name), props.field.component))
 const selectOptions = computed(() => fieldOptions(props.field))
 
-/** Errore di sintassi mostrato mentre si scrive un JSON. */
+/** Syntax error shown while typing JSON. */
 const jsonError = computed(() => {
   const raw = props.modelValue
   if (typeof raw !== 'string' || raw.trim() === '') return ''

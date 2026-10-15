@@ -1,11 +1,11 @@
 import type { IDashboardActivity, IDashboardSystemInfo } from '../types/dashboard-widgets'
 
 /**
- * Valida la risposta dell'endpoint attività: qualunque valore che non sia un array di oggetti
- * produce una lista vuota.
+ * Validates the activity endpoint response: any value that is not an array of objects
+ * produces an empty list.
  *
- * @param data - risposta grezza del backend
- * @returns lista di attività (eventualmente vuota)
+ * @param data - raw backend response
+ * @returns list of activities (possibly empty)
  */
 export function parseActivities(data: unknown): IDashboardActivity[] {
   if (!Array.isArray(data)) return []
@@ -13,10 +13,10 @@ export function parseActivities(data: unknown): IDashboardActivity[] {
 }
 
 /**
- * Valida la risposta dell'endpoint di sistema: accetta solo un oggetto non-array.
+ * Validates the system endpoint response: accepts only a non-array object.
  *
- * @param data - risposta grezza del backend
- * @returns informazioni di sistema o `null` se la risposta non è valida
+ * @param data - raw backend response
+ * @returns system info, or `null` if the response is not valid
  */
 export function parseSystemInfo(data: unknown): IDashboardSystemInfo | null {
   if (typeof data !== 'object' || data === null || Array.isArray(data)) return null

@@ -1,8 +1,8 @@
-# Typecheck + test + build + controllo tarball SOLO dei pacchetti toccati (e dei loro dipendenti).
-# Il filtro lo calcola scripts/ci-filter.sh: base = ramo di destinazione della PR, oppure il commit precedente del push;
-# se cambiano file fuori da packages/ e playground/ (lockfile, workflow, script) si costruisce tutto.
-# Nessun segreto: i pacchetti @ilpachi del monorepo sono workspace e use-alova arriva da npmjs.
-# Il publish NON sta qui: vedi release.yml (tag <nome>@<versione>).
+# Typecheck + test + build + tarball check ONLY for the touched packages (and their dependents).
+# The filter is computed by scripts/ci-filter.sh: base = target branch of the PR, or the previous commit of the push;
+# if files outside packages/ and playground/ change (lockfile, workflows, scripts) everything is built.
+# No secrets: the @ilpachi packages of the monorepo are workspace packages and use-alova comes from npmjs.
+# Publishing is NOT done here: see release.yml (tag <name>@<version>).
 name: CI
 
 on:
@@ -26,13 +26,13 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      # la versione di pnpm e' quella di `packageManager` in package.json
+      # the pnpm version is the one in `packageManager` in package.json
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: pnpm
-      - name: Calcola il filtro
+      - name: Compute the filter
         id: filter
         env:
           EVENT_NAME: ${{ github.event_name }}
@@ -51,17 +51,17 @@ jobs:
           echo "filter=${FILTER}" >> "$GITHUB_OUTPUT"
           echo "Filtro pnpm: ${FILTER}"
       - run: pnpm install --frozen-lockfile
-      # informativo: segnala vulnerabilita' delle dipendenze di produzione senza bloccare la CI
-      - name: Audit delle dipendenze
+      # informational: reports vulnerabilities of production dependencies without blocking CI
+      - name: Dependency audit
         continue-on-error: true
         run: pnpm audit --prod
-      # build per prima (i dist degli altri pacchetti servono a typecheck e test), poi i pacchetti (il playground usa il preset ./quasar buildato), il playground solo se toccato dal filtro
+      # build first (the dist of the other packages is needed by typecheck and test), then the packages (the playground uses the built ./quasar preset), the playground only if touched by the filter
       - run: pnpm --filter "${{ steps.filter.outputs.filter }}" --filter '!pachifastquasar-playground' --filter '!ilpachi-monorepo' --filter '!ilpachi-compat-smoke' build
       - run: pnpm --filter "${{ steps.filter.outputs.filter }}" --filter '!pachifastquasar-playground' --filter '!ilpachi-monorepo' --filter '!ilpachi-compat-smoke' typecheck
       - run: pnpm --filter "${{ steps.filter.outputs.filter }}" --filter '!pachifastquasar-playground' --filter '!ilpachi-monorepo' --filter '!ilpachi-compat-smoke' --if-present test
-      - name: Controllo dei tarball
+      - name: Tarball check
         run: pnpm --filter "${{ steps.filter.outputs.filter }}" --filter '!pachifastquasar-playground' --filter '!ilpachi-monorepo' --filter '!ilpachi-compat-smoke' exec npm pack --dry-run --ignore-scripts
-      - name: Playground (typecheck + build con il pacchetto da dist/)
+      - name: Playground (typecheck + build with the package from dist/)
         run: |
           if [ "${{ steps.filter.outputs.filter }}" = '*' ] || pnpm --filter "${{ steps.filter.outputs.filter }}" ls --depth -1 --json | grep -q '"name": "pachifastquasar-playground"'; then
             QCLI_AUTH_ENABLED=false pnpm typecheck:playground

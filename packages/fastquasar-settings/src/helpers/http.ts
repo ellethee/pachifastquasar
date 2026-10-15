@@ -1,55 +1,55 @@
 import { getUseAlovaInstance } from '@ilpachi/use-alova'
 
-/** Opzioni di richiesta minime supportate dal client HTTP delle impostazioni. */
+/** Minimal request options supported by the settings HTTP client. */
 export interface IPachiSettingsRequestConfig {
-  /** Per alova: `null` disabilita la cache della richiesta. */
+  /** For alova: `null` disables the request cache. */
   cacheFor?: number | null
   [key: string]: unknown
 }
 
 /**
- * Client HTTP minimale richiesto dal package. Un'istanza alova dell'app
- * (con auth/gestione errori) lo soddisfa avvolgendo `Get` e `Put`.
+ * Minimal HTTP client required by the package. The app's alova instance
+ * (with auth/error handling) satisfies it by wrapping `Get` and `Put`.
  */
 export interface IPachiSettingsHttp {
   Get<T = unknown>(url: string, config?: IPachiSettingsRequestConfig): PromiseLike<T>
   Put(url: string, data?: unknown, config?: IPachiSettingsRequestConfig): PromiseLike<unknown>
 }
 
-/** Opzioni globali del package (da impostare una volta all'avvio con `setPachiSettingsOptions`). */
+/** Global package options (to be set once at startup with `setPachiSettingsOptions`). */
 export interface IPachiSettingsOptions {
-  /** Restituisce il client HTTP (base URL già impostata, es. `/api/auth`). Default: istanza di `@ilpachi/use-alova` registrata dall'app (`getUseAlovaInstance()({ url: baseUrl }).alova`). */
+  /** Returns the HTTP client (base URL already set, e.g. `/api/auth`). Default: the `@ilpachi/use-alova` instance registered by the app (`getUseAlovaInstance()({ url: baseUrl }).alova`). */
   getHttp?: () => IPachiSettingsHttp
-  /** Indica se l'utente è autenticato (le chiamate al backend sono saltate se `false`). Default: sempre `true`. */
+  /** Tells whether the user is authenticated (backend calls are skipped if `false`). Default: always `true`. */
   isAuthenticated?: () => boolean
   /**
-   * Utente corrente (`id` o `username`), usato come chiave della cache per utente al boot e quando il caricamento
-   * parte senza l'evento `pachi:auth-changed`. Es. `() => AuthManager.getInstance().userInfo`.
+   * Current user (`id` or `username`), used as the per-user cache key at boot and when loading
+   * starts without the `pachi:auth-changed` event. E.g. `() => AuthManager.getInstance().userInfo`.
    */
   getUser?: () => { id?: string | null; username?: string | null } | null
-  /** `url` passato a `@ilpachi/use-alova` per creare il client di default (non ha effetto con `getHttp` personalizzato). Default: `/api/auth`. */
+  /** `url` passed to `@ilpachi/use-alova` to create the default client (no effect with a custom `getHttp`). Default: `/api/auth`. */
   baseUrl?: string
   /**
-   * Abilita il fallback che esegue come codice (`new Function`) le stringhe `events`/`watch` dello schema
-   * non riconducibili ad azioni nominate. Richiede `unsafe-eval` nella CSP ed esegue codice proveniente dal backend:
-   * lasciare `false` (default) salvo schemi di cui ci si fida. Vedi `registerSettingsActions`.
+   * Enables the fallback that executes as code (`new Function`) the schema `events`/`watch` strings
+   * that cannot be mapped to named actions. Requires `unsafe-eval` in the CSP and runs code coming from the backend:
+   * leave `false` (default) unless you trust the schemas. See `registerSettingsActions`.
    */
   allowScriptStrings?: boolean
 }
 
-/** Factory di `@ilpachi/use-alova` (tipo restituito da `getUseAlovaInstance`). */
+/** `@ilpachi/use-alova` factory (type returned by `getUseAlovaInstance`). */
 type UseAlovaFactory = ReturnType<typeof getUseAlovaInstance>
 
-/** Cache del client di default: valida finché restano uguali la factory registrata e la base URL. */
+/** Default client cache: valid as long as the registered factory and the base URL stay the same. */
 let cache: { factory: UseAlovaFactory, baseUrl: string, http: IPachiSettingsHttp } | null = null
 
 /**
- * Client HTTP di default: l'istanza alova di `@ilpachi/use-alova` registrata dall'app (lo fa `createPachiApp`
- * di `@ilpachi/pachifastquasar`), creata con `url: baseUrl`. Il client è memorizzato e ricreato solo se cambiano
- * la factory registrata o `baseUrl`.
+ * Default HTTP client: the alova instance of `@ilpachi/use-alova` registered by the app (done by `createPachiApp`
+ * of `@ilpachi/pachifastquasar`), created with `url: baseUrl`. The client is memoized and recreated only if
+ * the registered factory or `baseUrl` change.
  *
- * @returns client HTTP (con auth, refresh ed errori gestiti dall'app)
- * @throws Error se non è stata creata nessuna istanza di `@ilpachi/use-alova`
+ * @returns HTTP client (with auth, refresh and errors handled by the app)
+ * @throws Error if no `@ilpachi/use-alova` instance has been created
  */
 export function defaultGetHttp(): IPachiSettingsHttp {
   let factory: UseAlovaFactory
@@ -78,20 +78,20 @@ let options: Required<IPachiSettingsOptions> = {
 }
 
 /**
- * Configura il package (client HTTP, stato di autenticazione, base URL). In assenza di `getHttp` si usa il client
- * di `@ilpachi/use-alova` registrato dall'app (`createPachiApp`).
- * Da chiamare una sola volta all'avvio dell'app (es. in un boot file).
+ * Configures the package (HTTP client, authentication state, base URL). Without `getHttp` the
+ * `@ilpachi/use-alova` client registered by the app (`createPachiApp`) is used.
+ * To be called once at app startup (e.g. in a boot file).
  *
- * @param opts - opzioni parziali, unite a quelle correnti
+ * @param opts - partial options, merged with the current ones
  */
 export function setPachiSettingsOptions(opts: IPachiSettingsOptions): void {
   options = { ...options, ...opts }
 }
 
 /**
- * Restituisce le opzioni correnti del package.
+ * Returns the current package options.
  *
- * @returns opzioni complete
+ * @returns complete options
  */
 export function getPachiSettingsOptions(): Required<IPachiSettingsOptions> {
   return options

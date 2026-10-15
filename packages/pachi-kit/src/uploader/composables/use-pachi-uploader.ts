@@ -8,13 +8,13 @@ import type { QUploader, QUploaderFormFieldsItem } from 'quasar'
 import { applyUploadNames, buildMetadataMap, cloneUploaderProps, generateUid, pickKeyForFilename, resolveHeaders, stringifyParam } from '../helpers/uploader-utils'
 
 /**
- * Crea lo stato condiviso dell'uploader e restituisce il componente `PachiUploader` con le props da passargli.
- * `uploaderProps` non viene mutato: i wrapper di callback/headers sono applicati a una copia.
- * Le opzioni (`url`, `headers` statici, `method`...) sono lette UNA volta alla creazione: modifiche successive
- * all'oggetto passato non raggiungono il `QUploader` (per header dinamici usa una funzione in `headers`).
+ * Creates the uploader's shared state and returns the `PachiUploader` component with the props to pass to it.
+ * `uploaderProps` is not mutated: the callback/headers wrappers are applied to a copy.
+ * The options (`url`, static `headers`, `method`...) are read ONCE at creation: later changes
+ * to the passed object do not reach the `QUploader` (for dynamic headers use a function in `headers`).
  *
- * @param options - opzioni (vedi `IUsePachiUploaderProps`)
- * @returns componente e `pachiUploaderProps`
+ * @param options - options (see `IUsePachiUploaderProps`)
+ * @returns component and `pachiUploaderProps`
  */
 export function usePachiUploader<T>({ itemDefaults, uploaderProps: uploaderPropsInput, showBatchToggles = false, filenameKey='filename', headerTarget = undefined, eventBus = undefined, extraParams= {}, headers = [], keyMapping= {file:'filename',date:'date',size:'size'}, progressEvent = 'upload_progress' }: IUsePachiUploaderProps<T>): IUsePachiUploaderReturn<T> {
   const { t } = usePachiI18n(messages)
@@ -27,9 +27,9 @@ export function usePachiUploader<T>({ itemDefaults, uploaderProps: uploaderProps
   const useBatch = ref(false)
   const dryRun = ref(false)
 
-  // Mapping filename → __key (piu' file possono avere lo stesso nome) per instradare i messaggi WS al file corretto
+  // Mapping filename → __key (several files may have the same name) to route WS messages to the correct file
   const filenameToKeys: Record<string, string[]> = {}
-  // Nome con cui ogni file e' registrato in filenameToKeys (cambia quando l'utente rinomina il file)
+  // Name under which each file is registered in filenameToKeys (changes when the user renames the file)
   const keyToName: Record<string, string> = {}
 
   function registerName(key: string, name: string): void {
@@ -49,7 +49,7 @@ export function usePachiUploader<T>({ itemDefaults, uploaderProps: uploaderProps
     delete keyToName[key]
   }
 
-  // UUID fisso per tutta la vita del composable, usato per filtrare gli eventi broadcast
+  // UUID fixed for the whole life of the composable, used to filter broadcast events
   const sessionId = eventBus ? generateUid() : null
 
   const uploadProgressHandler = {
@@ -82,7 +82,7 @@ export function usePachiUploader<T>({ itemDefaults, uploaderProps: uploaderProps
     if (sessionId) eventBus?.removeHandler(progressEvent, uploadProgressHandler)
   })
 
-  /** Rimuove tutto lo stato associato a un file (idempotente). */
+  /** Removes all the state associated with a file (idempotent). */
   function cleanupFile(f: { __key: string }): void {
     delete fileStatuses[f.__key]
     delete itemsMetadata[f.__key]
@@ -96,7 +96,7 @@ export function usePachiUploader<T>({ itemDefaults, uploaderProps: uploaderProps
     qUploaderRef.value?.removeFile(f)
   }
 
-  /** Evento `removed` del QUploader (anche dai pulsanti header "rimuovi tutti/caricati"). */
+  /** `removed` event of the QUploader (also from the header buttons "remove all/uploaded"). */
   function removed(files: readonly File[]): void {
     for (const f of files as UpdatableFileItem<T>[]) cleanupFile(f)
   }
@@ -110,7 +110,7 @@ export function usePachiUploader<T>({ itemDefaults, uploaderProps: uploaderProps
       fileStatuses[file.__key] = 'idle'
       itemsMetadata[file.__key] = { ...itemDefaults }
       registerName(file.__key, file.name)
-      // lo stato dello storage esiste solo con event bus: senza, il progresso e' tutto del browser (0-100%)
+      // the storage state exists only with event bus: without it, the progress is entirely the browser's (0-100%)
       if (eventBus) storageStatuses[file.__key] = { progress: 0, status: 'idle' }
     }
   }
@@ -127,8 +127,8 @@ export function usePachiUploader<T>({ itemDefaults, uploaderProps: uploaderProps
     fileStatuses[key] = status
   }
 
-  // `added` NON e' agganciato a `onAdded` qui: lo ascolta gia' il template di PachiUploader (`@added`),
-  // altrimenti verrebbe chiamato due volte. Un eventuale `onAdded` dell'utente resta in `uploaderProps`.
+  // `added` is NOT hooked to `onAdded` here: the PachiUploader template already listens to it (`@added`),
+  // otherwise it would be called twice. Any user `onAdded` stays in `uploaderProps`.
   const onRemovedOriginal = uploaderProps?.onRemoved
   uploaderProps.onRemoved = (files) => {
     removed(files)
@@ -138,7 +138,7 @@ export function usePachiUploader<T>({ itemDefaults, uploaderProps: uploaderProps
   const formFields = uploaderProps?.formFields || undefined
   uploaderProps.formFields = (files): QUploaderFormFieldsItem[] => {
     const originalFields = typeof formFields === 'function' ? formFields(files) : formFields || [] as QUploaderFormFieldsItem[]
-    // il nome rinominato nella card diventa il nome della parte multipart (coerente con `metadata` e con gli eventi di progresso)
+    // the name renamed in the card becomes the multipart part name (consistent with `metadata` and the progress events)
     const names = applyUploadNames(files as UpdatableFileItem<T>[], itemsMetadata, keyMapping.file ?? 'filename')
     for (const [key, name] of Object.entries(names)) registerName(key, name)
     const localMetadata = buildMetadataMap(files as UpdatableFileItem<T>[], itemsMetadata)
@@ -165,7 +165,7 @@ export function usePachiUploader<T>({ itemDefaults, uploaderProps: uploaderProps
     }
   }
   function failed({ files }: { files: readonly UpdatableFileItem<T>[], xhr: XMLHttpRequest }): void {
-    // un file rimosso durante l'upload (abort) non deve ricreare lo stato 'failed'
+    // a file removed during the upload (abort) must not recreate the 'failed' state
     for (const file of files) if (file.__key in fileStatuses) fileStatuses[file.__key] = 'failed'
   }
 

@@ -1,11 +1,11 @@
 /**
- * Cerca tra le lingue disponibili quella che corrisponde a un codice richiesto: prima esatto
- * (senza distinguere maiuscole), poi la lingua base (`it-IT` -> `it`), poi una variante della stessa
- * lingua (`pt` -> `pt-BR`).
+ * Looks among the available locales for the one matching a requested code: first exact
+ * (case-insensitive), then the base language (`it-IT` -> `it`), then a variant of the same
+ * language (`pt` -> `pt-BR`).
  *
- * @param requested - codice richiesto (es. `it-IT`)
- * @param available - codici disponibili
- * @returns il codice disponibile oppure `undefined`
+ * @param requested - requested code (e.g. `it-IT`)
+ * @param available - available codes
+ * @returns the available code or `undefined`
  */
 export function matchLocale(requested: string, available: readonly string[]): string | undefined {
   const wanted = requested.toLowerCase()
@@ -18,12 +18,12 @@ export function matchLocale(requested: string, available: readonly string[]): st
 }
 
 /**
- * Rilevamento della lingua iniziale: valore salvato in localStorage, poi `navigator.languages`,
- * poi `defaultLocale`.
+ * Initial locale detection: value saved in localStorage, then `navigator.languages`,
+ * then `defaultLocale`.
  *
- * @param available - codici disponibili
- * @param defaultLocale - lingua di default
- * @param storageKey - chiave localStorage
+ * @param available - available codes
+ * @param defaultLocale - default locale
+ * @param storageKey - localStorage key
  */
 export function detectLocale(available: readonly string[], defaultLocale: string, storageKey: string): string {
   try {
@@ -31,7 +31,7 @@ export function detectLocale(available: readonly string[], defaultLocale: string
     const match = stored ? matchLocale(stored, available) : undefined
     if (match) return match
   } catch {
-    // localStorage non disponibile (SSR, privacy mode): si prosegue
+    // localStorage unavailable (SSR, privacy mode): carry on
   }
   const languages = typeof navigator !== 'undefined' ? (navigator.languages ?? [navigator.language]) : []
   for (const language of languages) {

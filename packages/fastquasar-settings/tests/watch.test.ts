@@ -22,14 +22,14 @@ const schema: ISettingsSchemaResponse = {
 }
 
 describe('toCamelCase', () => {
-  it('converte snake_case', () => {
+  it('converts snake_case', () => {
     expect(toCamelCase('disable_activity_log')).toBe('disableActivityLog')
     expect(toCamelCase('theme')).toBe('theme')
   })
 })
 
 describe('findWatchedField', () => {
-  it('risolve nella stessa sezione, con sezione esplicita e in snake_case', () => {
+  it('resolves in the same section, with explicit section and in snake_case', () => {
     expect(findWatchedField(schema, 'preferences', 'theme')).toEqual({ section: 'preferences', field: 'theme' })
     expect(findWatchedField(schema, 'preferences', 'audit.disable_activity_log')).toEqual({
       section: 'audit',
@@ -40,19 +40,19 @@ describe('findWatchedField', () => {
 })
 
 describe('resolveWatchTargets', () => {
-  it('osserva il campo indicato dalla chiave (semantica del backend), non quello che dichiara il watch', () => {
+  it('watches the field named by the key (backend semantics), not the one declaring the watch', () => {
     expect(resolveWatchTargets(schema, 'preferences', 'mode')).toEqual([
       { section: 'preferences', field: 'theme', spec: { action: 'applyTheme', args: { mode: 'dark' } } },
     ])
     expect(resolveWatchTargets(schema, 'preferences', 'cross')[0]).toMatchObject({ section: 'audit', field: 'disableActivityLog' })
     expect(resolveWatchTargets(schema, 'preferences', 'snake')[0]).toMatchObject({ field: 'disableX' })
   })
-  it('watch: true riusa gli events sul campo stesso', () => {
+  it('watch: true reuses the events on the field itself', () => {
     expect(resolveWatchTargets(schema, 'preferences', 'legacy')).toEqual([
       { section: 'preferences', field: 'legacy', spec: 'darkToggle' },
     ])
   })
-  it('senza watch non registra nulla; chiave sconosciuta ricade sul campo con un warning', () => {
+  it('without watch registers nothing; unknown key falls back to the field with a warning', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     resetSettingsWarnings()
     expect(resolveWatchTargets(schema, 'preferences', 'theme')).toEqual([])

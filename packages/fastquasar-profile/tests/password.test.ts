@@ -14,11 +14,11 @@ const tooShort = (params: Record<string, unknown>): IPachiApiError => ({
 })
 
 describe('validatePasswordForm', () => {
-  it('il minimo di default è 12', () => {
+  it('the default minimum is 12', () => {
     expect(DEFAULT_MIN_PASSWORD_LENGTH).toBe(12)
   })
 
-  it('segnala i campi vuoti', () => {
+  it('reports empty fields', () => {
     expect(validatePasswordForm({ current: '', next: '', confirm: '' }, 12)).toEqual({
       current: 'required',
       next: 'required',
@@ -26,18 +26,18 @@ describe('validatePasswordForm', () => {
     })
   })
 
-  it('rispetta la lunghezza minima (12 caratteri ok, 11 no)', () => {
+  it('enforces the minimum length (12 characters ok, 11 not)', () => {
     expect(validatePasswordForm({ current: 'x', next: 'a'.repeat(11), confirm: 'a'.repeat(11) }, 12).next).toBe('tooShort')
     const ok = validatePasswordForm({ current: 'x', next: 'a'.repeat(12), confirm: 'a'.repeat(12) }, 12)
     expect(isPasswordFormValid(ok)).toBe(true)
   })
 
-  it('la conferma deve coincidere', () => {
+  it('the confirmation must match', () => {
     const errors = validatePasswordForm({ current: 'x', next: 'a'.repeat(12), confirm: 'b'.repeat(12) }, 12)
     expect(errors).toEqual({ confirm: 'mismatch' })
   })
 
-  it('rivalida con un nuovo minimo', () => {
+  it('revalidates with a new minimum', () => {
     const values = { current: 'x', next: 'a'.repeat(12), confirm: 'a'.repeat(12) }
     expect(isPasswordFormValid(validatePasswordForm(values, 12))).toBe(true)
     expect(validatePasswordForm(values, 16).next).toBe('tooShort')
@@ -45,12 +45,12 @@ describe('validatePasswordForm', () => {
 })
 
 describe('minLengthFromError', () => {
-  it('aggiorna il minimo da params.min_length', () => {
+  it('updates the minimum from params.min_length', () => {
     expect(minLengthFromError(tooShort({ min_length: 14 }), 12)).toBe(14)
     expect(minLengthFromError(tooShort({ min_length: '10' }), 12)).toBe(10)
   })
 
-  it('ignora valori non validi o altri codici', () => {
+  it('ignores invalid values or other codes', () => {
     expect(minLengthFromError(tooShort({ min_length: 'x' }), 12)).toBe(12)
     expect(minLengthFromError(tooShort({ min_length: 0 }), 12)).toBe(12)
     expect(minLengthFromError(tooShort({ min_length: 8.5 }), 12)).toBe(12)
@@ -60,7 +60,7 @@ describe('minLengthFromError', () => {
 })
 
 describe('passwordErrorTarget', () => {
-  it('assegna l\'errore al campo giusto', () => {
+  it('assigns the error to the right field', () => {
     expect(passwordErrorTarget({ status: 400, items: [{ code: 'auth.password_incorrect' }] })).toBe('current')
     expect(passwordErrorTarget(tooShort({ min_length: 12 }))).toBe('next')
     expect(passwordErrorTarget({ status: 429, items: [] })).toBe('form')

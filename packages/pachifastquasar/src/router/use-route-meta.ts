@@ -4,13 +4,13 @@ import { useRoute } from 'vue-router'
 import type { RouteMeta } from 'vue-router'
 
 /**
- * Restituisce il meta della route corrente come merge ricorsivo
- * dal parent più lontano fino al figlio corrente.
- * I meta del figlio hanno sempre precedenza su quelli del parent.
+ * Returns the meta of the current route as a recursive merge
+ * from the farthest parent down to the current child.
+ * The child meta always takes precedence over the parent one.
  *
- * `title`/`titleKey` e `description`/`descriptionKey` del figlio sostituiscono la coppia del parent.
+ * The child `title`/`titleKey` and `description`/`descriptionKey` replace the parent pair.
  *
- * Esempio:
+ * Example:
  *   parent: { title: 'Pachi', icon: mdiHome, description: 'Root' }
  *   child:  { title: 'Upload' }
  *   result: { title: 'Upload', icon: mdiHome, description: 'Root' }
@@ -20,7 +20,7 @@ export function useRouteMeta(): ComputedRef<RouteMeta> {
   return computed(() =>
     route.matched.reduce<RouteMeta>((acc, r) => {
       const next: RouteMeta = { ...acc, ...r.meta }
-      // un titolo/descrizione letterale del figlio sostituisce la chiave ereditata dal parent (e viceversa)
+      // a literal child title/description replaces the key inherited from the parent (and vice versa)
       if (r.meta.title && !r.meta.titleKey) delete next.titleKey
       if (r.meta.titleKey && !r.meta.title) delete next.title
       if (r.meta.description && !r.meta.descriptionKey) delete next.descriptionKey

@@ -76,7 +76,7 @@ const { alova } = getUseAlovaInstance()()
 const router = useRouter()
 const { t } = useI18n()
 
-/** Animazione del titolo: `meta.titleAnimation` della route > `app.titleAnimation` > default CSS (rubber-band). */
+/** Title animation: the route's `meta.titleAnimation` > `app.titleAnimation` > CSS default (rubber-band). */
 const titleStyle = computed(() => {
   const name = resolveTitleAnimation(card.titleAnimation) ?? resolveTitleAnimation(getPachiConfig().app.titleAnimation)
   return name ? { '--pachi-dc-title-animation': titleAnimationCss(name) } : undefined
@@ -92,7 +92,7 @@ const stats = ref<IDashboardCardStat[]>([])
 
 function fetchStats() {
   if (card.statsUrl) {
-    // il Bearer dell'app non va inviato ad altre origini: per quelle si usa una fetch semplice
+    // the app's Bearer must not be sent to other origins: for those a plain fetch is used
     const request = isSameOrigin(card.statsUrl)
       ? alova.Get<IDashboardCardStat[]>(card.statsUrl)
       : fetch(card.statsUrl, { credentials: 'omit' }).then(r => {
@@ -229,7 +229,7 @@ onMounted(() => {
   color: var(--pachi-ink);
   position: relative;
   z-index: 1;
-  // il titolo è a larghezza piena: scalare dal centro lo sposterebbe a sinistra, quindi l'origine è il bordo sinistro
+  // the title is full width: scaling from the center would shift it left, so the origin is the left edge
   transform-origin: left center;
 }
 
@@ -281,7 +281,7 @@ onMounted(() => {
   gap: 4px;
 }
 
-// effetti hover spenti (`hoverEffectsEnabled: false`) o movimento ridotto: nessuna animazione, qualunque `titleAnimation`
+// hover effects off (`hoverEffectsEnabled: false`) or reduced motion: no animation, whatever `titleAnimation` is
 body.pachi-hover-fx-disabled .pachi-dashboard-card:hover .pachi-dc-title {
   animation: none;
 }

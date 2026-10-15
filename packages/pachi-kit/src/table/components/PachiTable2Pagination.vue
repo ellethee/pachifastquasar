@@ -67,25 +67,25 @@ interface Props {
   nextPage: () => void
   lastPage: () => void
   setPagination?: QTablePaginationSetter | undefined
-  /** Numero massimo di bottoni pagina visibili */
+  /** Maximum number of visible page buttons */
   maxPages?: number
-  /** Mostra link prima/ultima pagina */
+  /** Show first/last page links */
   boundaryLinks?: boolean
-  /** Mostra link precedente/successivo */
+  /** Show previous/next links */
   directionLinks?: boolean
-  /** Mostra numeri ai bordi */
+  /** Show numbers at the edges */
   boundaryNumbers?: boolean
-  /** Mostra ellipsis (...) */
+  /** Show ellipsis (...) */
   ellipses?: boolean
-  /** Mostra input per pagina diretta */
+  /** Show input for direct page jump */
   input?: boolean
-  /** Disabilita la paginazione */
+  /** Disable pagination */
   disable?: boolean
-  /** Opzioni per righe per pagina */
+  /** Options for rows per page */
   rowsPerPageOptions?: number[]
-  /** Mostra selettore righe per pagina. QTable lo renderizza gia' fuori dalla slot pagination. */
+  /** Show rows-per-page selector. QTable already renders it outside the pagination slot. */
   showRowsPerPage?: boolean
-  /** Mostra info paginazione (es: "1-10 di 100") */
+  /** Show pagination info (e.g. "1-10 of 100") */
   showInfo?: boolean
 }
 

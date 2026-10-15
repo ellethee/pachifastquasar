@@ -22,8 +22,8 @@ function setup(extra: Partial<Parameters<typeof usePachiUploader<Item>>[0]> = {}
   return { ...res.pachiUploaderProps, props: res.pachiUploaderProps.uploaderProps, eventBus }
 }
 
-describe('usePachiUploader cleanup su onRemoved', () => {
-  it('onRemoved pulisce lo stato dei file rimossi in blocco e chiama il callback originale', () => {
+describe('usePachiUploader cleanup on onRemoved', () => {
+  it('onRemoved cleans the state of the files removed in bulk and calls the original callback', () => {
     const onRemoved = vi.fn()
     const s = setup({ uploaderProps: { url: '/up', onRemoved } })
     const a = file('a.txt', 'k1')
@@ -39,7 +39,7 @@ describe('usePachiUploader cleanup su onRemoved', () => {
     expect(onRemoved).toHaveBeenCalledWith([a])
   })
 
-  it('riaggiungere un file con lo stesso nome non usa la vecchia chiave', () => {
+  it('re-adding a file with the same name does not use the old key', () => {
     const s = setup()
     const old = file('a.txt', 'old')
     s.events.added([old])
@@ -50,7 +50,7 @@ describe('usePachiUploader cleanup su onRemoved', () => {
 })
 
 describe('usePachiUploader onAdded', () => {
-  it('non wrappa onAdded (evita la doppia chiamata con @added del template)', () => {
+  it('does not wrap onAdded (avoids the double call with the template @added)', () => {
     const onAdded = vi.fn()
     const s = setup({ uploaderProps: { url: '/up', onAdded } })
     expect(s.props.onAdded).toBe(onAdded)
@@ -58,7 +58,7 @@ describe('usePachiUploader onAdded', () => {
 })
 
 describe('usePachiUploader extraParams', () => {
-  it('serializza i valori e omette null/undefined', () => {
+  it('serializes the values and omits null/undefined', () => {
     const s = setup({ extraParams: { a: 1, b: null, c: undefined, d: { x: 1 }, e: 'txt' } })
     const fields = (s.props.formFields as (f: File[]) => { name: string, value: string }[])([file('a.txt', 'k')])
     const named = Object.fromEntries(fields.map(f => [f.name, f.value]))
@@ -69,7 +69,7 @@ describe('usePachiUploader extraParams', () => {
 })
 
 describe('stringifyParam', () => {
-  it('casi base', () => {
+  it('basic cases', () => {
     expect(stringifyParam('x')).toBe('x')
     expect(stringifyParam(0)).toBe('0')
     expect(stringifyParam(false)).toBe('false')

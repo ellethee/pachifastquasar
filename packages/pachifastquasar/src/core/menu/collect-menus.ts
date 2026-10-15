@@ -4,12 +4,12 @@ import type { PachiGlob } from '../../router/routes-finder'
 import type { PachiEnv } from '../config'
 
 /**
- * Factory di voci di menu esportate dai package `@ilpachi/*` (default export di `menu`), rispettando
+ * Menu item factories exported by the `@ilpachi/*` packages (default export of `menu`), honoring
  * `ilpachi-<package>-disable-route`.
  *
- * @param glob - risultato del glob dei `menu` dei package
- * @param env - variabili d'ambiente
- * @returns le factory (funzioni) trovate
+ * @param glob - result of the glob of the packages' `menu` modules
+ * @param env - environment variables
+ * @returns the factories (functions) found
  */
 export function collectPackageMenus(glob: PachiGlob, env: PachiEnv = {}): PachiMenuItemFactory[] {
   return enabledPackageEntries(glob, env)

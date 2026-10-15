@@ -32,7 +32,7 @@
 
     <q-space />
 
-    <!-- Title pill centrata -->
+    <!-- Centered title pill -->
     <div v-if="title && !hideTitle" class="pachi-title-pill">
       <q-icon v-if="icon" :name="icon" size="14px" style="color: var(--pachi-accent)" />
       <span class="pachi-title-text">{{ title }}</span>
@@ -113,7 +113,7 @@ const {
 } = useAppBar()
 const { t } = useI18n()
 const { availableLocales } = useLocale()
-// Lo switcher compare solo se abilitato da config e se c'è più di una lingua
+// The switcher appears only if enabled by config and there is more than one language
 const showLocaleSwitcher = computed(
   () =>
     !appConfig.app.locale &&
@@ -136,7 +136,7 @@ const showLocaleSwitcher = computed(
     color: var(--pachi-accent) !important;
   }
 
-  // logoOverlap: l'icona pende sotto la barra (posizione assoluta, parte alta a 6px dal bordo superiore)
+  // logoOverlap: the icon hangs below the bar (absolute position, top at 6px from the top edge)
   &--overlap {
     position: relative;
     align-self: stretch;

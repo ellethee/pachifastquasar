@@ -1,8 +1,8 @@
 /**
- * Formatta una data come `YYYY-MM-DD` usando i valori locali (non UTC):
- * `toISOString()` a mezzanotte locale darebbe il giorno prima nei fusi a est di UTC.
- * @param date data da formattare
- * @returns stringa `YYYY-MM-DD`
+ * Formats a date as `YYYY-MM-DD` using local values (not UTC):
+ * `toISOString()` at local midnight would give the previous day in time zones east of UTC.
+ * @param date date to format
+ * @returns `YYYY-MM-DD` string
  */
 export function formatLocalDate(date: Date): string {
   const y = String(date.getFullYear()).padStart(4, '0')

@@ -11,10 +11,10 @@ import type {
   PachiViteConf
 } from './types'
 
-/** Alias "v2" ricreati a mano: Quasar v3/Vite non li fornisce più. */
+/** "v2" aliases recreated by hand: Quasar v3/Vite no longer provides them. */
 const V2_ALIASES = ['src', 'assets', 'boot', 'stores', 'features']
 
-/** Pacchetti che devono essere un'unica istanza (il pacchetto e l'app non devono averne due copie). */
+/** Packages that must be a single instance (the package and the app must not have two copies). */
 const SINGLETONS = [
   'vue',
   'vue-router',
@@ -28,11 +28,11 @@ const SINGLETONS = [
 ]
 
 /**
- * Configurazione di base di Quasar per un'app che usa la shell Pachi (SPA).
+ * Base Quasar configuration for an app that uses the Pachi shell (SPA).
  *
- * @param ctx - contesto di Quasar (serve `appPaths.appDir`; senza si usa `process.cwd()`)
- * @param options - opzioni del preset
- * @returns configurazione di Quasar
+ * @param ctx - Quasar context (needs `appPaths.appDir`; without it `process.cwd()` is used)
+ * @param options - preset options
+ * @returns Quasar configuration
  */
 export function createPachiQuasarBase(
   ctx: PachiQuasarContext = {},
@@ -44,9 +44,9 @@ export function createPachiQuasarBase(
   const aliases = [...new Set([...V2_ALIASES, ...(options.aliases ?? [])])]
 
   return {
-    // boot file dell'app (src/boot/pachi.ts): `createPachiApp(ctx, { ... })`
+    // app boot file (src/boot/pachi.ts): `createPachiApp(ctx, { ... })`
     boot: ['pachi'],
-    // stili globali della shell (compilati): vengono dopo il CSS di Quasar e prima di quello dell'app
+    // shell global styles (compiled): they come after the Quasar CSS and before the app one
     css: ['~@ilpachi/pachifastquasar/styles.css'],
     extras: ['roboto-font'],
     build: {
@@ -54,7 +54,7 @@ export function createPachiQuasarBase(
       typescript: {
         strict: true,
         vueShim: true,
-        // `src/*` per il codice dell'app nel tsconfig generato in .quasar/
+        // `src/*` for the app code in the tsconfig generated in .quasar/
         extendTsConfig(tsConfig: Record<string, any>) {
           const qAppPath = tsConfig.compilerOptions?.paths?.['#q-app']
           tsConfig.compilerOptions ??= {}
@@ -66,11 +66,11 @@ export function createPachiQuasarBase(
         }
       },
       vueRouterMode: 'history',
-      // Env locali dell'app (`pachiConfigFromEnv(import.meta.env)` legge QCLI_*): cartella src/ dell'app
+      // App local envs (`pachiConfigFromEnv(import.meta.env)` reads QCLI_*): the app's src/ folder
       extendViteConf(viteConf: PachiViteConf) {
         viteConf.envDir = srcDir
         viteConf.envPrefix = ['VITE_', 'QCLI_']
-        // lightningcss (default Vite 8) rifiuta CSS non valido in qcalendar; esbuild è più permissivo
+        // lightningcss (default Vite 8) rejects invalid CSS in qcalendar; esbuild is more permissive
         viteConf.build = viteConf.build ?? {}
         viteConf.build.cssMinify = 'esbuild'
 
@@ -86,19 +86,19 @@ export function createPachiQuasarBase(
         }
         viteConf.resolve.alias = existing
         viteConf.resolve.dedupe = [...new Set([...(viteConf.resolve.dedupe ?? []), ...SINGLETONS])]
-        // i package @ilpachi/* (rotte, menu, stato di modulo) restano file grezzi: una sola copia in sviluppo
+        // the @ilpachi/* packages (routes, menus, module state) stay raw files: a single copy in development
         const optimizeDeps = (viteConf.optimizeDeps ??= {})
         optimizeDeps.exclude = [
           ...new Set([...(optimizeDeps.exclude ?? []), ...readIlpachiDependencies(appDir)])
         ]
-        // ...ma le loro dipendenze condivise (alova) vanno prebundlate insieme a quelle dell'app
+        // ...but their shared dependencies (alova) must be prebundled together with the app ones
         optimizeDeps.include = [
           ...new Set([...(optimizeDeps.include ?? []), ...readPrebundleDependencies(appDir)])
         ]
 
         viteConf.plugins = viteConf.plugins ?? []
         viteConf.plugins.push(
-          // i messaggi sono oggetti TS (non precompilati dal plugin): serve il message compiler a runtime
+          // messages are TS objects (not precompiled by the plugin): the message compiler is needed at runtime
           VueI18nPlugin({ runtimeOnly: false, include: [path.join(srcDir, 'i18n')] })
         )
         if (options.checker !== false) viteConf.plugins.push(checker({ vueTsc: true }))
@@ -128,22 +128,22 @@ export function createPachiQuasarBase(
 }
 
 /**
- * Preset di `quasar.config.ts` per le app basate su `@ilpachi/pachifastquasar`. Riproduce la configurazione
- * del boilerplate originale: boot `pachi`, stili della shell, alias `src/`, `assets/`, `boot/`, `stores/`,
- * `features/`, env `QCLI_*`/`VITE_*` in `src/`, plugin `unplugin-vue-i18n` (con `runtimeOnly: false`),
- * `vite-plugin-checker`, proxy `/api` verso `QCLI_PROXY_TARGET`, icone `svg-mdi-v7`, plugin Quasar
+ * `quasar.config.ts` preset for apps based on `@ilpachi/pachifastquasar`. It reproduces the configuration
+ * of the original boilerplate: `pachi` boot, shell styles, `src/`, `assets/`, `boot/`, `stores/`,
+ * `features/` aliases, `QCLI_*`/`VITE_*` envs in `src/`, `unplugin-vue-i18n` plugin (with `runtimeOnly: false`),
+ * `vite-plugin-checker`, `/api` proxy to `QCLI_PROXY_TARGET`, `svg-mdi-v7` icons, Quasar plugins
  * `Dialog`, `Notify`, `Loading`, `Dark`.
  *
- * Gli override si uniscono alla base: oggetti in merge ricorsivo, array concatenati, `extendViteConf` e
- * `extendTsConfig` eseguite dopo quelle del preset; con una funzione `(base, ctx) => config` si ha il controllo
- * completo.
+ * Overrides are merged into the base: objects are merged recursively, arrays concatenated, `extendViteConf` and
+ * `extendTsConfig` run after the preset ones; with a function `(base, ctx) => config` you get full
+ * control.
  *
  * @example
  * export default definePachiQuasarConfig({ build: { vueRouterMode: 'hash' } })
  *
- * @param overrides - configurazione dell'app (oggetto o funzione)
- * @param options - opzioni del preset (`proxyTarget`, `port`, `checker`, `lang`, `aliases`)
- * @returns funzione di configurazione per Quasar (`export default`)
+ * @param overrides - app configuration (object or function)
+ * @param options - preset options (`proxyTarget`, `port`, `checker`, `lang`, `aliases`)
+ * @returns configuration function for Quasar (`export default`)
  */
 export function definePachiQuasarConfig(
   overrides: PachiQuasarOverrides = {},
@@ -157,5 +157,5 @@ export function definePachiQuasarConfig(
   }
 }
 
-/** Alias di {@link definePachiQuasarConfig}. */
+/** Alias of {@link definePachiQuasarConfig}. */
 export const pachiQuasarConfig = definePachiQuasarConfig

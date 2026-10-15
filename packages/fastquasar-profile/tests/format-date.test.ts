@@ -4,39 +4,39 @@ import { formatProfileDate, resolveProfileDate } from '../src/helpers/format-dat
 const iso = '2026-10-05T14:02:23.430541Z'
 
 describe('formatProfileDate', () => {
-  it('formatta solo la data in italiano', () => {
+  it('formats the date only, in Italian', () => {
     const out = formatProfileDate(iso, 'it')
     expect(out).toContain('2026')
     expect(out).toContain('ott')
     expect(out).not.toMatch(/:/)
   })
-  it('formatta solo la data in inglese', () => {
+  it('formats the date only, in English', () => {
     expect(formatProfileDate(iso, 'en')).toContain('Oct')
   })
-  it('include l\'ora con withTime', () => {
+  it('includes the time with withTime', () => {
     expect(formatProfileDate(iso, 'it', { withTime: true })).toMatch(/\d{1,2}:\d{2}/)
   })
-  it('null, undefined e vuoto danno null', () => {
+  it('null, undefined and empty give null', () => {
     expect(formatProfileDate(null)).toBeNull()
     expect(formatProfileDate(undefined)).toBeNull()
     expect(formatProfileDate('')).toBeNull()
   })
-  it('stringa non valida dà null senza eccezioni', () => {
-    expect(formatProfileDate('non-una-data')).toBeNull()
+  it('an invalid string gives null without throwing', () => {
+    expect(formatProfileDate('not-a-date')).toBeNull()
   })
-  it('locale non valido ricade su it', () => {
+  it('an invalid locale falls back to it', () => {
     expect(formatProfileDate(iso, 'xx_??!')).toContain('ott')
   })
 })
 
 describe('resolveProfileDate', () => {
-  it('la prop esplicita ha la precedenza', () => {
-    expect(resolveProfileDate('oggi', iso, 'it')).toBe('oggi')
+  it('the explicit prop takes precedence', () => {
+    expect(resolveProfileDate('today', iso, 'it')).toBe('today')
   })
-  it('senza prop usa la data ISO', () => {
+  it('without the prop it uses the ISO date', () => {
     expect(resolveProfileDate(undefined, iso, 'en')).toContain('Oct')
   })
-  it('senza nulla dà null', () => {
+  it('with nothing it gives null', () => {
     expect(resolveProfileDate(undefined, null, 'it')).toBeNull()
   })
 })

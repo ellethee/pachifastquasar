@@ -23,7 +23,7 @@ withDefaults(defineProps<{
   size?: string | number
   color?: string
   secondaryOpacity?: number
-  /** Titolo accessibile: se presente l'icona e' esposta (`role="img"`), altrimenti e' decorativa (`aria-hidden`). */
+  /** Accessible title: if present the icon is exposed (`role="img"`), otherwise it is decorative (`aria-hidden`). */
   title?: string
 }>(), {
   size: 24,

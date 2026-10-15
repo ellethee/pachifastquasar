@@ -1,7 +1,7 @@
-/** Funzioni di estensione di Quasar: se presenti in entrambi i lati si eseguono in sequenza (base, poi override). */
+/** Quasar extension functions: if present on both sides they run in sequence (base, then override). */
 const COMPOSED_FUNCTIONS = new Set(['extendViteConf', 'extendTsConfig'])
 
-/** Oggetto semplice (non array): unico caso in cui si fa merge ricorsivo. */
+/** Plain object (not an array): the only case where a recursive merge is done. */
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   if (typeof value !== 'object' || value === null) return false
   const proto = Object.getPrototypeOf(value)
@@ -9,13 +9,13 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 }
 
 /**
- * Unisce la configurazione di base con gli override dell'app: oggetti in merge ricorsivo, array
- * concatenati (senza duplicati), `extendViteConf`/`extendTsConfig` eseguite in sequenza, qualsiasi altro
- * valore sostituito dall'override.
+ * Merges the base configuration with the app overrides: objects merged recursively, arrays
+ * concatenated (without duplicates), `extendViteConf`/`extendTsConfig` run in sequence, any other
+ * value replaced by the override.
  *
- * @param base - configurazione del preset
- * @param override - configurazione dell'app
- * @returns nuova configurazione (gli argomenti non sono modificati)
+ * @param base - preset configuration
+ * @param override - app configuration
+ * @returns new configuration (the arguments are not modified)
  */
 export function mergeQuasarConfig<T extends Record<string, unknown>>(
   base: T,

@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
-# Gestione del backend pachifast di prova per lo smoke di compatibilita'.
-# Uso: compat/backend.sh <setup|prepare|start|stop|version|all>
+# Management of the test pachifast backend for the compatibility smoke.
+# Usage: compat/backend.sh <setup|prepare|start|stop|version|all>
 # Variabili (tutte opzionali):
-#   COMPAT_PORT         porta del backend (default 8030)
-#   COMPAT_DATA_DIR     cartella dei dati (sqlite, log, pid); default: cartella temporanea nuova
-#   PACHIFAST_VERSION   versione di pachifast dal registro (default: l'ultima)
-#   PACHIFAST_SOURCE    percorso locale di pachifast (solo PROVA in locale: sostituisce il registro)
-#   PACHIFAST_INDEX_URL URL di un indice PyPI alternativo (default: PyPI)
-#   UV_INDEX_NAME       nome dell'indice uv alternativo (default ilpachi); le credenziali stanno in
-#                       UV_INDEX_<NOME>_USERNAME/PASSWORD (mai stampate)
-#   COMPAT_PASSWORD     password degli utenti di prova (credenziale locale usa e getta; default sotto)
+#   COMPAT_PORT         backend port (default 8030)
+#   COMPAT_DATA_DIR     data folder (sqlite, log, pid); default: new temporary folder
+#   PACHIFAST_VERSION   pachifast version from the registry (default: the latest)
+#   PACHIFAST_SOURCE    local path of pachifast (local TESTING only: replaces the registry)
+#   PACHIFAST_INDEX_URL URL of an alternative PyPI index (default: PyPI)
+#   UV_INDEX_NAME       name of the alternative uv index (default ilpachi); credentials are in
+#                       UV_INDEX_<NAME>_USERNAME/PASSWORD (never printed)
+#   COMPAT_PASSWORD     password of the test users (throwaway local credential; default below)
 set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -19,7 +19,7 @@ PORT="${COMPAT_PORT:-8030}"
 STATE_FILE="${HERE}/.state"
 COMPAT_PASSWORD="${COMPAT_PASSWORD:-Compat-Test-1234!}"
 
-# Carica/inizializza la cartella dati (persistita in .state per i comandi successivi).
+# Loads/initializes the data folder (persisted in .state for subsequent commands).
 load_state() {
   if [ -z "${COMPAT_DATA_DIR:-}" ] && [ -f "${STATE_FILE}" ]; then
     COMPAT_DATA_DIR="$(cat "${STATE_FILE}")"
@@ -31,11 +31,11 @@ load_state() {
   printf '%s' "${COMPAT_DATA_DIR}" > "${STATE_FILE}"
 }
 
-# Crea il venv e installa pachifast (dal registro, oppure da PACHIFAST_SOURCE).
+# Creates the venv and installs pachifast (from the registry, or from PACHIFAST_SOURCE).
 setup_backend() {
   uv venv --quiet "${VENV}"
   if [ -n "${PACHIFAST_SOURCE:-}" ]; then
-    echo "ATTENZIONE: pachifast da sorgente locale (${PACHIFAST_SOURCE}), non dal registro"
+    echo "WARNING: pachifast from local source (${PACHIFAST_SOURCE}), not from the registry"
     uv pip install --quiet --python "${VENV}/bin/python" "${PACHIFAST_SOURCE}"
   else
     local spec="pachifast"
@@ -51,12 +51,12 @@ setup_backend() {
   version_backend
 }
 
-# Stampa la versione di pachifast installata.
+# Prints the installed pachifast version.
 version_backend() {
   "${VENV}/bin/pachifast" --version
 }
 
-# Inizializza database, migrazioni e utenti di prova.
+# Initializes the database, migrations and test users.
 prepare_backend() {
   load_state
   cd "${BACKEND_DIR}"
@@ -66,10 +66,10 @@ prepare_backend() {
   pachifast migrations upgrade --target-name compat > /dev/null
   pachifast users create admin --superuser --password "${COMPAT_PASSWORD}" --email admin@example.com > /dev/null
   pachifast users create limited --password "${COMPAT_PASSWORD}" --email limited@example.com > /dev/null
-  echo "Backend preparato (dati in ${COMPAT_DATA_DIR})"
+  echo "Backend prepared (data in ${COMPAT_DATA_DIR})"
 }
 
-# Avvia il backend in background e attende che risponda.
+# Starts the backend in the background and waits for it to respond.
 start_backend() {
   load_state
   cd "${BACKEND_DIR}"
@@ -79,24 +79,24 @@ start_backend() {
   local i
   for i in $(seq 1 60); do
     if curl -fsS "http://127.0.0.1:${PORT}/api/health/" > /dev/null 2>&1; then
-      echo "Backend pronto su http://127.0.0.1:${PORT} (pid $(cat "${COMPAT_DATA_DIR}/backend.pid"))"
+      echo "Backend ready at http://127.0.0.1:${PORT} (pid $(cat "${COMPAT_DATA_DIR}/backend.pid"))"
       return 0
     fi
     sleep 1
   done
-  echo "Backend non raggiungibile; ultime righe del log:" >&2
+  echo "Backend unreachable; last log lines:" >&2
   tail -n 30 "${COMPAT_DATA_DIR}/backend.log" >&2 || true
   return 1
 }
 
-# Ferma il backend per PID.
+# Stops the backend by PID.
 stop_backend() {
   load_state
   local pidfile="${COMPAT_DATA_DIR}/backend.pid"
   if [ -f "${pidfile}" ]; then
     kill "$(cat "${pidfile}")" 2> /dev/null || true
     rm -f "${pidfile}"
-    echo "Backend fermato"
+    echo "Backend stopped"
   fi
 }
 
@@ -108,7 +108,7 @@ main() {
     stop) stop_backend ;;
     version) version_backend ;;
     all) setup_backend && prepare_backend && start_backend ;;
-    *) echo "Uso: $0 <setup|prepare|start|stop|version|all>" >&2; exit 2 ;;
+    *) echo "Usage: $0 <setup|prepare|start|stop|version|all>" >&2; exit 2 ;;
   esac
 }
 

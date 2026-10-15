@@ -10,21 +10,21 @@ import {
 } from 'src/core/config'
 
 describe('resolvePachiConfig', () => {
-  it('senza input restituisce i default', () => {
+  it('without input returns the defaults', () => {
     expect(resolvePachiConfig()).toEqual(DEFAULT_PACHI_CONFIG)
   })
-  it('fa merge ricorsivo senza perdere i default', () => {
+  it('merges recursively without losing the defaults', () => {
     const cfg = resolvePachiConfig({ app: { title: 'X' }, auth: { menu: { showHome: false } } })
     expect(cfg.app.title).toBe('X')
     expect(cfg.app.description).toBe(DEFAULT_PACHI_CONFIG.app.description)
     expect(cfg.auth.menu).toEqual({ showProfile: true, showSettings: true, showHome: false })
   })
-  it('i valori undefined non sovrascrivono i default', () => {
+  it('undefined values do not override the defaults', () => {
     expect(resolvePachiConfig({ app: { title: undefined } as never }).app.title).toBe(
       DEFAULT_PACHI_CONFIG.app.title
     )
   })
-  it('non fa merge dei componenti (oggetti con prototipo non semplice) e degli array', () => {
+  it('does not merge components (objects with a non-plain prototype) or arrays', () => {
     class Comp {}
     const logo = new Comp() as never
     const cfg = resolvePachiConfig({ logo, menuItems: [{ label: 'a' }] })
@@ -34,7 +34,7 @@ describe('resolvePachiConfig', () => {
 })
 
 describe('setPachiConfig / getPachiConfig', () => {
-  it('registra la config risolta', () => {
+  it('registers the resolved config', () => {
     const cfg = setPachiConfig({ auth: { enabled: false } })
     expect(getPachiConfig()).toBe(cfg)
     expect(getPachiConfig().auth.enabled).toBe(false)
@@ -47,7 +47,7 @@ describe('pachiConfigFromEnv', () => {
   it('env vuoto = default del boilerplate', () => {
     expect(resolvePachiConfig(pachiConfigFromEnv({}))).toEqual(DEFAULT_PACHI_CONFIG)
   })
-  it('QCLI_APP_LOGO_SIZE imposta app.logoSize; il default è 36px', () => {
+  it('QCLI_APP_LOGO_SIZE imposta app.logoSize; the default is 36px', () => {
     expect(resolvePachiConfig({}).app.logoSize).toBe('36px')
     expect(pachiConfigFromEnv({ QCLI_APP_LOGO_SIZE: '48px' })).toEqual({ app: { logoSize: '48px' } })
   })
@@ -56,12 +56,12 @@ describe('pachiConfigFromEnv', () => {
     expect(pachiConfigFromEnv({ QCLI_APP_LOGO_OVERLAP: 'true' })).toEqual({ app: { logoOverlap: true } })
     expect(pachiConfigFromEnv({ QCLI_APP_LOGO_OVERLAP: 'false' })).toEqual({ app: { logoOverlap: false } })
   })
-  it('contiene solo le variabili impostate (vuote = assenti)', () => {
+  it('contains only the variables that are set (empty = absent)', () => {
     expect(pachiConfigFromEnv({})).toEqual({})
     expect(pachiConfigFromEnv({ QCLI_APP_TITLE: '', QCLI_APP_LOCALE: '  ' })).toEqual({})
     expect(pachiConfigFromEnv({ QCLI_APP_TITLE: 'X' })).toEqual({ app: { title: 'X' } })
   })
-  it('legge le variabili QCLI_* e VITE_*', () => {
+  it('reads the QCLI_* and VITE_* variables', () => {
     const cfg = resolvePachiConfig(
       pachiConfigFromEnv({
         VITE_AUTH_ENABLED: 'false',
@@ -87,7 +87,7 @@ describe('pachiConfigFromEnv', () => {
     expect(DEFAULT_PACHI_CONFIG.app.gravatar).toBe(false)
     expect(cfg.app.hoverEffectsEnabled).toBe(false)
   })
-  it('QCLI_HTTP_ENVELOPE: default true, false solo se impostata a false, assente se non impostata', () => {
+  it('QCLI_HTTP_ENVELOPE: default true, false only if set to false, absent if not set', () => {
     expect(DEFAULT_PACHI_CONFIG.http.envelope).toBe(true)
     expect(pachiConfigFromEnv({})).toEqual({})
     expect(pachiConfigFromEnv({ QCLI_HTTP_ENVELOPE: 'false' })).toEqual({ http: { envelope: false } })
@@ -102,16 +102,16 @@ describe('mergePachiConfig / definePachiConfig', () => {
     app: { title: 'Mia', gravatar: false, locale: 'it' },
     logo: 'img:/logo.svg'
   }
-  it('l\'env non sovrascrive ciò che non imposta e non perde chiavi della base', () => {
+  it('env does not override what it does not set and does not lose base keys', () => {
     const cfg = definePachiConfig(base, { QCLI_APP_TITLE: 'Da env' })
     expect(cfg.app).toEqual({ title: 'Da env', gravatar: false, locale: 'it' })
     expect(cfg.auth?.menu?.showHome).toBe(false)
     expect(cfg.logo).toBe('img:/logo.svg')
   })
-  it('senza variabili la base resta intatta', () => {
+  it('without variables the base stays intact', () => {
     expect(definePachiConfig(base, {})).toEqual(base)
   })
-  it('gli override finali vincono anche sull\'env; undefined non sovrascrive; array sostituiscono', () => {
+  it('final overrides win over env too; undefined does not override; arrays replace', () => {
     const cfg = definePachiConfig(
       base,
       { QCLI_APP_TITLE: 'Da env' },
@@ -121,7 +121,7 @@ describe('mergePachiConfig / definePachiConfig', () => {
     expect(cfg.app?.locale).toBe('it')
     expect(cfg.menuItems).toEqual([{ label: 'a' }])
   })
-  it('mergePachiConfig non muta gli argomenti', () => {
+  it('mergePachiConfig does not mutate its arguments', () => {
     const copy = structuredClone(base)
     mergePachiConfig(base, { app: { title: 'x' } })
     expect(base).toEqual(copy)

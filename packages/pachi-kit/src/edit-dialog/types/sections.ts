@@ -5,7 +5,7 @@ export interface IContainerProps {
   title?: string
   [key: string]: unknown
 }
-/** Tipo di contenitore: `card` (QCard), `expansion` (QExpansionItem), `div`; altre stringhe ricadono su `div`. */
+/** Container type: `card` (QCard), `expansion` (QExpansionItem), `div`; other strings fall back to `div`. */
 export type ContainerType = 'card' | 'expansion' | 'div' | (string & {})
 export interface IContainer extends IContainerProps {
   type: ContainerType
@@ -18,7 +18,7 @@ export interface IContainerComponent {
 
 export interface ISectionExpose<T = unknown> {
   reset: () => void | Promise<void>
-  /** Rifà il baseline dallo stato corrente (chiamata dopo un salvataggio riuscito). */
+  /** Rebuilds the baseline from the current state (called after a successful save). */
   commit?: () => void
   getResults: () => T | Promise<T>
   hasChanges: () => boolean
@@ -39,13 +39,13 @@ export interface ISectionDefinition<T = unknown> {
   side?: boolean
 }
 
-/** Stato della sezione demo `SchedulerSection` (date `YYYY-MM-DD` locali). */
+/** State of the `SchedulerSection` demo section (local `YYYY-MM-DD` dates). */
 export interface SchedulerState {
   enabled: boolean
   selectedDates: string[]
 }
 
-/** Stato della sezione demo `PermissionsSection`. */
+/** State of the `PermissionsSection` demo section. */
 export interface PermissionsState {
   roles: string[]
   users: string[]

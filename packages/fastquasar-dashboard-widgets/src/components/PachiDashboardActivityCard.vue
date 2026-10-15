@@ -56,16 +56,16 @@ import { usePachiI18n } from '@ilpachi/pachi-i18n'
 import { messages } from '../locales'
 
 /**
- * Widget dashboard delle attività recenti: richiede `url` (GET JSON, array di attività) e le mostra come testo.
- * Stili autonomi (classi `pachi-pdw-*`, default `--pachi-*` a specificità zero): se l'app definisce le variabili `--pachi-*` hanno la precedenza.
+ * Recent activity dashboard widget: requires `url` (GET JSON, array of activities) and shows them as text.
+ * Self-contained styles (`pachi-pdw-*` classes, `--pachi-*` defaults at zero specificity): if the app defines the `--pachi-*` variables they take precedence.
  */
 const props = withDefaults(
   defineProps<{
-    /** Endpoint da interrogare (reattivo: un cambio rilancia la richiesta). */
+    /** Endpoint to query (reactive: a change triggers a new request). */
     url: string
-    /** Client HTTP opzionale; se assente si usa quello registrato con `setPachiWidgetsHttp`. */
+    /** Optional HTTP client; if absent, the one registered with `setPachiWidgetsHttp` is used. */
     http?: IPachiWidgetsHttp
-    /** Intervallo di aggiornamento in ms; 0 (default) = nessun polling. */
+    /** Refresh interval in ms; 0 (default) = no polling. */
     refreshInterval?: number
   }>(),
   { refreshInterval: 0 },

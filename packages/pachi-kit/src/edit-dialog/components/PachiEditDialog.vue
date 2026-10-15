@@ -172,11 +172,11 @@ const {
   shared?: Record<string, unknown>,
   commonProps?: Record<string, unknown>
   /**
-   * Chiude il dialog dopo `onSuccess` (default `true`). Con `false` resta aperto, il salvato diventa il
-   * nuovo baseline e compare l'etichetta "salvato adesso".
+   * Closes the dialog after `onSuccess` (default `true`). With `false` it stays open, the saved state becomes the
+   * new baseline and the "saved just now" label appears.
    */
   closeOnSave?: boolean
-  /** Mostra l'etichetta di testo accanto all'icona dei pulsanti d'azione (default `false`: solo icona con tooltip). */
+  /** Shows the text label next to the icon of the action buttons (default `false`: icon only with tooltip). */
   showActionLabels?: boolean
 }>()
 
@@ -200,12 +200,12 @@ const now = ref(Date.now())
 const lastSavedAt = ref<number | null>(null)
 let clockHandle: ReturnType<typeof setInterval> | null = null
 
-/** Ferma l'orologio dell'indicatore "salvato". */
+/** Stops the clock of the "saved" indicator. */
 function stopClock() {
   if (clockHandle) clearInterval(clockHandle)
   clockHandle = null
 }
-/** Avvia l'orologio solo dopo un salvataggio; si ferma da solo dopo 60s (etichetta statica). */
+/** Starts the clock only after a save; it stops by itself after 60s (static label). */
 function startClock() {
   stopClock()
   now.value = Date.now()
@@ -231,10 +231,10 @@ const hasUnsavedChanges = computed(() => {
 })
 
 // ── Save ─────────────────────────────────────────────────────────────────────
-// anti-rientro: un secondo salvataggio mentre il primo non ha chiamato onSuccess/onError e' ignorato
+// re-entry guard: a second save while the first has not called onSuccess/onError is ignored
 const saveGuard = createSubmitGuard()
 
-/** Notifica un errore di salvataggio (anche inatteso: validazione, raccolta risultati) e scuote il dialog. */
+/** Notifies a save error (even unexpected: validation, results collection) and shakes the dialog. */
 function notifySaveError(error: unknown) {
   shakeDialog()
   $q.notify({
@@ -273,7 +273,7 @@ async function save() {
       data: { sections: results, sharedState: sharedState.value },
       onSuccess: () => {
         saveGuard.leave()
-        // il salvato diventa il nuovo baseline: la chiusura non chiede più di scartare modifiche
+        // the saved state becomes the new baseline: closing no longer asks to discard changes
         sectionsContainer.value?.commitAll()
         sideSectionsContainer.value?.commitAll()
         lastSavedAt.value = Date.now()
@@ -300,8 +300,8 @@ async function reset() {
   }
 }
 
-// 'shake' viene emesso da QDialog sia per ESC/click esterno con `persistent` (tentativo di chiusura
-// dell'utente) sia per shake() programmatici: questi ultimi vanno ignorati
+// 'shake' is emitted by QDialog both for ESC/outside click with `persistent` (user's attempt to
+// close) and for programmatic shake() calls: the latter must be ignored
 let internalShake = false
 function shakeDialog() {
   const dialog = dialogRef.value as { shake?: () => void } | undefined
@@ -310,19 +310,19 @@ function shakeDialog() {
     try { dialog.shake() } finally { internalShake = false }
   }
 }
-/** ESC/click esterno con modifiche non salvate: propone la conferma di chiusura. */
+/** ESC/outside click with unsaved changes: offers the close confirmation. */
 function onUserDismissAttempt() {
   if (!internalShake) onDialogCancel()
 }
 
-/** Con modifiche non salvate (e `avoidHideWithChanges`) il dialog è `persistent`. */
+/** With unsaved changes (and `avoidHideWithChanges`) the dialog is `persistent`. */
 const blockHide = computed(() => avoidHideWithChanges && hasUnsavedChanges.value)
 
-/** Chiude il dialog; con modifiche non salvate chiede prima conferma. */
+/** Closes the dialog; with unsaved changes it first asks for confirmation. */
 let discardOpen = false
 function onDialogCancel() {
   if (blockHide.value) {
-    // la conferma e' unica: finche' e' aperta ESC/backdrop/chiudi non ne impilano altre
+    // the confirmation is unique: while it is open ESC/backdrop/close do not stack others
     if (discardOpen) return
     discardOpen = true
     $q.dialog({

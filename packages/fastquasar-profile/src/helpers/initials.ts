@@ -1,10 +1,10 @@
 import type { IPachiProfileUser } from '../types/profile'
 
 /**
- * Iniziali (maiuscole) dell'utente: nome + cognome, altrimenti la prima lettera dello username.
+ * User initials (uppercase): first name + last name, otherwise the first letter of the username.
  *
- * @param user - utente (anche assente: restituisce stringa vuota)
- * @returns iniziali
+ * @param user - user (may be missing: returns an empty string)
+ * @returns initials
  */
 export function getInitials(user: IPachiProfileUser | null | undefined): string {
   if (!user) return ''

@@ -5,7 +5,7 @@ import type { PachiMenuItemFactory } from '../../components/AccountMenuButton/ty
 
 export interface IAuthConfig {
   enabled: boolean
-  /** Dove persistere i token e i dati utente: `local` (localStorage, default) o `session` (sessionStorage). */
+  /** Where to persist tokens and user data: `local` (localStorage, default) or `session` (sessionStorage). */
   storage: 'local' | 'session'
   menu: {
     showProfile: boolean
@@ -19,77 +19,77 @@ export interface IAppSettings {
   title: string
   description: string
   showAppLogo?: boolean
-  /** Dimensione del logo nella barra (lunghezza CSS, default `36px`). Anche `QCLI_APP_LOGO_SIZE` o `--pachi-app-logo-size`. */
+  /** Logo size in the bar (CSS length, default `36px`). Also `QCLI_APP_LOGO_SIZE` or `--pachi-app-logo-size`. */
   logoSize?: string
   /**
-   * Con un logo più alto della barra: `false` (default) la barra cresce per contenerlo (l'elmo non viene mai tagliato);
-   * `true` la barra resta di 52px e il logo "pende" sotto di essa (parte alta sempre dentro la pagina).
+   * With a logo taller than the bar: `false` (default) the bar grows to contain it (the helmet is never cut off);
+   * `true` the bar stays 52px and the logo "hangs" below it (top always inside the page).
    */
   logoOverlap?: boolean
-  /** Lingua fissa (es. `it`): niente rilevamento né selettore, solo quella lingua. Vuoto = lingua scelta dall'utente. */
+  /** Fixed language (e.g. `it`): no detection or selector, only that language. Empty = language chosen by the user. */
   locale?: string | undefined
-  /** Le route con figli mostrano la dashboard di card (default true). Override per route: `meta.dashboard`. */
+  /** Routes with children show the card dashboard (default true). Per-route override: `meta.dashboard`. */
   autoDashboard?: boolean
   showLocaleSwitcher?: boolean
-  /** Nasconde l'header (titolo/descrizione) della dashboard home. */
+  /** Hides the header (title/description) of the home dashboard. */
   hideHubHeader?: boolean
-  /** Larghezza massima della dashboard (lunghezza CSS, es. `1400px`, `90%`, `none`; default `1080px`). Per route: `meta.dashboardMaxWidth`. Anche `QCLI_APP_DASHBOARD_MAX_WIDTH`. */
+  /** Maximum dashboard width (CSS length, e.g. `1400px`, `90%`, `none`; default `1080px`). Per route: `meta.dashboardMaxWidth`. Also `QCLI_APP_DASHBOARD_MAX_WIDTH`. */
   dashboardMaxWidth?: string | undefined
-  /** Colonne della griglia di card: un numero (`3` = `repeat(3, 1fr)`) o un `grid-template-columns` CSS (default 3 colonne). Per route: `meta.dashboardColumns`. Anche `QCLI_APP_DASHBOARD_COLUMNS`. */
+  /** Card grid columns: a number (`3` = `repeat(3, 1fr)`) or a CSS `grid-template-columns` (default 3 columns). Per route: `meta.dashboardColumns`. Also `QCLI_APP_DASHBOARD_COLUMNS`. */
   dashboardColumns?: number | string | undefined
   /**
-   * Animazione del titolo delle card della dashboard al passaggio del mouse: `rubber-band` (default), `pulse`, `shake`,
-   * `wobble`, `tada`, `bounce` o `none` per disabilitarla. Per card: `meta.titleAnimation` della route. Anche
-   * `QCLI_APP_TITLE_ANIMATION`. Gli effetti hover disattivati (`hoverEffectsEnabled`) o `prefers-reduced-motion` la spengono comunque.
+   * Dashboard card title animation on mouse hover: `rubber-band` (default), `pulse`, `shake`,
+   * `wobble`, `tada`, `bounce` or `none` to disable it. Per card: the route's `meta.titleAnimation`. Also
+   * `QCLI_APP_TITLE_ANIMATION`. Disabled hover effects (`hoverEffectsEnabled`) or `prefers-reduced-motion` turn it off anyway.
    */
   titleAnimation?: PachiTitleAnimation | undefined
-  /** Usa Gravatar per gli avatar (default false, opt-in: invia a terzi l'hash SHA-256 dell'email); false = solo iniziali, nessuna richiesta esterna. */
+  /** Use Gravatar for avatars (default false, opt-in: sends the SHA-256 hash of the email to third parties); false = initials only, no external request. */
   gravatar?: boolean
   hoverEffectsEnabled?: boolean
 }
 
-/** Impostazioni del client HTTP (`@ilpachi/use-alova`). */
+/** HTTP client settings (`@ilpachi/use-alova`). */
 export interface IHttpConfig {
   /**
-   * Il backend risponde con l'envelope `{ success, message, data }` (default `true`): il client restituisce
-   * solo `data`. Va messo a `false` se il backend ha `PACHIFAST_ENVELOPE_ENABLED=false` (corpo semplice).
+   * The backend responds with the `{ success, message, data }` envelope (default `true`): the client returns
+   * only `data`. Set to `false` if the backend has `PACHIFAST_ENVELOPE_ENABLED=false` (plain body).
    */
   envelope: boolean
 }
 
-/** Logo dell'app: path SVG (es. icona mdi), `img:<url>` oppure un componente Vue. */
+/** App logo: SVG path (e.g. mdi icon), `img:<url>` or a Vue component. */
 export type PachiLogo = string | Component
 
-/** Componenti della shell sostituibili dall'app (tutti opzionali: il default è quello del pacchetto). */
+/** Shell components replaceable by the app (all optional: the default is the package's). */
 export interface IPachiComponents {
-  /** Layout principale (sostituisce `MainLayout`). */
+  /** Main layout (replaces `MainLayout`). */
   layout?: Component | (() => Promise<unknown>)
-  /** Pagina di login (sostituisce `LoginPage`). */
+  /** Login page (replaces `LoginPage`). */
   loginPage?: Component | (() => Promise<unknown>)
-  /** Pagina 404 (sostituisce `ErrorNotFound`). */
+  /** 404 page (replaces `ErrorNotFound`). */
   errorPage?: Component | (() => Promise<unknown>)
 }
 
-/** Configurazione completa e risolta (con i default applicati) della shell. */
+/** Complete, resolved shell configuration (with defaults applied). */
 export interface IAppConfig {
   auth: IAuthConfig
   app: IAppSettings
-  /** Client HTTP. */
+  /** HTTP client. */
   http: IHttpConfig
-  /** Logo dell'app (default: logo Pachi). Usato da route home, AppBar e login. */
+  /** App logo (default: Pachi logo). Used by the home route, AppBar and login. */
   logo?: PachiLogo
-  /** Componenti della shell sostituibili. */
+  /** Replaceable shell components. */
   components?: IPachiComponents
   /**
-   * Personalizza le voci del menu account: un array (voci aggiunte in coda) oppure una funzione che
-   * riceve le voci calcolate (default + package) e restituisce l'elenco finale.
+   * Customizes the account menu items: an array (items appended at the end) or a function that
+   * receives the computed items (default + packages) and returns the final list.
    */
   menuItems?: IMenuButton[] | ((items: IMenuButton[]) => IMenuButton[])
-  /** Factory delle voci di menu registrate dall'app (oltre a quelle scoperte nei package). */
+  /** Menu item factories registered by the app (in addition to those discovered in packages). */
   menuFactories?: PachiMenuItemFactory[]
 }
 
-/** Configurazione accettata da `setPachiConfig` / `createPachiApp` / `createPachiRouter`: tutto opzionale. */
+/** Configuration accepted by `setPachiConfig` / `createPachiApp` / `createPachiRouter`: everything optional. */
 export interface PachiConfigInput {
   auth?: Partial<Omit<IAuthConfig, 'menu'>> & { menu?: Partial<IAuthConfig['menu']> }
   app?: Partial<IAppSettings>
@@ -100,5 +100,5 @@ export interface PachiConfigInput {
   menuFactories?: IAppConfig['menuFactories']
 }
 
-/** Sottoinsieme di `import.meta.env` letto da `pachiConfigFromEnv`. */
+/** Subset of `import.meta.env` read by `pachiConfigFromEnv`. */
 export type PachiEnv = Record<string, unknown>

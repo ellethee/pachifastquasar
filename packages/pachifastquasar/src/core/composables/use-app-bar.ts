@@ -9,18 +9,18 @@ const { getPaletteColor } = colors
 type Crumb = { label: string; to: string; icon: string | undefined }
 
 /**
- * Converte un'icona (formato Quasar) in un valore CSS url(...) utilizzabile
- * come background-image.
+ * Converts an icon (Quasar format) into a CSS url(...) value usable
+ * as background-image.
  *
- * Formati supportati:
- *   - 'img:URL'   → url('URL')                   (import Vite / path immagine)
- *   - 'M...'      → data URI SVG inline            (path MDI da @quasar/extras)
+ * Supported formats:
+ *   - 'img:URL'   → url('URL')                   (Vite import / image path)
+ *   - 'M...'      → inline SVG data URI           (MDI path from @quasar/extras)
  */
 function iconToCssUrl(icon: string, fill = '#000000'): string | undefined {
   if (icon.startsWith('img:')) {
     return `url('${icon.slice(4)}')`
   }
-  // SVG path data: i path MDI iniziano sempre con 'M' o 'm'
+  // SVG path data: MDI paths always start with 'M' o 'm'
   if (/^[Mm]/.test(icon)) {
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="${fill}" d="${icon}"/></svg>`
     return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`
@@ -50,7 +50,7 @@ export function useAppBar() {
         to: r.path
       }))
 
-    // se l'ultimo segmento ha path vuoto (route index ''), usa il path corrente
+    // if the last segment has an empty path (index route ''), use the current path
     const last = list[list.length - 1]
     if (last && last.to === '') {
       last.to = route.path
@@ -85,9 +85,9 @@ export function useAppBar() {
   }
 
   /**
-   * Scorre route.matched dal figlio verso il parent e restituisce il primo
-   * nodo che ha meta.useMyIcon = true.
-   * Non usa il meta mergiato: ogni livello viene valutato individualmente.
+   * Walks route.matched from the child to the parent and returns the first
+   * node with meta.useMyIcon = true.
+   * Does not use the merged meta: each level is evaluated individually.
    */
   function findMyIconRoute() {
     const matched = [...route.matched].reverse()
@@ -100,20 +100,20 @@ export function useAppBar() {
     if (!color) return getPaletteColor('primary')
     if (color.startsWith('#')) return color
     if (color === 'auto') {
-      // Se il colore è 'auto', restituisce il colore del testo dell'app bar
+      // If the color is 'auto', returns the app bar text color
       return (
         getComputedStyle(document.documentElement).getPropertyValue('--pachi-body-color') ||
         '#000000'
       )
     }
     if (color.startsWith('var(--')) {
-      // Estrae il nome della variabile CSS da 'var(--name)' e restituisce il suo valore
+      // Extracts the CSS variable name from 'var(--name)' and returns its value
       const varName = color.slice(4, -1).trim()
       return getComputedStyle(document.documentElement).getPropertyValue(varName) || '#000000'
     }
     return getPaletteColor(color) || '#000000'
   }
-  /** CSS url(...) da usare come background-image del layout. */
+  /** CSS url(...) to use as the layout background-image. */
   const layoutBgImage = computed<string | undefined>(() => {
     const r = findMyIconRoute()
     const ic = r?.meta?.icon
@@ -122,9 +122,9 @@ export function useAppBar() {
   })
 
   /**
-   * Stile inline aggiuntivo per il div .pachi-layout-bg.
-   * Permette di personalizzare opacity, background-size, ecc. per rotta.
-   * Esempio nel meta: bgStyle: { opacity: '0.12', backgroundSize: 'cover' }
+   * Additional inline style for the .pachi-layout-bg div.
+   * Allows customizing opacity, background-size, etc. per route.
+   * Example in meta: bgStyle: { opacity: '0.12', backgroundSize: 'cover' }
    */
   const layoutBgStyle = computed<Record<string, string>>(() => {
     const r = findMyIconRoute()

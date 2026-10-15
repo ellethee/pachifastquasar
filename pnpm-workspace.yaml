@@ -1,6 +1,6 @@
-# Monorepo @ilpachi: i package vivono in packages/*, l'app di prova in playground/.
-# Tra package del workspace si usa `workspace:*` (pnpm lo riscrive nella versione reale in pack/publish).
-# Tutti i package @ilpachi (tranne il deprecato httpachi) vivono in packages/*; sono pubblicati su npmjs (scope @ilpachi); `@ilpachi/use-alova` (esterno) si risolve da npmjs.
+# @ilpachi monorepo: the packages live in packages/*, the test app in playground/.
+# Between workspace packages `workspace:*` is used (pnpm rewrites it to the real version on pack/publish).
+# All @ilpachi packages (except the deprecated httpachi) live in packages/*; they are published on npmjs (scope @ilpachi); `@ilpachi/use-alova` (external) is resolved from npmjs.
 packages:
   - packages/*
   - playground
@@ -21,17 +21,17 @@ minimumReleaseAgeExclude:
   - '@ilpachi/*'
 
 
-# Advisory noti e accettati (solo strumenti di build, nessun codice nei bundle pubblicati):
-# - GHSA-vfj7-8cjw-p6xm: braces (fast-glob > micromatch, via @intlify/unplugin-vue-i18n), nessuna versione corretta
-# - GHSA-g7r4-m6w7-qqqr: esbuild (vite-plugin-checker > vite), severità low, serve vite con esbuild >=0.28.1
+# Known and accepted advisories (build tools only, no code in the published bundles):
+# - GHSA-vfj7-8cjw-p6xm: braces (fast-glob > micromatch, via @intlify/unplugin-vue-i18n), no fixed version
+# - GHSA-g7r4-m6w7-qqqr: esbuild (vite-plugin-checker > vite), severity low, needs vite with esbuild >=0.28.1
 auditConfig:
   ignoreGhsas:
     - GHSA-vfj7-8cjw-p6xm
     - GHSA-g7r4-m6w7-qqqr
 
-# vite-plugin-dts 5 (unplugin-dts) dichiara peer `@vue/language-core ^3`, ma i d.ts dei componenti .vue
-# restano equivalenti a quelli di vite-plugin-dts 4 (language-core 2.2) solo con 2.2.x: per i consumatori con
-# `exactOptionalPropertyTypes` quelli di language-core 3 cambiano forma (vedi CONTRIBUTING.md).
+# vite-plugin-dts 5 (unplugin-dts) declares peer `@vue/language-core ^3`, but the d.ts of the .vue components
+# stay equivalent to those of vite-plugin-dts 4 (language-core 2.2) only with 2.2.x: for consumers with
+# `exactOptionalPropertyTypes` those of language-core 3 change shape (see CONTRIBUTING.md).
 peerDependencyRules:
   allowedVersions:
     'unplugin-dts>@vue/language-core': '2'

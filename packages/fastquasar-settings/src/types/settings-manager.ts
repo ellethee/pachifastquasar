@@ -1,68 +1,68 @@
 import type { Component } from 'vue'
 import type { SettingsActionSpec } from '../helpers/actions'
 
-/** Componente Vue risolto per un campo dello schema (QInput, QToggle, componente custom, ...). */
+/** Vue component resolved for a schema field (QInput, QToggle, custom component, ...). */
 export type ComponentType = Component
 export type Primitive = string | number | boolean | null
 export type SettingValue = Primitive | IUserSettings
 
-/** Insieme di impostazioni (chiave -> valore, anche annidato). */
+/** Set of settings (key -> value, possibly nested). */
 export interface IUserSettings {
   [key: string]: SettingValue
 }
 
-/** Risposta dell'endpoint delle impostazioni utente (categoria -> impostazioni). */
+/** Response of the user settings endpoint (category -> settings). */
 export interface IUserSettingsResponse {
   [category: string]: IUserSettings
 }
 
-/** Descrizione di un singolo campo dello schema. */
+/** Description of a single schema field. */
 export interface ISettingsSchema {
   component: string
   label?: string
-  /** Chiave i18n del testo di `label` (es. `settings.audit.disable_activity_log.label`). */
+  /** i18n key of the `label` text (e.g. `settings.audit.disable_activity_log.label`). */
   labelKey?: string
-  /** Chiavi i18n delle proprietà di testo: `{ nomeProprietà: chiave }`. */
+  /** i18n keys of the text properties: `{ propertyName: key }`. */
   propertyKeys?: Record<string, string>
-  /** Chiavi i18n delle etichette delle opzioni: `{ valore: chiave }`. */
+  /** i18n keys of the option labels: `{ value: key }`. */
   optionKeys?: Record<string, string>
   properties?: Record<string, unknown>
   /**
-   * Valore predefinito (JSON, anche `null`) esposto dal backend per i campi non obbligatori (pachifast >= 0.6.0).
-   * Usato da "Reimposta l'aspetto" e dagli applier su `reset`; senza di esso valgono i fallback del frontend.
+   * Default value (JSON, also `null`) exposed by the backend for non-required fields (pachifast >= 0.6.0).
+   * Used by "Reset appearance" and by appliers on `reset`; without it the frontend fallbacks apply.
    */
   default?: unknown
   /**
-   * Nome di un applier (`theme`, `accent`, `density`, `fontScale`, `reduceMotion`, `locale` o uno registrato con
-   * `registerSettingsApplier`) eseguito al caricamento, a ogni modifica e dalla cache al boot.
+   * Name of an applier (`theme`, `accent`, `density`, `fontScale`, `reduceMotion`, `locale` or one registered with
+   * `registerSettingsApplier`) run on load, on every change and from the cache at boot.
    */
   apply?: string | null
-  /** `{ evento Vue: azione }`; l'azione è una stringa legacy o `{ action, args }`. */
+  /** `{ Vue event: action }`; the action is a legacy string or `{ action, args }`. */
   events?: Record<string, SettingsActionSpec>
   /**
-   * `{ campo osservato: azione }` (il campo può stare nella stessa sezione, o essere `sezione.campo`)
-   * oppure `true` (legacy: riusa `events` sul valore del campo stesso).
+   * `{ watched field: action }` (the field can be in the same section, or be `section.field`)
+   * or `true` (legacy: reuses `events` on the field's own value).
    */
   watch?: Record<string, SettingsActionSpec> | boolean
   [key: string]: unknown
 }
 
-/** Campo dello schema con il componente già risolto. */
+/** Schema field with the component already resolved. */
 export interface ISettingsSchemaExtended extends Omit<ISettingsSchema, 'component'> {
   component: ComponentType
 }
 
-/** Categoria (sezione) dello schema. */
+/** Schema category (section). */
 export interface ISettingsCategory {
   title: string
-  /** Chiave i18n del titolo (es. `settings.preferences.title`). */
+  /** i18n key of the title (e.g. `settings.preferences.title`). */
   titleKey?: string
   icon: string | null
   route: string | null
   fields: Record<string, ISettingsSchema>
 }
 
-/** Risposta dell'endpoint dello schema delle impostazioni. */
+/** Response of the settings schema endpoint. */
 export interface ISettingsSchemaResponse {
   [key: string]: ISettingsCategory
 }

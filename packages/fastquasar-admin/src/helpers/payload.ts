@@ -1,29 +1,29 @@
 import type { AdminRow, IAdminField, IAdminSchema } from '../types/admin'
 
-/** Modalità del form. */
+/** Form mode. */
 export type AdminFormMode = 'create' | 'edit'
 
-/** Codice di un errore di validazione lato client. */
+/** Code of a client-side validation error. */
 export type AdminClientError = 'required' | 'invalidJson' | 'invalidNumber' | 'invalidDate'
 
-/** Valori del form per nome di campo. */
+/** Form values by field name. */
 export type AdminFormValues = Record<string, unknown>
 
-/** Risultato di {@link buildPayload}. */
+/** Result of {@link buildPayload}. */
 export interface IAdminPayloadResult {
-  /** Corpo da inviare (solo i campi scrivibili; in modifica solo quelli cambiati). */
+  /** Body to send (only writable fields; in edit mode only the changed ones). */
   payload: Record<string, unknown>
-  /** Errori per campo (vuoto se il form è valido). */
+  /** Errors per field (empty if the form is valid). */
   errors: Record<string, AdminClientError>
 }
 
 /**
- * Campi mostrati dal form. In creazione solo quelli scrivibili (niente chiave primaria né `readonly`); in
- * modifica tutti, nell'ordine dello schema (i `readonly` sono disabilitati).
+ * Fields shown by the form. In create mode only the writable ones (no primary key nor `readonly`); in
+ * edit mode all of them, in schema order (`readonly` ones are disabled).
  *
- * @param schema - schema del modello
- * @param mode - creazione o modifica
- * @returns nomi dei campi
+ * @param schema - model schema
+ * @param mode - create or edit
+ * @returns field names
  */
 export function formFieldNames(schema: IAdminSchema, mode: AdminFormMode): string[] {
   return Object.entries(schema.fields)
@@ -32,24 +32,24 @@ export function formFieldNames(schema: IAdminSchema, mode: AdminFormMode): strin
 }
 
 /**
- * Indica se un campo è modificabile (scrivibile).
+ * Tells whether a field is editable (writable).
  *
- * @param field - campo dello schema
+ * @param field - schema field
  */
 export function isWritable(field: IAdminField): boolean {
   return !field.readonly && !field.primaryKey
 }
 
-/** Due cifre. */
+/** Two digits. */
 function two(n: number): string {
   return String(n).padStart(2, '0')
 }
 
 /**
- * Da ISO 8601 a valore di `<input type="datetime-local">` (ora locale, senza secondi).
+ * From ISO 8601 to the value of `<input type="datetime-local">` (local time, no seconds).
  *
- * @param iso - data/ora ISO
- * @returns `YYYY-MM-DDTHH:mm`, o `''` se non valida
+ * @param iso - ISO date/time
+ * @returns `YYYY-MM-DDTHH:mm`, or `''` if invalid
  */
 export function isoToLocalInput(iso: string): string {
   const date = new Date(iso)
@@ -58,10 +58,10 @@ export function isoToLocalInput(iso: string): string {
 }
 
 /**
- * Da valore di `<input type="datetime-local">` (ora locale) a ISO 8601 UTC.
+ * From the value of `<input type="datetime-local">` (local time) to ISO 8601 UTC.
  *
  * @param local - `YYYY-MM-DDTHH:mm[:ss]`
- * @returns stringa ISO, o `null` se non valida
+ * @returns ISO string, or `null` if invalid
  */
 export function localInputToIso(local: string): string | null {
   const date = new Date(local)
@@ -69,11 +69,11 @@ export function localInputToIso(local: string): string | null {
 }
 
 /**
- * Valore del form per un valore della riga (o per il `default` dello schema).
+ * Form value for a row value (or for the schema `default`).
  *
- * @param field - campo dello schema
- * @param raw - valore grezzo del backend
- * @returns valore per il controllo
+ * @param field - schema field
+ * @param raw - raw backend value
+ * @returns value for the control
  */
 export function toFormValue(field: IAdminField, raw: unknown): unknown {
   if (field.component === 'json' || field.type === 'json') {
@@ -82,16 +82,16 @@ export function toFormValue(field: IAdminField, raw: unknown): unknown {
   if (field.type === 'datetime') return typeof raw === 'string' ? isoToLocalInput(raw) : null
   if (field.type === 'boolean') return raw === null || raw === undefined ? (field.nullable ? null : false) : Boolean(raw)
   if (raw === undefined) return null
-  // un Decimal arriva come stringa: il controllo numerico lavora con numeri o testo
+  // a Decimal arrives as a string: the numeric control works with numbers or text
   return raw
 }
 
 /**
- * Valori iniziali del form: la riga (modifica) oppure i `default` dello schema (creazione).
+ * Initial form values: the row (edit) or the schema `default`s (create).
  *
- * @param schema - schema del modello
- * @param row - riga da modificare; assente in creazione
- * @returns un valore per ogni campo
+ * @param schema - model schema
+ * @param row - row to edit; missing in create mode
+ * @returns a value for each field
  */
 export function initialFormValues(schema: IAdminSchema, row?: AdminRow | null): AdminFormValues {
   const values: AdminFormValues = {}
@@ -101,16 +101,16 @@ export function initialFormValues(schema: IAdminSchema, row?: AdminRow | null): 
   return values
 }
 
-/** `''`, `null` e `undefined` sono tutti "vuoto". */
+/** `''`, `null` and `undefined` are all "empty". */
 function isEmpty(value: unknown): boolean {
   return value === null || value === undefined || value === ''
 }
 
 /**
- * Confronto tra due valori di form (vuoto = vuoto; oggetti per contenuto).
+ * Comparison of two form values (empty = empty; objects by content).
  *
- * @param a - primo valore
- * @param b - secondo valore
+ * @param a - first value
+ * @param b - second value
  */
 export function sameFormValue(a: unknown, b: unknown): boolean {
   if (isEmpty(a) && isEmpty(b)) return true
@@ -120,19 +120,19 @@ export function sameFormValue(a: unknown, b: unknown): boolean {
   return JSON.stringify(a) === JSON.stringify(b)
 }
 
-/** Conversione di un valore del form. */
+/** Conversion of a form value. */
 interface IConversion {
   value?: unknown
   error?: AdminClientError
 }
 
 /**
- * Da valore del form a valore da inviare al backend.
+ * From form value to value to send to the backend.
  *
- * @param field - campo dello schema
- * @param value - valore del controllo
- * @param original - valore originale della riga (un Decimal originale stringa si rimanda come stringa)
- * @returns il valore o un errore di validazione
+ * @param field - schema field
+ * @param value - control value
+ * @param original - original row value (an original Decimal string is sent back as a string)
+ * @returns the value or a validation error
  */
 export function fromFormValue(field: IAdminField, value: unknown, original?: unknown): IConversion {
   if (field.component === 'json' || field.type === 'json') {
@@ -143,17 +143,17 @@ export function fromFormValue(field: IAdminField, value: unknown, original?: unk
       return { error: 'invalidJson' }
     }
   }
-  // la chiave esterna è int, uuid o stringa secondo il modello collegato: si rimanda com'è
+  // the foreign key is int, uuid or string depending on the linked model: it is sent back as is
   if (field.component === 'lookup') return { value: isEmpty(value) ? null : value }
   switch (field.type) {
     case 'integer':
     case 'number': {
-      // solo spazi = vuoto (Number('  ') varrebbe 0)
+      // whitespace only = empty (Number('  ') would be 0)
       if (isEmpty(value) || (typeof value === 'string' && value.trim() === '')) return { value: null }
       const n = typeof value === 'number' ? value : Number(String(value).replace(',', '.'))
       if (!Number.isFinite(n)) return { error: 'invalidNumber' }
       if (field.type === 'integer' && !Number.isInteger(n)) return { error: 'invalidNumber' }
-      // interi oltre 2^53: come numero perderebbero cifre, si inviano come stringa (il backend la converte)
+      // integers beyond 2^53: as a number they would lose digits, they are sent as a string (the backend converts it)
       if (field.type === 'integer' && typeof value === 'string' && !Number.isSafeInteger(n) && /^-?\d+$/.test(value.trim())) {
         return { value: value.trim() }
       }
@@ -176,18 +176,18 @@ export function fromFormValue(field: IAdminField, value: unknown, original?: unk
 }
 
 /**
- * Costruisce il corpo di creazione o di modifica.
+ * Builds the create or update body.
  *
- * - le chiavi `readonly` e la chiave primaria non si inviano mai;
- * - creazione: i campi vuoti sono omessi (vale il default del backend); un campo `required` vuoto è un errore;
- * - modifica (PATCH): solo i campi cambiati rispetto ai valori iniziali.
+ * - `readonly` keys and the primary key are never sent;
+ * - create: empty fields are omitted (the backend default applies); an empty `required` field is an error;
+ * - edit (PATCH): only the fields changed compared to the initial values.
  *
- * @param schema - schema del modello
- * @param values - valori correnti del form
- * @param mode - creazione o modifica
- * @param initial - valori iniziali del form (modifica)
- * @param original - riga originale (modifica)
- * @returns corpo ed errori per campo
+ * @param schema - model schema
+ * @param values - current form values
+ * @param mode - create or edit
+ * @param initial - initial form values (edit)
+ * @param original - original row (edit)
+ * @returns body and per-field errors
  */
 export function buildPayload(
   schema: IAdminSchema,

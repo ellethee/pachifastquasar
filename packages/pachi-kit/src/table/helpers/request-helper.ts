@@ -1,49 +1,49 @@
 import type { IOrderState } from '../types/pachitable2'
 
 /**
- * Costruisce il valore del parametro `orderBy` (colonne separate da virgola, prefisso `-` per il discendente).
+ * Builds the value of the `orderBy` parameter (comma-separated columns, `-` prefix for descending).
  *
- * @param sortState - stato di ordinamento multiplo
- * @returns stringa tipo `name,-createdAt`
+ * @param sortState - multi-sort state
+ * @returns string like `name,-createdAt`
  */
 export function buildOrderBy(sortState: IOrderState[]): string {
   return sortState.map(s => `${s.direction === 'desc' ? '-' : ''}${s.column}`).join(',')
 }
 
-/** Ingressi per la costruzione dei parametri di richiesta della lista. */
+/** Inputs for building the list request parameters. */
 export interface IRequestParamsInput {
   page: number
   pageSize: number
-  /** Con la paginazione locale `orderBy` e `search` non vengono inviati. */
+  /** With local pagination `orderBy` and `search` are not sent. */
   localPagination: boolean
   orderBy: string
   search: string | null | undefined
-  /** Parametri extra: sovrascrivono quelli standard con lo stesso nome. */
+  /** Extra parameters: they override the standard ones with the same name. */
   extraParams?: Record<string, unknown>
 }
 
 /**
- * Costruisce i parametri query della richiesta di lista (`page`, `pageSize`, `orderBy`, `search` + extra).
+ * Builds the query parameters of the list request (`page`, `pageSize`, `orderBy`, `search` + extra).
  *
- * @param input - ingressi della richiesta
- * @returns oggetto dei parametri
+ * @param input - request inputs
+ * @returns parameters object
  */
 export function buildRequestParams(input: IRequestParamsInput): Record<string, unknown> {
   return {
     page: input.page,
     pageSize: input.pageSize,
-    // `search` arriva da un `q-input clearable`, che al clic sulla X emette `null`: niente "search=null"
+    // `search` comes from a `q-input clearable`, which emits `null` when X is clicked: no "search=null"
     ...(input.localPagination ? {} : { orderBy: input.orderBy, search: input.search ?? '' }),
     ...(input.extraParams ?? {}),
   }
 }
 
 /**
- * Codifica i parametri query per alova, che li concatena all'URL senza encoding (`&`, `#`, `+`, `%` nei valori romperebbero
- * la query) e converte `null` in "null". I valori `null`/`undefined` sono omessi.
+ * Encodes the query parameters for alova, which concatenates them to the URL without encoding (`&`, `#`, `+`, `%` in values would break
+ * the query) and converts `null` to "null". `null`/`undefined` values are omitted.
  *
- * @param params - parametri (anche extra dell'app)
- * @returns parametri con chiavi e valori gia' codificati con `encodeURIComponent`
+ * @param params - parameters (including app extras)
+ * @returns parameters with keys and values already encoded with `encodeURIComponent`
  */
 export function encodeQueryParams(params: Record<string, unknown>): Record<string, string> {
   const out: Record<string, string> = {}
@@ -55,21 +55,21 @@ export function encodeQueryParams(params: Record<string, unknown>): Record<strin
 }
 
 /**
- * Segmento di percorso per una chiave di riga (`/<chiave>`): la chiave puo' contenere `/`, `?`, `#`.
+ * Path segment for a row key (`/<key>`): the key may contain `/`, `?`, `#`.
  *
- * @param key - valore della chiave primaria
- * @returns la chiave codificata
+ * @param key - primary key value
+ * @returns the encoded key
  */
 export function encodeKey(key: unknown): string {
   return encodeURIComponent(String(key))
 }
 
 /**
- * Confronto shallow di due array (stessa lunghezza e stessi elementi per identità).
+ * Shallow comparison of two arrays (same length and same elements by identity).
  *
- * @param a - primo array
- * @param b - secondo array
- * @returns true se uguali
+ * @param a - first array
+ * @param b - second array
+ * @returns true if equal
  */
 export function shallowEqualArrays(a: readonly unknown[], b: readonly unknown[]): boolean {
   return a.length === b.length && a.every((v, i) => Object.is(v, b[i]))

@@ -14,21 +14,21 @@ import type { IPachiProfileUser } from '../src/types/profile'
 const user: IPachiProfileUser = { id: 1, username: 'mario', email: 'mario@x.it', firstName: 'Mario', lastName: 'Rossi' }
 const err = (code: string, status = 400) => ({ status, items: [{ code }] })
 
-describe('modifica profilo', () => {
-  it('valori iniziali e patch dei soli campi cambiati', () => {
+describe('profile editing', () => {
+  it('initial values and patch with only the changed fields', () => {
     const v = profileEditValues(user)
     expect(buildProfilePatch(user, v)).toEqual({})
     expect(buildProfilePatch(user, { ...v, firstName: ' Luigi ' })).toEqual({ firstName: 'Luigi' })
   })
-  it('l\'email cambiata porta la password attuale', () => {
+  it('a changed email carries the current password', () => {
     const v = { ...profileEditValues(user), email: 'nuovo@x.it' }
     expect(emailChanged(user, v)).toBe(true)
     expect(buildProfilePatch(user, v, 'segreta')).toEqual({ email: 'nuovo@x.it', currentPassword: 'segreta' })
   })
-  it('maiuscole e spazi nell\'email non contano come cambio', () => {
+  it('case and spaces in the email do not count as a change', () => {
     expect(emailChanged(user, { ...profileEditValues(user), email: ' MARIO@x.it ' })).toBe(false)
   })
-  it('validazione', () => {
+  it('validation', () => {
     const v = profileEditValues(user)
     expect(validateProfileForm(user, v, '')).toEqual({})
     expect(validateProfileForm(user, { ...v, firstName: ' ', lastName: '' }, '')).toEqual({ firstName: 'required', lastName: 'required' })
@@ -36,12 +36,12 @@ describe('modifica profilo', () => {
     expect(validateProfileForm(user, { ...v, email: 'a@b.it' }, '').currentPassword).toBe('passwordRequired')
     expect(validateProfileForm(user, { ...v, email: 'a@b.it' }, 'p')).toEqual({})
   })
-  it('bersaglio degli errori del backend', () => {
+  it('backend error targets', () => {
     expect(profileErrorTarget(err('auth.password_incorrect'))).toBe('currentPassword')
     expect(profileErrorTarget(err('user.email_exists'))).toBe('email')
     expect(profileErrorTarget(err('altro'))).toBe('form')
   })
-  it('parse della risposta (camelCase e snake_case)', () => {
+  it('response parsing (camelCase and snake_case)', () => {
     expect(parseProfileUser({ id: 2, username: 'a', email: 'a@b.it', first_name: 'A', last_name: 'B', is_staff: true }))
       .toEqual({ id: 2, username: 'a', email: 'a@b.it', firstName: 'A', lastName: 'B', isStaff: true })
     expect(parseProfileUser({ id: 2, username: 'a', email: null, firstName: 'A', lastName: 'B', permissions: ['x', 3] })?.permissions)
@@ -49,14 +49,14 @@ describe('modifica profilo', () => {
     expect(parseProfileUser({ id: 1 })).toBeNull()
     expect(parseProfileUser(null)).toBeNull()
   })
-  it('opzioni di modifica', () => {
+  it('edit options', () => {
     expect(resolveEditOptions(undefined).enabled).toBe(false)
     expect(resolveEditOptions(false).enabled).toBe(false)
     expect(resolveEditOptions(true)).toEqual({ enabled: true, apiBase: '/api' })
     expect(resolveEditOptions({ apiBase: '/v1' })).toMatchObject({ enabled: true, apiBase: '/v1' })
     expect(resolveEditOptions({ enabled: false }).enabled).toBe(false)
   })
-  it('password_unchanged va sul campo della nuova password', () => {
+  it('password_unchanged goes to the new password field', () => {
     expect(passwordErrorTarget(err('auth.password_unchanged', 422))).toBe('next')
   })
 })

@@ -6,26 +6,26 @@ const messages = { it: { app: { hi: 'Ciao' } }, en: { app: { hi: 'Hello' } }, 'p
 afterEach(() => vi.unstubAllGlobals())
 
 describe('createPachiI18n', () => {
-  it('fixedLocale: una sola lingua, nessun rilevamento', () => {
+  it('fixedLocale: a single locale, no detection', () => {
     vi.stubGlobal('localStorage', { getItem: () => 'en', setItem: vi.fn() })
     const i18n = createPachiI18n({ messages, fixedLocale: 'pt' })
     expect(i18n.global.locale.value).toBe('pt-BR')
     expect(i18n.global.availableLocales).toEqual(['pt-BR'])
     expect(getPachiI18n()).toBe(i18n)
   })
-  it('fixedLocale sconosciuto -> default con warning', () => {
+  it('unknown fixedLocale -> default with warning', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     const i18n = createPachiI18n({ messages, fixedLocale: 'de', defaultLocale: 'it' })
     expect(i18n.global.locale.value).toBe('it')
     expect(warn).toHaveBeenCalled()
     warn.mockRestore()
   })
-  it('initialLocale forza la lingua e le lingue sono quelle dell\'app', () => {
+  it('initialLocale forces the locale and the locales are the app ones', () => {
     const i18n = createPachiI18n({ messages, initialLocale: 'en' })
     expect(i18n.global.locale.value).toBe('en')
     expect([...i18n.global.availableLocales].sort()).toEqual(['en', 'it', 'pt-BR'])
   })
-  it('onLocaleChange asincrona: con cambi rapidi vince l\'ultimo', async () => {
+  it('async onLocaleChange: on rapid changes the last one wins', async () => {
     const calls: string[] = []
     const onLocaleChange = (code: string) =>
       new Promise<void>((resolve) => setTimeout(() => (calls.push(code), resolve()), code === 'en' ? 20 : 1))

@@ -1,22 +1,22 @@
 /**
- * Verifica che il testo digitato corrisponda alla parola di conferma (confronto esatto,
- * maiuscole/minuscole comprese; gli spazi ai bordi del testo digitato sono ignorati).
+ * Checks that the typed text matches the confirmation word (exact comparison,
+ * case included; leading/trailing spaces of the typed text are ignored).
  *
- * @param typed - testo digitato dall'utente
- * @param word - parola da digitare
- * @returns true se la conferma è valida (la parola non può essere vuota)
+ * @param typed - text typed by the user
+ * @param word - word to type
+ * @returns true if the confirmation is valid (the word cannot be empty)
  */
 export function matchesConfirmWord(typed: string, word: string): boolean {
   return word.length > 0 && typed.trim() === word
 }
 
 /**
- * Sceglie la parola di conferma: quella personalizzata se non e' vuota (ne' di soli spazi),
- * altrimenti quella di default (una parola vuota renderebbe la conferma impossibile).
+ * Chooses the confirmation word: the custom one if it is not empty (nor only spaces),
+ * otherwise the default one (an empty word would make confirmation impossible).
  *
- * @param custom - parola passata dall'app (puo' essere vuota o assente)
- * @param fallback - parola di default tradotta
- * @returns la parola da digitare
+ * @param custom - word passed by the app (may be empty or absent)
+ * @param fallback - translated default word
+ * @returns the word to use
  */
 export function resolveConfirmWord(custom: string | undefined, fallback: string): string {
   return custom && custom.trim() ? custom : fallback

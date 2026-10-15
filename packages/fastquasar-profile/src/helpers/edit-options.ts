@@ -1,15 +1,15 @@
 import { DEFAULT_API_BASE } from './http'
 import type { IPachiProfileEditOptions } from '../types/edit'
 
-/** Opzioni risolte della modifica del profilo. */
+/** Resolved profile edit options. */
 export type IResolvedEditOptions = IPachiProfileEditOptions & { enabled: boolean, apiBase: string }
 
 /**
- * Normalizza la prop `editable`: `true` = modifica attiva con i default; oggetto = attiva salvo `enabled: false`;
- * `false`/assente = sola lettura.
+ * Normalizes the `editable` prop: `true` = editing enabled with defaults; object = enabled unless `enabled: false`;
+ * `false`/missing = read-only.
  *
- * @param input - valore della prop
- * @returns opzioni complete
+ * @param input - prop value
+ * @returns complete options
  */
 export function resolveEditOptions(input: boolean | IPachiProfileEditOptions | undefined): IResolvedEditOptions {
   if (input === undefined || input === false) return { enabled: false, apiBase: DEFAULT_API_BASE }
@@ -20,19 +20,19 @@ export function resolveEditOptions(input: boolean | IPachiProfileEditOptions | u
 let configured: boolean | IPachiProfileEditOptions | undefined
 
 /**
- * Imposta le opzioni di modifica usate dalla route `/user/profile` del package (`PachiProfileRoute`), che non ha
- * props: da chiamare una volta all'avvio, ad esempio `setPachiProfileEdit({ onUpdated: () => authManager.refreshUserInfo() })`.
+ * Sets the edit options used by the package's `/user/profile` route (`PachiProfileRoute`), which has no
+ * props: call it once at startup, for example `setPachiProfileEdit({ onUpdated: () => authManager.refreshUserInfo() })`.
  *
- * @param options - stesso valore della prop `editable` di `PachiProfilePage`
+ * @param options - same value as the `editable` prop of `PachiProfilePage`
  */
 export function setPachiProfileEdit(options: boolean | IPachiProfileEditOptions | undefined): void {
   configured = options
 }
 
 /**
- * Restituisce le opzioni impostate con {@link setPachiProfileEdit}.
+ * Returns the options set with {@link setPachiProfileEdit}.
  *
- * @returns opzioni, o `undefined` se non impostate (default: sola lettura)
+ * @returns options, or `undefined` if not set (default: read-only)
  */
 export function getPachiProfileEdit(): boolean | IPachiProfileEditOptions | undefined {
   return configured

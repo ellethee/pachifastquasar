@@ -2,18 +2,18 @@ import { getPachiI18n, pachiT } from '@ilpachi/pachi-i18n'
 import type { IAdminAction, IAdminField, IAdminFilter, IAdminOption } from '../types/admin'
 import { getPachiAdminOptions } from './options'
 
-/** Risolutore di chiavi di messaggio (iniettabile per i test). */
+/** Message key resolver (injectable for tests). */
 export interface ITextResolver {
-  /** `true` se la chiave esiste nella lingua corrente. */
+  /** `true` if the key exists in the current language. */
   te: (key: string) => boolean
-  /** Traduce la chiave. */
+  /** Translates the key. */
   t: (key: string) => string
 }
 
-/** Risolutore predefinito: i18n globale di `@ilpachi/pachi-i18n`. */
+/** Default resolver: global i18n of `@ilpachi/pachi-i18n`. */
 export const defaultResolver: ITextResolver = {
   te: (key) => {
-    // `te` con chiave dinamica: si evita la tipizzazione ricorsiva dello schema dei messaggi
+    // `te` with a dynamic key: avoids the recursive typing of the messages schema
     const global = getPachiI18n()?.global as unknown as { te: (key: string) => boolean } | undefined
     return global?.te(key) ?? false
   },
@@ -21,14 +21,14 @@ export const defaultResolver: ITextResolver = {
 }
 
 /**
- * Testo di una chiave del backend. Ordine: `labels` delle opzioni (per chiave), traduzione dell'app, `fallback`
- * (testo già presente nello schema, tradotto dal backend o in inglese).
+ * Text of a backend key. Order: `labels` from the options (by key), app translation, `fallback`
+ * (text already present in the schema, translated by the backend or in English).
  *
- * @param key - chiave del backend (`titleKey`, `labelKey`, valore di `optionKeys`)
- * @param fallback - testo dello schema
- * @param resolver - risolutore delle chiavi (default: i18n globale)
- * @param labels - sostituzioni per chiave (default: `labels` delle opzioni)
- * @returns il testo da mostrare
+ * @param key - backend key (`titleKey`, `labelKey`, value of `optionKeys`)
+ * @param fallback - schema text
+ * @param resolver - key resolver (default: global i18n)
+ * @param labels - replacements by key (default: `labels` from the options)
+ * @returns the text to show
  */
 export function resolveText(
   key: string | undefined,
@@ -43,10 +43,10 @@ export function resolveText(
 }
 
 /**
- * Titolo di un modello.
+ * Title of a model.
  *
- * @param model - oggetto con `title` e `titleKey` (elenco modelli o schema)
- * @param resolver - risolutore delle chiavi
+ * @param model - object with `title` and `titleKey` (model list or schema)
+ * @param resolver - key resolver
  */
 export function modelTitle(
   model: { title: string, titleKey?: string | undefined },
@@ -56,11 +56,11 @@ export function modelTitle(
 }
 
 /**
- * Etichetta di un campo (o di un filtro): `labels[app.model.campo]`, poi `labelKey` tradotta, poi `label`.
+ * Label of a field (or filter): `labels[app.model.field]`, then translated `labelKey`, then `label`.
  *
- * @param fullName - `app.model.campo`
- * @param field - campo o filtro con `label` e `labelKey`
- * @param resolver - risolutore delle chiavi
+ * @param fullName - `app.model.field`
+ * @param field - field or filter with `label` and `labelKey`
+ * @param resolver - key resolver
  */
 export function fieldLabel(
   fullName: string,
@@ -73,11 +73,11 @@ export function fieldLabel(
 }
 
 /**
- * Opzioni di un campo `select` con le etichette tradotte da `optionKeys` (`optionKeys[<valore>]`).
+ * Options of a `select` field with labels translated from `optionKeys` (`optionKeys[<value>]`).
  *
- * @param field - campo (o filtro) con `properties.options` e `optionKeys`
- * @param resolver - risolutore delle chiavi
- * @returns le opzioni (copie: lo schema non viene modificato)
+ * @param field - field (or filter) with `properties.options` and `optionKeys`
+ * @param resolver - key resolver
+ * @returns the options (copies: the schema is not modified)
  */
 export function fieldOptions(
   field: Pick<IAdminField | IAdminFilter, 'properties' | 'optionKeys'>,
@@ -91,10 +91,10 @@ export function fieldOptions(
 }
 
 /**
- * Etichetta di un'azione in blocco.
+ * Label of a bulk action.
  *
- * @param action - azione dello schema
- * @param resolver - risolutore delle chiavi
+ * @param action - schema action
+ * @param resolver - key resolver
  */
 export function actionLabel(action: IAdminAction, resolver?: ITextResolver): string {
   return resolveText(action.labelKey, action.label, resolver)

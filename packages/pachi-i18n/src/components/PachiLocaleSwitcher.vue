@@ -39,8 +39,8 @@ import { messages } from '../locales'
 defineOptions({ inheritAttrs: false })
 
 /**
- * Selettore della lingua: nessuna lingua è cablata, l'elenco deriva dai messaggi registrati
- * (`availableLocales`); ogni lingua è mostrata con il proprio nome nativo.
+ * Language selector: no locale is hardcoded, the list derives from the registered messages
+ * (`availableLocales`); each locale is shown with its own native name.
  */
 const { t } = usePachiI18n(messages)
 const { locale, availableLocales, setLocale, labelOf } = useLocale()

@@ -8,7 +8,7 @@ vi.mock('quasar', () => ({ Dialog: { create } }))
 vi.mock('../../src/dialog/components/PachiDialog.vue', () => ({ default: Stub }))
 
 describe('createPachiDialog', () => {
-  it('apre PachiDialog passando props e contenuto custom come componentProps', async () => {
+  it('opens PachiDialog passing props and custom content as componentProps', async () => {
     const { createPachiDialog } = await import('../../src/dialog/composables/create-pachi-dialog')
     const content = () => null
     createPachiDialog({ title: 'T', content, contentProps: { a: 1 }, rounded: true })
@@ -18,7 +18,7 @@ describe('createPachiDialog', () => {
     expect(arg[0].componentProps).toMatchObject({ title: 'T', content, contentProps: { a: 1 }, rounded: true })
   })
 
-  it('con $q usa $q.dialog e non il plugin importato', async () => {
+  it('with $q it uses $q.dialog and not the imported plugin', async () => {
     create.mockClear()
     const { createPachiDialog } = await import('../../src/dialog/composables/create-pachi-dialog')
     const dialog = vi.fn(() => ({ onOk: vi.fn() }))
@@ -29,7 +29,7 @@ describe('createPachiDialog', () => {
 })
 
 describe('usePachiDialog', () => {
-  it('in setup si lega a $q dell\'app', async () => {
+  it('in setup it binds to the app\'s $q', async () => {
     create.mockClear()
     const { usePachiDialog } = await import('../../src/dialog/composables/create-pachi-dialog')
     const dialog = vi.fn(() => ({ onOk: vi.fn() }))
@@ -42,7 +42,7 @@ describe('usePachiDialog', () => {
     expect(create).not.toHaveBeenCalled()
   })
 
-  it('fuori da un componente ripiega sul plugin importato', async () => {
+  it('outside a component it falls back to the imported plugin', async () => {
     create.mockClear()
     const { usePachiDialog } = await import('../../src/dialog/composables/create-pachi-dialog')
     usePachiDialog()({ title: 'T' })

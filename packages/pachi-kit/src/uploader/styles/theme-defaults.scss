@@ -1,6 +1,6 @@
-// Valori di default: se il progetto definisce le stesse variabili --pachi-* hanno la precedenza (specificità zero)
+// Default values: if the project defines the same --pachi-* variables they take precedence (zero specificity)
 
-// Tema scuro (default) + densità standard + font
+// Dark theme (default) + standard density + font
 :where(:root) {
   --pachi-bg: #0a0d12;
   --pachi-surface: #10141b;
@@ -33,7 +33,7 @@
   --pachi-uploader-height: calc(100vh - 100px);
 }
 
-// Tema chiaro (dichiarato dopo: Quasar alterna body--dark / body--light)
+// Light theme (declared afterwards: Quasar toggles body--dark / body--light)
 :where(body.body--light) {
   --pachi-bg: #f0f4f8;
   --pachi-surface: #ffffff;
@@ -59,7 +59,7 @@
   --pachi-green: #059669;
 }
 
-// Densità compatta
+// Compact density
 :where(:root[data-density='compact']) {
   --pachi-row-h: 32px;
   --pachi-pad: 16px;

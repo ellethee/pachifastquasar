@@ -5,7 +5,7 @@ import type { ISettingsSchemaResponse } from '../src/types/settings-manager'
 const field = (extra: Record<string, unknown> = {}) => ({ component: 'select', ...extra })
 
 describe('collectApplyMap', () => {
-  it('legge `apply` dallo schema', () => {
+  it('reads `apply` from the schema', () => {
     const schema: ISettingsSchemaResponse = {
       appearance: { title: 'A', icon: null, route: null, fields: { theme: field({ apply: 'theme' }), custom: field({ apply: 'myApplier' }), plain: field() } },
     }
@@ -15,7 +15,7 @@ describe('collectApplyMap', () => {
     })
   })
 
-  it('usa i default dei campi standard se `apply` manca (vecchio backend)', () => {
+  it('uses the standard field defaults if `apply` is missing (old backend)', () => {
     const schema: ISettingsSchemaResponse = {
       appearance: { title: 'A', icon: null, route: null, fields: { accent: field(), density: field() } },
       preferences: { title: 'P', icon: null, route: null, fields: { theme: field(), locale: field(), other: field() } },
@@ -28,14 +28,14 @@ describe('collectApplyMap', () => {
     })
   })
 
-  it('`apply: null` disattiva anche il default', () => {
+  it('`apply: null` also disables the default', () => {
     const schema: ISettingsSchemaResponse = {
       appearance: { title: 'A', icon: null, route: null, fields: { theme: field({ apply: null }), accent: field({ apply: '' }) } },
     }
     expect(collectApplyMap(schema)).toEqual({})
   })
 
-  it('gestisce sezioni senza campi', () => {
+  it('handles sections without fields', () => {
     expect(collectApplyMap({ x: { title: 'X', icon: null, route: null } as never })).toEqual({})
   })
 })

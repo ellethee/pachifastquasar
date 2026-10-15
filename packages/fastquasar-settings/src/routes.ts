@@ -2,7 +2,7 @@ import { mdiCog } from '@quasar/extras/mdi-v7'
 import { ensureMessages } from './helpers/register-messages'
 import { SETTINGS_PATH } from './menu'
 
-/** Route minima compatibile con `RouteRecordRaw` (il package non dipende da vue-router). */
+/** Minimal route compatible with `RouteRecordRaw` (the package does not depend on vue-router). */
 export interface IPachiRouteRecord {
   path: string
   meta?: Record<string, unknown>
@@ -11,8 +11,8 @@ export interface IPachiRouteRecord {
 }
 
 /**
- * Route del package (default export di `routes`, scoperto dalla shell `@ilpachi/pachifastquasar`):
- * la pagina impostazioni, nascosta dal menu laterale e raggiungibile dal menu account.
+ * Package routes (default export of `routes`, discovered by the `@ilpachi/pachifastquasar` shell):
+ * the settings page, hidden from the side menu and reachable from the account menu.
  */
 export default [
   {
@@ -23,7 +23,7 @@ export default [
       descriptionKey: 'pachiSettings.description',
       icon: mdiCog,
     },
-    // i testi del titolo servono prima che la pagina (e il suo `usePachiI18n`) sia montata
+    // the title texts are needed before the page (and its `usePachiI18n`) is mounted
     beforeEnter: () => ensureMessages(),
     component: () => import('./components/PachiSettingsPage.vue'),
   },

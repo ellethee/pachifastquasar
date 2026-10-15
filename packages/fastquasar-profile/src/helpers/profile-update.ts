@@ -2,14 +2,14 @@ import type { IPachiApiError } from './api-error'
 import { primaryItem } from './api-error'
 import type { IPachiProfileUser } from '../types/profile'
 
-/** Campi modificabili dall'utente nel profilo. */
+/** Fields the user can edit in the profile. */
 export interface IProfileEditValues {
   firstName: string
   lastName: string
   email: string
 }
 
-/** Corpo di `PATCH /auth/user`: solo i campi cambiati, più `currentPassword` se cambia l'email. */
+/** Body of `PATCH /auth/user`: only the changed fields, plus `currentPassword` if the email changes. */
 export interface IProfilePatchBody {
   firstName?: string
   lastName?: string
@@ -17,10 +17,10 @@ export interface IProfilePatchBody {
   currentPassword?: string
 }
 
-/** Chiavi di errore di validazione (tradotte da `pachiProfile.edit.validation.<chiave>`). */
+/** Validation error keys (translated from `pachiProfile.edit.validation.<key>`). */
 export type ProfileFieldError = 'required' | 'emailInvalid' | 'passwordRequired'
 
-/** Errori per campo (assente = campo valido). */
+/** Errors per field (missing = valid field). */
 export interface IProfileEditErrors {
   firstName?: ProfileFieldError
   lastName?: ProfileFieldError
@@ -28,36 +28,36 @@ export interface IProfileEditErrors {
   currentPassword?: ProfileFieldError
 }
 
-/** Dove mostrare un errore del backend nel form. */
+/** Where to show a backend error in the form. */
 export type ProfileErrorTarget = 'currentPassword' | 'email' | 'form'
 
 /**
- * Valori iniziali del form dall'utente corrente.
+ * Initial form values from the current user.
  *
- * @param user - utente corrente
- * @returns valori del form (stringhe vuote se mancano)
+ * @param user - current user
+ * @returns form values (empty strings if missing)
  */
 export function profileEditValues(user: IPachiProfileUser): IProfileEditValues {
   return { firstName: user.firstName ?? '', lastName: user.lastName ?? '', email: user.email ?? '' }
 }
 
 /**
- * `true` se l'email cambia rispetto all'utente (confronto senza spazi ai bordi e senza maiuscole).
+ * `true` if the email differs from the user's (compared ignoring surrounding spaces and case).
  *
- * @param user - utente corrente
- * @param values - valori del form
+ * @param user - current user
+ * @param values - form values
  */
 export function emailChanged(user: IPachiProfileUser, values: IProfileEditValues): boolean {
   return values.email.trim().toLowerCase() !== (user.email ?? '').trim().toLowerCase()
 }
 
 /**
- * Corpo del `PATCH` con i soli campi modificati. `currentPassword` viene aggiunta solo se cambia l'email.
+ * `PATCH` body with only the changed fields. `currentPassword` is added only if the email changes.
  *
- * @param user - utente corrente
- * @param values - valori del form
- * @param currentPassword - password attuale (richiesta dal backend per cambiare l'email)
- * @returns corpo del PATCH (oggetto vuoto se non cambia nulla)
+ * @param user - current user
+ * @param values - form values
+ * @param currentPassword - current password (required by the backend to change the email)
+ * @returns PATCH body (empty object if nothing changes)
  */
 export function buildProfilePatch(
   user: IPachiProfileUser,
@@ -75,12 +75,12 @@ export function buildProfilePatch(
 }
 
 /**
- * Valida il form: nome, cognome ed email obbligatori, email ben formata, password attuale se cambia l'email.
+ * Validates the form: first name, last name and email required, well-formed email, current password if the email changes.
  *
- * @param user - utente corrente
- * @param values - valori del form
- * @param currentPassword - password attuale digitata
- * @returns errori per campo (oggetto vuoto se valido)
+ * @param user - current user
+ * @param values - form values
+ * @param currentPassword - typed current password
+ * @returns errors per field (empty object if valid)
  */
 export function validateProfileForm(
   user: IPachiProfileUser,
@@ -98,11 +98,11 @@ export function validateProfileForm(
 }
 
 /**
- * Campo a cui attribuire l'errore del backend: `auth.password_incorrect` → password attuale,
- * `user.email_exists` → email, il resto → messaggio generale del form.
+ * Field to which the backend error is attributed: `auth.password_incorrect` → current password,
+ * `user.email_exists` → email, anything else → general form message.
  *
- * @param error - errore normalizzato
- * @returns bersaglio dell'errore
+ * @param error - normalized error
+ * @returns error target
  */
 export function profileErrorTarget(error: IPachiApiError): ProfileErrorTarget {
   const code = primaryItem(error)?.code
@@ -112,10 +112,10 @@ export function profileErrorTarget(error: IPachiApiError): ProfileErrorTarget {
 }
 
 /**
- * Normalizza la risposta di `PATCH /auth/user` (stessa forma di `GET /auth/user`, camelCase o snake_case).
+ * Normalizes the `PATCH /auth/user` response (same shape as `GET /auth/user`, camelCase or snake_case).
  *
- * @param body - risposta del backend (envelope già scartato dal client)
- * @returns l'utente, o `null` se manca `username`
+ * @param body - backend response (envelope already discarded by the client)
+ * @returns the user, or `null` if `username` is missing
  */
 export function parseProfileUser(body: unknown): IPachiProfileUser | null {
   if (body === null || typeof body !== 'object') return null

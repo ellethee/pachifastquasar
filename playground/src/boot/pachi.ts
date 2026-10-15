@@ -8,7 +8,7 @@ import {
 } from '@ilpachi/fastquasar-profile'
 import { pachiConfig } from 'src/pachi-config'
 
-/** Boot: installa la shell (config, HTTP, i18n con generated/overrides/feature dell'app). */
+/** Boot: installs the shell (config, HTTP, i18n with the app's generated/overrides/features). */
 export default defineBoot(ctx => {
   createPachiApp(ctx, {
     config: pachiConfig,
@@ -26,10 +26,10 @@ export default defineBoot(ctx => {
     })
   })
 
-  // pagina Admin: client HTTP dell'app e voce di menu (compare se l'utente vede almeno un modello)
+  // Admin page: the app's HTTP client and menu entry (shown if the user sees at least one model)
   installPachiAdmin({ app: ctx.app })
 
-  // pagina profilo (`/user/profile`): utente della sessione, modifica e cambio password (usati anche dalla suite e2e)
+  // profile page (`/user/profile`): session user, edit and password change (also used by the e2e suite)
   setPachiProfileUser(() => AuthManager.getInstance().userInfo)
   setPachiProfileEdit({ onUpdated: () => AuthManager.getInstance().refreshUserInfo() })
   setPachiProfileSecurity({ password: true })

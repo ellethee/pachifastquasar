@@ -13,37 +13,37 @@ import { collectPackageMenus } from '../core/menu/collect-menus'
 import { buildPachiRoutes } from './routes'
 import type { PachiGlob } from './routes-finder'
 
-/** Modalità della history del router. */
+/** History mode of the router. */
 export type PachiRouterMode = 'hash' | 'history' | 'memory'
 
-/** Opzioni di {@link createPachiRouter}. */
+/** Options of {@link createPachiRouter}. */
 export interface CreatePachiRouterOptions {
-  /** Configurazione della shell; se omessa si usa quella già impostata (`setPachiConfig`). */
+  /** Shell configuration; if omitted the one already set (`setPachiConfig`) is used. */
   config?: PachiConfigInput
-  /** `import.meta.glob('/src/features/**' + '/routes.ts', { eager: true, import: 'default' })` dell'app. */
+  /** `import.meta.glob('/src/features/**' + '/routes.ts', { eager: true, import: 'default' })` of the app. */
   features?: PachiGlob
   /**
    * `import.meta.glob('/node_modules/@ilpachi/*' + '/{routes,dist/routes,src/routes}.{ts,js}', { eager: true, import: 'default' })`:
-   * route esportate dai package `@ilpachi/*`.
+   * routes exported by the `@ilpachi/*` packages.
    */
   packages?: PachiGlob
   /**
    * `import.meta.glob('/node_modules/@ilpachi/*' + '/{menu,dist/menu,src/menu}.{ts,js}', { eager: true, import: 'default' })`:
-   * voci del menu account esportate dai package (contratto `PachiMenuItemFactory`).
+   * account menu items exported by the packages (`PachiMenuItemFactory` contract).
    */
   menus?: PachiGlob
-  /** Variabili d'ambiente (`import.meta.env`) per `ilpachi-<pkg>-disable-route`. */
+  /** Environment variables (`import.meta.env`) for `ilpachi-<pkg>-disable-route`. */
   env?: PachiEnv
-  /** History del router (default `hash`). In Quasar: `import.meta.env.QUASAR_VUE_ROUTER_MODE`. */
+  /** Router history (default `hash`). In Quasar: `import.meta.env.QUASAR_VUE_ROUTER_MODE`. */
   mode?: PachiRouterMode | string | undefined
-  /** Base della history (default nessuna). In Quasar: `import.meta.env.QUASAR_VUE_ROUTER_BASE`. */
+  /** History base (default none). In Quasar: `import.meta.env.QUASAR_VUE_ROUTER_BASE`. */
   base?: string | undefined
 }
 
 /**
- * Crea la history del router in base alla modalità.
+ * Creates the router history according to the mode.
  *
- * @param mode - `history`, `memory` o (default) `hash`
+ * @param mode - `history`, `memory` or (default) `hash`
  * @param base - base URL
  */
 export function createPachiHistory(mode: string | undefined, base?: string): RouterHistory {
@@ -53,13 +53,13 @@ export function createPachiHistory(mode: string | undefined, base?: string): Rou
 }
 
 /**
- * Crea il router della shell: route core + auth + route di feature e package (passate dall'app come
- * risultati di `import.meta.glob`), history configurabile e guardia di navigazione (restore silenzioso
- * della sessione, redirect al login, autorizzazione per route con `meta.permissions/requireStaff/...`).
- * L'app lo avvolge nel proprio `defineRouter` di Quasar.
+ * Creates the shell router: core routes + auth + feature and package routes (passed by the app as
+ * `import.meta.glob` results), configurable history and navigation guard (silent session restore,
+ * redirect to login, authorization per route with `meta.permissions/requireStaff/...`).
+ * The app wraps it in its own Quasar `defineRouter`.
  *
- * @param options - vedi {@link CreatePachiRouterOptions}
- * @returns il router di vue-router
+ * @param options - see {@link CreatePachiRouterOptions}
+ * @returns the vue-router router
  */
 export function createPachiRouter(options: CreatePachiRouterOptions = {}): Router {
   const config = options.config ? setPachiConfig(options.config) : getPachiConfig()
@@ -83,7 +83,7 @@ export function createPachiRouter(options: CreatePachiRouterOptions = {}): Route
     const authManager = AuthManager.getInstance()
     let isAuthenticated = authManager.isAuthenticated
 
-    // Tenta restore silenzioso e connette il WS se non ancora connesso
+    // Attempts a silent restore and connects the WS if not already connected
     if (!to.meta.noAuth) {
       isAuthenticated = await authManager.tryRestoreSession()
     }
@@ -97,7 +97,7 @@ export function createPachiRouter(options: CreatePachiRouterOptions = {}): Route
 
     if (!authManager.canAccess(to.meta)) {
       const landing = authManager.getDefaultLandingPath()
-      // la landing stessa non accessibile: rimandarvi sarebbe un redirect infinito (la pagina filtra i contenuti per permessi)
+      // the landing itself is not accessible: redirecting there would be an infinite redirect (the page filters contents by permissions)
       return to.path === landing ? true : landing
     }
   })

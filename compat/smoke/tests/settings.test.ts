@@ -16,7 +16,7 @@ import { failure, http, login, raw } from './helpers'
 
 let token = ''
 
-describe('user settings (docs di fastquasar-settings)', () => {
+describe('user settings (docs of fastquasar-settings)', () => {
   beforeAll(async () => {
     token = (await login('admin')).access_token
     setActivePinia(createPinia())
@@ -27,7 +27,7 @@ describe('user settings (docs di fastquasar-settings)', () => {
     })
   })
 
-  it('GET /user/settings: valori per categoria, chiavi camelCase, nessun buco', async () => {
+  it('GET /user/settings: values per category, camelCase keys, no gaps', async () => {
     const res = await raw('GET', '/auth/user/settings', { token })
     expect(res.body.success).toBe(true)
     const d = res.body.data
@@ -36,7 +36,7 @@ describe('user settings (docs di fastquasar-settings)', () => {
     expect(d.preferences).toHaveProperty('locale')
   })
 
-  it('GET /user/settings/schema: component, apply, default, opzioni dei select', async () => {
+  it('GET /user/settings/schema: component, apply, default, select options', async () => {
     const schema = (await raw('GET', '/auth/user/settings/schema', { token })).body.data
     const theme = schema.appearance.fields.theme
     expect(theme.component).toBe('select')
@@ -54,7 +54,7 @@ describe('user settings (docs di fastquasar-settings)', () => {
     expect(schema.appearance).toHaveProperty('titleKey')
   })
 
-  it('SettingsManager.loadSettings (dist del package) carica valori, schema e default', async () => {
+  it('SettingsManager.loadSettings (package dist) loads values, schema and defaults', async () => {
     const sm = SettingsManager.getInstance()
     const values = await sm.loadSettings()
     expect(values.appearance?.theme).toBeDefined()
@@ -63,7 +63,7 @@ describe('user settings (docs di fastquasar-settings)', () => {
     expect(sm.getDefault('preferences', 'tablePageSize')).toMatchObject({ found: true, value: 25 })
   })
 
-  it('SettingsManager.set salva con PUT (debounce) e il valore e\' persistito', async () => {
+  it('SettingsManager.set saves with PUT (debounce) and the value is persisted', async () => {
     const sm = SettingsManager.getInstance()
     await sm.loadSettings()
     sm.set('preferences', 'tablePageSize', 50)
@@ -74,22 +74,22 @@ describe('user settings (docs di fastquasar-settings)', () => {
     await new Promise((r) => setTimeout(r, 1200))
   })
 
-  it('PUT valido: 200 e valori aggiornati', async () => {
+  it('valid PUT: 200 and updated values', async () => {
     const res = await raw('PUT', '/auth/user/settings/appearance/accent', { token, json: { value: 'indigo' } })
     expect(res.status).toBe(200)
     expect(res.body.data.appearance.accent).toBe('indigo')
     await raw('PUT', '/auth/user/settings/appearance/accent', { token, json: { value: 'teal' } })
   })
 
-  it('PUT accetta anche il nome snake_case', async () => {
+  it('PUT also accepts the snake_case name', async () => {
     const res = await raw('PUT', '/auth/user/settings/appearance/reduce_motion', { token, json: { value: true } })
     expect(res.status).toBe(200)
     expect(res.body.data.appearance.reduceMotion).toBe(true)
     await raw('PUT', '/auth/user/settings/appearance/reduceMotion', { token, json: { value: false } })
   })
 
-  it('PUT invalido: 422 user.settings_value_invalid, loc body.value, params category/key', async () => {
-    const f = await failure(() => http('/auth', token).Put('/user/settings/appearance/theme', { value: 'viola' }))
+  it('invalid PUT: 422 user.settings_value_invalid, loc body.value, params category/key', async () => {
+    const f = await failure(() => http('/auth', token).Put('/user/settings/appearance/theme', { value: 'purple' }))
     expect(f.status).toBe(422)
     const d = f.body.detail[0]
     expect(d.code).toBe('user.settings_value_invalid')
@@ -97,12 +97,12 @@ describe('user settings (docs di fastquasar-settings)', () => {
     expect(d.params).toEqual({ category: 'appearance', key: 'theme' })
   })
 
-  it('PUT fuori range (tablePageSize 500) e null per locale', async () => {
+  it('PUT out of range (tablePageSize 500) and null for locale', async () => {
     expect((await raw('PUT', '/auth/user/settings/preferences/tablePageSize', { token, json: { value: 500 } })).status).toBe(422)
     expect((await raw('PUT', '/auth/user/settings/preferences/locale', { token, json: { value: null } })).status).toBe(200)
   })
 
-  it('PATCH /user/settings (opzionale): tutto o niente, stesso 422', async () => {
+  it('PATCH /user/settings (optional): all or nothing, same 422', async () => {
     const ok = await raw('PATCH', '/auth/user/settings', { token, json: { appearance: { theme: 'dark' } } })
     expect(ok.status).toBe(200)
     expect(ok.body.data.appearance.theme).toBe('dark')

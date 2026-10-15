@@ -1,6 +1,6 @@
 /**
- * `@ilpachi/pachifastquasar`: shell applicativa Vue 3 / Quasar (layout, auth, dashboard, i18n, router) come
- * pacchetto. Vedi README per l'uso da un'app.
+ * `@ilpachi/pachifastquasar`: Vue 3 / Quasar application shell (layout, auth, dashboard, i18n, router) as a
+ * package. See the README for usage from an app.
  */
 export type { PachiRouteMeta } from './router/types/router'
 
@@ -11,7 +11,7 @@ export { createPachiHttp } from './app/create-http'
 export type { CreatePachiHttpOptions, PachiUseAlova } from './app/create-http'
 export { createPachiPinia } from './stores/create-pinia'
 
-// ── Configurazione ───────────────────────────────────────────────────────────
+// ── Configuration ──────────────────────────────────────────────────────────────
 export {
   DEFAULT_PACHI_CONFIG,
   definePachiConfig,
@@ -51,7 +51,7 @@ export type { PachiGlob } from './router/routes-finder'
 export { useRouteMeta } from './router/use-route-meta'
 export { useRouteText } from './router/route-text'
 
-// ── Menu account ─────────────────────────────────────────────────────────────
+// ── Account menu ───────────────────────────────────────────────────────────────
 export {
   buildMenuItems,
   collectPackageMenus,
@@ -71,7 +71,7 @@ export { composePachiMessages, pachiShellMessages } from './i18n'
 export type { MessageSchema, PachiMessageLayers } from './i18n'
 export { findQuasarLang, setQuasarLang } from './i18n/quasar-lang'
 
-// ── Componenti della shell ───────────────────────────────────────────────────
+// ── Shell components ──────────────────────────────────────────────────────
 export { default as MainLayout } from './core/layouts/MainLayout.vue'
 export { default as LoginPage } from './core/auth/pages/LoginPage.vue'
 export { default as ErrorNotFound } from './core/pages/ErrorNotFound.vue'
@@ -90,7 +90,7 @@ export type { IDashboardCard, IDashboardCardStat, IDashboardWidget } from './cor
 export { PACHI_TITLE_ANIMATIONS } from './core/dashboard/helpers/title-animation'
 export type { PachiTitleAnimation } from './core/dashboard/helpers/title-animation'
 
-// ── Servizi, store, helper ───────────────────────────────────────────────────
+// ── Services, stores, helpers ──────────────────────────────────────────────────────
 export { AuthManager, useAuthStore } from './services/auth-manager'
 export type { IMfaRequiredResponse, IToken, ITokenResponse, LoginResult } from './services/auth-manager'
 export type { IEngineInfo, IUserInfo } from './services/auth-manager/types/auth-manager'

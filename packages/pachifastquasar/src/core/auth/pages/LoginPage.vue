@@ -136,12 +136,12 @@ import PachiLogo from '../../components/PachiLogo.vue'
 const appConfig = getPachiConfig()
 
 /**
- * Pagina di login della shell. Personalizzabile con la prop `title` (default: titolo dell'app) e
- * lo slot `logo` (default: logo dell'app); per sostituirla del tutto: `config.components.loginPage`.
+ * Shell login page. Customizable with the `title` prop (default: app title) and
+ * the `logo` slot (default: app logo); to replace it entirely: `config.components.loginPage`.
  */
 withDefaults(
   defineProps<{
-    /** titolo mostrato accanto al logo */
+    /** title shown next to the logo */
     title?: string | undefined
   }>(),
   { title: undefined }
@@ -152,28 +152,28 @@ const username = ref('')
 const password = ref('')
 const mfaCode = ref('')
 const loading = ref(false)
-/** true durante il secondo step (codice MFA). */
+/** true during the second step (MFA code). */
 const mfaStep = ref(false)
-/** Errore inline del secondo step. */
+/** Inline error of the second step. */
 const mfaError = ref('')
-/** Avviso mostrato al primo step quando si torna indietro dal secondo (es. verifica scaduta). */
+/** Notice shown at the first step when going back from the second (e.g. expired verification). */
 const mfaNotice = ref('')
-/** true se l'avviso è solo informativo (es. account sbloccato), false se è un errore. */
+/** true if the notice is informational only (e.g. account unlocked), false if it is an error. */
 const mfaNoticeInfo = ref(false)
-/** Errore inline del primo step (credenziali non valide o errore generico). */
+/** Inline error of the first step (invalid credentials or generic error). */
 const loginError = ref('')
 const authManager = AuthManager.getInstance()
 
-/** Secondi rimasti allo sblocco dell'account (0 = nessun blocco in corso). */
+/** Seconds left until the account is unlocked (0 = no lock in progress). */
 const lockRemaining = ref(0)
-/** Conto alla rovescia `mm:ss`. */
+/** `mm:ss` countdown. */
 const lockTime = computed(() => formatCountdown(lockRemaining.value))
 let lockTimer: ReturnType<typeof setInterval> | null = null
 let lockEnd = 0
-/** Chiamata allo scadere del blocco. */
+/** Called when the lock expires. */
 let lockDone: (() => void) | null = null
 
-/** Ferma il timer del conto alla rovescia (se attivo) e azzera il blocco. */
+/** Stops the countdown timer (if active) and clears the lock. */
 function stopLock(): void {
   if (lockTimer !== null) clearInterval(lockTimer)
   lockTimer = null
@@ -182,11 +182,11 @@ function stopLock(): void {
 }
 
 /**
- * Avvia il conto alla rovescia live (aggiornato ogni secondo, calcolato sull'orologio per non
- * accumulare deriva); allo scadere ferma il timer e chiama `onDone`.
+ * Starts the live countdown (updated every second, computed from the clock to avoid
+ * accumulating drift); when it expires it stops the timer and calls `onDone`.
  *
- * @param seconds - secondi di attesa (da `Retry-After`)
- * @param onDone - azione da eseguire allo sblocco
+ * @param seconds - seconds to wait (from `Retry-After`)
+ * @param onDone - action to run on unlock
  */
 function startLock(seconds: number, onDone: () => void): void {
   stopLock()
@@ -211,7 +211,7 @@ function startLock(seconds: number, onDone: () => void): void {
 
 onBeforeUnmount(stopLock)
 
-/** Torna al primo step scartando la sfida MFA (la password non resta in pagina oltre il necessario). */
+/** Goes back to the first step discarding the MFA challenge (the password does not stay on the page longer than needed). */
 function backToLogin(): void {
   stopLock()
   authManager.cancelMfa()
@@ -221,7 +221,7 @@ function backToLogin(): void {
   password.value = ''
 }
 
-/** Esegue il login (una sola richiesta alla volta); gli errori sono mostrati inline sotto i campi. */
+/** Performs the login (one request at a time); errors are shown inline below the fields. */
 async function tryLogin(): Promise<void> {
   if (loading.value || lockRemaining.value > 0 || !username.value || !password.value) return
   loading.value = true
@@ -235,7 +235,7 @@ async function tryLogin(): Promise<void> {
       mfaError.value = ''
     }
   } catch (error: unknown) {
-    // errore già loggato da AuthManager; la richiesta non mostra il dialog (autoError false): messaggio inline
+    // error already logged by AuthManager; the request does not show the dialog (autoError false): inline message
     const status = (error as { status?: number } | null)?.status
     if (status === 429) {
       const wait = retryAfterFromError(error)
@@ -252,8 +252,8 @@ async function tryLogin(): Promise<void> {
 }
 
 /**
- * Secondo step: verifica il codice. Gli errori sono mostrati inline: codice errato (si riprova), troppi
- * tentativi o sfida scaduta (si torna al primo step).
+ * Second step: verifies the code. Errors are shown inline: wrong code (retry), too many
+ * attempts or expired challenge (back to the first step).
  */
 async function tryVerify(): Promise<void> {
   if (loading.value || !mfaCode.value.trim()) return
@@ -266,8 +266,8 @@ async function tryVerify(): Promise<void> {
     const code = await getErrorCode(error)
     if (status === 429 || code === 'mfa.too_many_attempts') {
       const wait = retryAfterFromError(error)
-      // con Retry-After (account bloccato) si resta qui col conto alla rovescia, poi si torna al login;
-      // senza (sfida esaurita) si torna subito al login
+      // with Retry-After (account locked) we stay here with the countdown, then go back to login;
+      // without it (challenge exhausted) we go back to login immediately
       if (wait) startLock(wait, () => leaveWith(t('auth.mfa.unlocked'), true))
       else leaveWith(t('auth.mfa.tooManyAttempts'))
     } else if (!authManager.hasPendingMfa) {
@@ -284,10 +284,10 @@ async function tryVerify(): Promise<void> {
 }
 
 /**
- * Torna al primo step mostrando un avviso.
+ * Goes back to the first step showing a notice.
  *
- * @param notice - testo dell'avviso
- * @param info - true per un avviso informativo (non rosso), false (default) per un errore
+ * @param notice - notice text
+ * @param info - true for an informational notice (not red), false (default) for an error
  */
 function leaveWith(notice: string, info = false): void {
   backToLogin()

@@ -56,8 +56,8 @@ import { actionLabel, fieldLabel } from '../helpers/schema-text'
 import { describeRequestError, useAdminApi } from '../helpers/use-admin'
 
 /**
- * Cronologia di una riga (`GET .../<pk>/history`): elenco paginato, dal più recente, con il diff `vecchio → nuovo`
- * di ogni campo modificato.
+ * History of a row (`GET .../<pk>/history`): paginated list, newest first, with the `old → new` diff
+ * of each modified field.
  */
 const props = withDefaults(defineProps<{
   schema: IAdminSchema
@@ -74,7 +74,7 @@ const pages = ref(1)
 const loading = ref(false)
 const errorText = ref('')
 
-/** Carica la pagina corrente. */
+/** Loads the current page. */
 async function load(): Promise<void> {
   loading.value = true
   errorText.value = ''
@@ -89,7 +89,7 @@ async function load(): Promise<void> {
   }
 }
 
-/** Data e ora locali di una voce. */
+/** Local date and time of an entry. */
 function formatTime(iso: string): string {
   const date = new Date(iso)
   return Number.isNaN(date.getTime())
@@ -97,12 +97,12 @@ function formatTime(iso: string): string {
     : new Intl.DateTimeFormat(String(locale.value), { dateStyle: 'medium', timeStyle: 'medium' }).format(date)
 }
 
-/** Tipo di una voce (per lo stile del badge). */
+/** Kind of an entry (for the badge style). */
 function entryKind(entry: IAdminHistoryEntry): string {
   return parseHistoryAction(entry.action).kind
 }
 
-/** Etichetta dell'azione: add/change/delete tradotte, azione in blocco con la sua etichetta dello schema. */
+/** Action label: add/change/delete translated, bulk action with its schema label. */
 function entryLabel(entry: IAdminHistoryEntry): string {
   const parsed = parseHistoryAction(entry.action)
   if (parsed.kind === 'action') {
@@ -112,10 +112,10 @@ function entryLabel(entry: IAdminHistoryEntry): string {
   return t(`pachiAdmin.history.${parsed.kind}`)
 }
 
-/** Modifiche di una voce. */
+/** Changes of an entry. */
 const changesOf = historyChanges
 
-/** Etichetta del campo (dallo schema, se il campo esiste ancora). */
+/** Field label (from the schema, if the field still exists). */
 function changeLabel(name: string): string {
   const field = props.schema.fields[name]
   return field ? fieldLabel(fieldKey(props.schema.app, props.schema.model, name), field) : name

@@ -12,7 +12,7 @@ describe('resolvePachiProfileHttp', () => {
   })
   afterEach(() => setPachiProfileHttp(null))
 
-  it('usa il client alova di getUseAlovaInstance con apiBase', () => {
+  it('uses the alova client from getUseAlovaInstance with apiBase', () => {
     const alova = { Get: vi.fn(), Post: vi.fn() }
     const factory = vi.fn(() => ({ alova }))
     getUseAlovaInstance.mockReturnValue(factory)
@@ -20,7 +20,7 @@ describe('resolvePachiProfileHttp', () => {
     expect(factory).toHaveBeenCalledWith({ url: '/x' })
   })
 
-  it('memorizza il client per factory e apiBase', () => {
+  it('caches the client per factory and apiBase', () => {
     const factory = vi.fn(() => ({ alova: { Get: vi.fn(), Post: vi.fn() } }))
     getUseAlovaInstance.mockReturnValue(factory)
     const a = resolvePachiProfileHttp('/api')
@@ -34,14 +34,14 @@ describe('resolvePachiProfileHttp', () => {
     expect(factory2).toHaveBeenCalledTimes(1)
   })
 
-  it('lancia un errore chiaro senza istanza', () => {
+  it('throws a clear error without an instance', () => {
     getUseAlovaInstance.mockImplementation(() => {
       throw new Error('no instance')
     })
     expect(() => resolvePachiProfileHttp()).toThrow(/needs an @ilpachi\/use-alova client/)
   })
 
-  it('setPachiProfileHttp ha la precedenza', () => {
+  it('setPachiProfileHttp takes precedence', () => {
     const client = { Get: vi.fn(), Post: vi.fn() }
     setPachiProfileHttp(() => client)
     expect(resolvePachiProfileHttp()).toBe(client)

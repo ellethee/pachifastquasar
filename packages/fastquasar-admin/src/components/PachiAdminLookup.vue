@@ -40,9 +40,9 @@ import { messages } from '../locales'
 import { useAdminApi } from '../helpers/use-admin'
 
 /**
- * Selettore di una chiave esterna verso un modello registrato: le scelte arrivano da
- * `GET /admin/models/<app>/<model>/_options?search=` (ricerca asincrona con debounce) e il valore già salvato
- * si risolve in etichetta con `?ids=`.
+ * Foreign key selector towards a registered model: the choices come from
+ * `GET /admin/models/<app>/<model>/_options?search=` (async search with debounce) and the already saved value
+ * is resolved to a label with `?ids=`.
  */
 const props = withDefaults(defineProps<{
   modelValue?: AdminPk | null
@@ -63,26 +63,26 @@ const api = useAdminApi()
 
 const options = ref<IAdminLookupOption[]>([])
 const loading = ref(false)
-/** Etichette già note per valore (valore salvato e scelte passate). */
+/** Labels already known by value (saved value and past choices). */
 const known = new Map<string, IAdminLookupOption>()
 
 /**
- * Ricorda le opzioni ricevute.
+ * Remembers the received options.
  *
- * @param items - opzioni del backend
+ * @param items - options from the backend
  */
 function remember(items: IAdminLookupOption[]): void {
   for (const item of items) known.set(String(item.value), item)
 }
 
-/** Opzioni da mostrare: i risultati più il valore salvato (così l'etichetta resta visibile). */
+/** Options to show: the results plus the saved value (so the label stays visible). */
 function withCurrent(items: IAdminLookupOption[]): IAdminLookupOption[] {
   const current = props.modelValue === null || props.modelValue === undefined ? null : known.get(String(props.modelValue))
   return current && !items.some((i) => String(i.value) === String(current.value)) ? [current, ...items] : items
 }
 
 /**
- * Risolve l'etichetta del valore salvato (`?ids=`).
+ * Resolves the label of the saved value (`?ids=`).
  */
 async function resolveCurrent(): Promise<void> {
   const value = props.modelValue
@@ -97,7 +97,7 @@ async function resolveCurrent(): Promise<void> {
     remember(page.items)
     options.value = withCurrent(options.value)
   } catch {
-    // l'etichetta resta il valore: l'errore vero (403/404) emerge al salvataggio
+    // the label stays the value: the real error (403/404) surfaces on save
     known.set(String(value), { value, label: String(value) })
     options.value = withCurrent(options.value)
   } finally {
@@ -106,10 +106,10 @@ async function resolveCurrent(): Promise<void> {
 }
 
 /**
- * Ricerca asincrona delle opzioni (chiamata da QSelect dopo il debounce).
+ * Async options search (called by QSelect after the debounce).
  *
- * @param search - testo digitato
- * @param update - callback di QSelect per applicare le opzioni
+ * @param search - typed text
+ * @param update - QSelect callback to apply the options
  */
 function onFilter(search: string, update: (fn: () => void) => void): void {
   loading.value = true
@@ -128,9 +128,9 @@ function onFilter(search: string, update: (fn: () => void) => void): void {
 }
 
 /**
- * Propaga la scelta.
+ * Propagates the choice.
  *
- * @param value - valore scelto o `null`
+ * @param value - chosen value or `null`
  */
 function onUpdate(value: AdminPk | null): void {
   emit('update:modelValue', value ?? null)

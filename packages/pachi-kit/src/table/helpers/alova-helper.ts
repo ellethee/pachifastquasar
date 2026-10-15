@@ -4,43 +4,43 @@ import type { UseAlovaReturn } from '@ilpachi/use-alova'
 
 export { usePagination }
 
-/** Opzioni per la creazione dell'istanza alova usata dalla tabella. */
+/** Options for creating the alova instance used by the table. */
 export interface IPachiAlovaOptions {
-  /** URL base delle richieste della tabella (es. `/api/users`). */
+  /** Base URL of the table requests (e.g. `/api/users`). */
   url?: string
 }
 
-/** Istanza alova usata dai componenti Pachi (con le utility Get/Post/Put/Patch/Delete). */
+/** Alova instance used by the Pachi components (with the Get/Post/Put/Patch/Delete utilities). */
 export type AlovaExt = UseAlovaReturn['alova']
 
-/** Factory per creare l'istanza alova a partire dalle opzioni. */
+/** Factory creating the alova instance from the options. */
 export type PachiAlovaFactory = (options?: IPachiAlovaOptions) => AlovaExt
 
 let customFactory: PachiAlovaFactory | null = null
 
-/** Ultima istanza creata dal default, riusata finché `useAlova` e url non cambiano. */
+/** Last instance created by the default, reused until `useAlova` and url change. */
 let cache: { useAlova: unknown, url: string, alova: AlovaExt } | null = null
 
 /**
- * Sostituisce la risoluzione automatica dell'istanza alova con una factory personalizzata.
- * Da chiamare una sola volta all'avvio dell'app. Ha la precedenza su tutto il resto.
+ * Replaces the automatic resolution of the alova instance with a custom factory.
+ * Call it once at app startup. It takes precedence over everything else.
  *
- * @param factory - factory che restituisce un'istanza alova
+ * @param factory - factory returning an alova instance
  */
 export function setPachiAlovaFactory(factory: PachiAlovaFactory): void {
   customFactory = factory
 }
 
 /**
- * Crea l'istanza alova della tabella. Ordine di risoluzione:
- * 1. la factory impostata con `setPachiAlovaFactory`;
- * 2. l'istanza di `@ilpachi/use-alova` (`getUseAlovaInstance()`), registrata da `createUseAlova()`
- *    (fatto da `createPachiApp` di `@ilpachi/pachifastquasar`): porta con sé header di autenticazione,
- *    refresh del token e gestione errori.
+ * Creates the table's alova instance. Resolution order:
+ * 1. the factory set with `setPachiAlovaFactory`;
+ * 2. the `@ilpachi/use-alova` instance (`getUseAlovaInstance()`), registered by `createUseAlova()`
+ *    (done by `createPachiApp` of `@ilpachi/pachifastquasar`): it brings authentication headers,
+ *    token refresh and error handling.
  *
- * @param options - opzioni dell'istanza (url base)
- * @returns istanza alova
- * @throws Error se non c'è una factory registrata né un'istanza di use-alova
+ * @param options - instance options (base url)
+ * @returns alova instance
+ * @throws Error if there is no registered factory nor a use-alova instance
  */
 export function createPachiAlova(options: IPachiAlovaOptions = {}): AlovaExt {
   if (customFactory) return customFactory(options)

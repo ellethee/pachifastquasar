@@ -1,21 +1,21 @@
-/** Guardia anti-rientro per azioni asincrone (salvataggio, conferma). */
+/** Re-entry guard for async actions (save, confirm). */
 export interface ISubmitGuard {
-  /** `true` se l'azione e' in corso. */
+  /** `true` if the action is in progress. */
   readonly busy: boolean
   /**
-   * Prova a iniziare un'azione.
-   * @returns `false` se ce n'e' gia' una in corso (da ignorare), altrimenti `true`
+   * Tries to start an action.
+   * @returns `false` if one is already in progress (to be ignored), otherwise `true`
    */
   enter: () => boolean
-  /** Segnala la fine dell'azione (successo, errore o annullamento). Idempotente. */
+  /** Signals the end of the action (success, error or cancellation). Idempotent. */
   leave: () => void
 }
 
 /**
- * Crea una guardia che impedisce di avviare due volte la stessa azione (doppio click).
- * Se nessuno chiama `leave()` entro `timeoutMs` la guardia si libera da sola, cosi' un listener
- * che non chiama mai `onSuccess`/`onError` non blocca il dialog per sempre.
- * @param timeoutMs tempo massimo di blocco in millisecondi (default 10000)
+ * Creates a guard that prevents starting the same action twice (double click).
+ * If nobody calls `leave()` within `timeoutMs` the guard releases itself, so a listener
+ * that never calls `onSuccess`/`onError` does not block the dialog forever.
+ * @param timeoutMs maximum lock time in milliseconds (default 10000)
  */
 export function createSubmitGuard(timeoutMs = 10_000): ISubmitGuard {
   let busy = false

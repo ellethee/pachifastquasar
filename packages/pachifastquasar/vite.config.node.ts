@@ -1,8 +1,8 @@
 import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
 
-// Build dell'entry Node `./quasar` (helper per quasar.config.ts): `dist/quasar.js`, senza Vue né componenti.
-// Gira in Node (quasar.config.ts), quindi tutte le dipendenze restano esterne.
+// Build of the Node `./quasar` entry (helpers for quasar.config.ts): `dist/quasar.js`, without Vue nor components.
+// It runs in Node (quasar.config.ts), so all dependencies stay external.
 export default defineConfig({
   plugins: [
     dts({

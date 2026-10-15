@@ -1,12 +1,12 @@
 // ── Quasar component overrides ───────────────────────────────────────────────
-// Rebrand: Pachi Fast Quasar "Densità Operativa · Dark"
+// Rebrand: Pachi Fast Quasar "Operational Density · Dark"
 
-// ── Hover effects (dashboard card scale, rubber-band su titoli) ─────────────
-// Attivi di default; disabilitabili con appConfig.app.hoverEffectsEnabled
-// (env QCLI_APP_HOVER_EFFECTS=false), che aggiunge .pachi-hover-fx-disabled su
-// <body> (vedi src/App.vue). Componenti consumano queste due custom
-// properties invece di scrivere transform/animation a mano, così il toggle
-// li spegne tutti in un colpo solo.
+// ── Hover effects (dashboard card scale, rubber-band on titles) ─────────────
+// Enabled by default; can be disabled with appConfig.app.hoverEffectsEnabled
+// (env QCLI_APP_HOVER_EFFECTS=false), which adds .pachi-hover-fx-disabled on
+// <body> (see src/App.vue). Components consume these two custom
+// properties instead of writing transform/animation by hand, so the toggle
+// turns them all off at once.
 :root {
   --pachi-hover-fx-transform: scale(1.03);
   --pachi-hover-fx-animation: rubber-band 0.8s;
@@ -17,7 +17,7 @@ body.pachi-hover-fx-disabled {
   --pachi-hover-fx-animation: none;
 }
 
-// Chi chiede meno movimento: niente trasformazioni/animazioni hover né transizioni delle card
+// Users who ask for less motion: no hover transforms/animations nor card transitions
 @media (prefers-reduced-motion: reduce) {
   :root {
     --pachi-hover-fx-transform: none;
@@ -60,7 +60,7 @@ body.pachi-hover-fx-disabled {
   }
 }
 
-// Animazioni del titolo delle card (`app.titleAnimation`, `meta.titleAnimation`): vedi core/dashboard/helpers/title-animation.ts
+// Card title animations (`app.titleAnimation`, `meta.titleAnimation`): see core/dashboard/helpers/title-animation.ts
 @keyframes pachi-pulse {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.12); }
@@ -73,7 +73,7 @@ body.pachi-hover-fx-disabled {
 }
 
 @keyframes pachi-wobble {
-  // spostamenti in px (non %): il titolo è a larghezza piena e una percentuale sposterebbe il testo di decine di pixel
+  // offsets in px (not %): the title is full width and a percentage would shift the text by tens of pixels
   0%, 100% { transform: translateX(0) rotate(0); }
   15% { transform: translateX(-4px) rotate(-1.5deg); }
   30% { transform: translateX(3px) rotate(1deg); }
@@ -99,12 +99,12 @@ body.pachi-hover-fx-disabled {
 
 // ── Topbar ───────────────────────────────────────────────────────────────────
 :where(.q-layout) {
-  // la barra contiene il logo: cresce con `--pachi-app-logo-size` (nessun taglio dell'elmo)
+  // the bar contains the logo: it grows with `--pachi-app-logo-size` (no helmet cut-off)
   --pachi-appbar-height: max(52px, calc(var(--pachi-app-logo-size, 36px) + 16px));
 }
 
 :where(.q-layout.pachi-layout--logo-overlap) {
-  // `logoOverlap`: barra fissa, il logo pende sotto
+  // `logoOverlap`: fixed bar, the logo hangs below
   --pachi-appbar-height: 52px;
 }
 
@@ -129,7 +129,7 @@ body.pachi-hover-fx-disabled {
   }
 }
 
-// Override della prop "rounded": usa sempre 7px invece degli angoli a pillola
+// Override of the "rounded" prop: always uses 7px instead of pill corners
 .q-field--outlined.q-field--rounded .q-field__control {
   border-radius: 7px !important;
 }
@@ -143,7 +143,7 @@ input.q-field__native {
   padding-right: 10px !important;
 }
 
-// Label e hint
+// Label and hint
 .q-field__label {
   font-family: var(--pachi-font);
   font-size: 13px;
@@ -222,7 +222,7 @@ input.q-field__native {
 // ── Toggle ───────────────────────────────────────────────────────────────────
 .q-toggle {
   .q-toggle__inner {
-    font-size: 16px; // controlla la scala
+    font-size: 16px; // controls the scale
     min-width: 28px;
     width: 28px;
   }
@@ -247,7 +247,7 @@ input.q-field__native {
   }
 }
 
-// Quando il colore è "primary" (usato da color="primary" nei toggle)
+// When the color is "primary" (used by color="primary" in toggles)
 .q-toggle--truthy .q-toggle__track {
   background: var(--pachi-accent) !important;
   opacity: 1 !important;

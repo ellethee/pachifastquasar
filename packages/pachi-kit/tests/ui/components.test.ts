@@ -8,7 +8,7 @@ import { mountWithQuasar, teardown } from '../helpers/mount'
 afterEach(teardown)
 
 describe('PachiDatePicker', () => {
-  it('mostra il modello nell\'input ed emette update:modelValue alla digitazione', async () => {
+  it('shows the model in the input and emits update:modelValue on typing', async () => {
     const w = mountWithQuasar(PachiDatePicker, { props: { modelValue: '2026-01-02 10:30' } })
     const input = w.find('input')
     expect((input.element as HTMLInputElement).value).toBe('2026-01-02 10:30')
@@ -16,21 +16,21 @@ describe('PachiDatePicker', () => {
     expect(w.emitted('update:modelValue')?.at(-1)).toEqual(['2026-03-04 08:00'])
   })
 
-  it('di default i pulsanti calendario/orologio sono attivi', () => {
+  it('by default the calendar/clock buttons are active', () => {
     const w = mountWithQuasar(PachiDatePicker)
     const btns = w.findAll('button')
     expect(btns).toHaveLength(2)
     expect(btns.every(b => b.attributes('disabled') === undefined && b.attributes('aria-disabled') === undefined)).toBe(true)
   })
 
-  it('readonly: input in sola lettura e pulsanti disabilitati', () => {
+  it('readonly: read-only input and disabled buttons', () => {
     const w = mountWithQuasar(PachiDatePicker, { props: { readonly: true } })
     expect(w.find('input').attributes('readonly')).toBeDefined()
     const btns = w.findAll('button')
     expect(btns.every(b => b.attributes('disabled') !== undefined)).toBe(true)
   })
 
-  it('disable: input disabilitato e pulsanti disabilitati', () => {
+  it('disable: disabled input and disabled buttons', () => {
     const w = mountWithQuasar(PachiDatePicker, { props: { disable: true } })
     expect(w.find('input').attributes('disabled')).toBeDefined()
     expect(w.findAll('button').every(b => b.attributes('disabled') !== undefined)).toBe(true)
@@ -38,25 +38,25 @@ describe('PachiDatePicker', () => {
 })
 
 describe('PachiConfirmDialog (type-to-confirm)', () => {
-  /** Monta e apre il dialog; ritorna il wrapper. */
+  /** Mounts and opens the dialog; returns the wrapper. */
   async function open(props: Record<string, unknown> = {}) {
-    const w = mountWithQuasar(PachiConfirmDialog, { props: { title: 'Elimina X', description: 'Irreversibile', ...props } })
+    const w = mountWithQuasar(PachiConfirmDialog, { props: { title: 'Delete X', description: 'Irreversible', ...props } })
     ;(w.vm as unknown as { dialogRef: { show: () => void } }).dialogRef.show()
     await flushPromises()
     return w
   }
   const input = () => document.body.querySelector<HTMLInputElement>('.pachi-confirm-dialog__input input')!
   const submit = () => document.body.querySelector<HTMLButtonElement>('.pachi-confirm-dialog__submit')!
-  /** Digita nell'input come farebbe l'utente. */
+  /** Types in the input as the user would. */
   async function type(text: string) {
     input().value = text
     input().dispatchEvent(new Event('input'))
     await flushPromises()
   }
 
-  it('il pulsante resta disattivato finche\' non si digita la parola esatta', async () => {
+  it('the button stays disabled until the exact word is typed', async () => {
     const w = await open()
-    expect(document.body.textContent).toContain('Elimina X')
+    expect(document.body.textContent).toContain('Delete X')
     expect(submit().disabled).toBe(true)
     await type('elimina')
     expect(submit().disabled).toBe(true)
@@ -67,7 +67,7 @@ describe('PachiConfirmDialog (type-to-confirm)', () => {
     expect(w.emitted('ok')).toHaveLength(1)
   })
 
-  it('con parola personalizzata la mostra e la richiede; spazi ai bordi ignorati', async () => {
+  it('with a custom word it shows and requires it; surrounding spaces ignored', async () => {
     const w = await open({ confirmWord: 'prod-db' })
     expect(document.body.querySelector('.pachi-confirm-dialog__confirm-word')?.textContent).toBe('prod-db')
     await type('ELIMINA')
@@ -77,7 +77,7 @@ describe('PachiConfirmDialog (type-to-confirm)', () => {
     expect(w.emitted('ok')).toBeUndefined()
   })
 
-  it('Invio con parola errata non conferma; Annulla non emette ok', async () => {
+  it('Enter with a wrong word does not confirm; Cancel does not emit ok', async () => {
     const w = await open()
     await type('no')
     input().dispatchEvent(new KeyboardEvent('keyup', { key: 'Enter', keyCode: 13 }))
@@ -88,9 +88,9 @@ describe('PachiConfirmDialog (type-to-confirm)', () => {
     expect(w.emitted('ok')).toBeUndefined()
   })
 
-  it('tone e submitLabel personalizzati', async () => {
-    await open({ tone: 'info', submitLabel: 'Procedi' })
+  it('custom tone and submitLabel', async () => {
+    await open({ tone: 'info', submitLabel: 'Proceed' })
     expect(document.body.querySelector('.pachi-confirm-dialog--info')).toBeTruthy()
-    expect(submit().textContent).toContain('Procedi')
+    expect(submit().textContent).toContain('Proceed')
   })
 })

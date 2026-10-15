@@ -1,12 +1,12 @@
 import type { IFieldDef } from '../types'
 
 /**
- * Converte il valore emesso dal componente in base al tipo del campo:
- * `type: 'number'` emette un `number` (o `null` se vuoto/non numerico), gli altri tipi restano invariati.
+ * Converts the value emitted by the component according to the field type:
+ * `type: 'number'` emits a `number` (or `null` if empty/non-numeric), other types are left unchanged.
  *
- * @param field - definizione del campo
- * @param value - valore grezzo emesso da `q-input`
- * @returns il valore coerente col tipo
+ * @param field - field definition
+ * @param value - raw value emitted by `q-input`
+ * @returns the value consistent with the type
  */
 export function coerce(field: Pick<IFieldDef, 'type'>, value: unknown): unknown {
   if (field.type !== 'number') return value
@@ -16,12 +16,12 @@ export function coerce(field: Pick<IFieldDef, 'type'>, value: unknown): unknown 
 }
 
 /**
- * Valore da passare alle regole di validazione: un `boolean` non ancora toccato (`undefined`/`null`)
- * vale `false`, perché un toggle non ha uno stato "vuoto"; gli altri valori restano invariati.
+ * Value to pass to the validation rules: an untouched `boolean` (`undefined`/`null`)
+ * is `false`, because a toggle has no "empty" state; other values are left unchanged.
  *
- * @param field - definizione del campo
- * @param value - valore corrente del modello
- * @returns il valore da validare
+ * @param field - field definition
+ * @param value - current model value
+ * @returns the value to validate
  */
 export function valueForValidation(field: Pick<IFieldDef, 'type' | 'component'>, value: unknown): unknown {
   if (field.type === 'boolean' && !field.component && (value === undefined || value === null)) return false
@@ -29,12 +29,12 @@ export function valueForValidation(field: Pick<IFieldDef, 'type' | 'component'>,
 }
 
 /**
- * Normalizza un valore "vuoto" (`''`/`null`) a `undefined` quando il baseline non aveva il campo:
- * svuotare un campo mai valorizzato non è una modifica (`hasChanges` resta `false`).
+ * Normalizes an "empty" value (`''`/`null`) to `undefined` when the baseline did not have the field:
+ * clearing a never-set field is not a change (`hasChanges` stays `false`).
  *
- * @param original - valore del campo nel baseline
- * @param value - nuovo valore emesso dal componente
- * @returns il valore da memorizzare nello stato
+ * @param original - value of the field in the baseline
+ * @param value - new value emitted by the component
+ * @returns the value to store in the state
  */
 export function normalizeAgainstOriginal(original: unknown, value: unknown): unknown {
   return original === undefined && (value === '' || value === null) ? undefined : value

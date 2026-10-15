@@ -20,13 +20,13 @@ import '../styles/security.scss'
 import { buildQrMatrix, qrMatrixToPath } from '../helpers/mfa'
 
 /**
- * QR code in SVG per un testo (es. URI `otpauth://`). Sfondo bianco e zona di rispetto di 4 moduli per essere
- * leggibile anche nel tema scuro. La libreria è caricata in modo pigro.
+ * SVG QR code for a text (e.g. an `otpauth://` URI). White background and a 4-module quiet zone so it is
+ * readable in the dark theme too. The library is loaded lazily.
  */
 const props = defineProps<{
-  /** Contenuto da codificare. */
+  /** Content to encode. */
   value: string
-  /** Testo alternativo del codice. */
+  /** Alternative text of the code. */
   label: string
 }>()
 

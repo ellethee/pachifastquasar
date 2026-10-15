@@ -18,12 +18,12 @@ const route = (path: string, order?: number, root?: boolean): RouteRecordRaw =>
   ({ path, meta: { order, root }, component: {} }) as RouteRecordRaw
 
 describe('routes-finder', () => {
-  it('ordina per meta.order (default 99) senza mutare', () => {
+  it('sorts by meta.order (default 99) without mutating', () => {
     const input = [route('/c'), route('/a', 1), route('/b', 5)]
     expect(getFilteredRoutes(input).map(r => r.path)).toEqual(['/a', '/b', '/c'])
     expect(input[0]?.path).toBe('/c')
   })
-  it('estrae il nome del package', () => {
+  it('extracts the package name', () => {
     expect(extractPackageName('/node_modules/@ilpachi/fastquasar-settings/dist/routes.js')).toBe(
       'fastquasar-settings'
     )
@@ -40,14 +40,14 @@ describe('routes-finder', () => {
       ['/b']
     )
   })
-  it('package prima delle feature', () => {
+  it('packages before features', () => {
     const routes = collectFeatureRoutes({
       packages: { '/node_modules/@ilpachi/a/routes.ts': route('/pkg') },
       features: { '/src/features/f/routes.ts': [route('/feat')] }
     })
     expect(routes.map(r => r.path)).toEqual(['/pkg', '/feat'])
   })
-  it('raccoglie le factory di menu e scarta i non-funzione', () => {
+  it('collects menu factories and discards non-functions', () => {
     const f = () => null
     const glob = {
       '/node_modules/@ilpachi/a/menu.ts': f,
@@ -67,13 +67,13 @@ describe('buildPachiRoutes', () => {
       }
     })
     expect(routes[0]?.path).toBe('/')
-    // la home non ha titolo: il nome dell'app e' gia' nell'AppBar e non deve comparire nel crumb
+    // the home has no title: the app name is already in the AppBar and must not appear in the crumb
     expect(routes[0]?.meta?.title).toBeUndefined()
     expect(routes[0]?.meta?.hideTitle).toBe(true)
     expect(routes[0]?.children?.map(r => r.path)).toEqual(['/x'])
     expect(routes.map(r => r.path)).toEqual(['/', '/auth/login', '/r', '/:catchAll(.*)*'])
   })
-  it('senza auth non monta il login e usa i componenti sostituiti', () => {
+  it('without auth it does not mount the login and uses the replaced components', () => {
     const layout = { name: 'L' }
     const config = resolvePachiConfig({
       auth: { enabled: false },
@@ -83,7 +83,7 @@ describe('buildPachiRoutes', () => {
     expect(routes.map(r => r.path)).toEqual(['/', '/:catchAll(.*)*'])
     expect(routes[0]?.component).toBe(layout)
   })
-  it('un package con src e dist (linkato) conta una volta, preferendo dist', () => {
+  it('a package with src and dist (linked) counts once, preferring dist', () => {
     const entries = enabledPackageEntries(
       {
         '/node_modules/@ilpachi/a/src/menu.ts': { default: 'src' },
@@ -98,13 +98,13 @@ describe('buildPachiRoutes', () => {
 
 describe('ensureNavigableRoutes', () => {
   const page = { render: () => null }
-  it('aggiunge un RouterView al padre con figli e senza component', () => {
+  it('adds a RouterView to a parent with children and no component', () => {
     const input = [{ path: '/inv', children: [{ path: 'a', component: page }] }] as RouteRecordRaw[]
     const [out] = ensureNavigableRoutes(input)
     expect((out as { component?: unknown }).component).toBe(RouterView)
     expect((input[0] as { component?: unknown }).component).toBeUndefined()
   })
-  it('non tocca component, redirect e route senza figli', () => {
+  it('does not touch component, redirect and routes without children', () => {
     const input = [
       { path: '/a', component: page, children: [{ path: 'x', component: page }] },
       { path: '/b', redirect: '/a', children: [{ path: 'x', component: page }] },
@@ -115,7 +115,7 @@ describe('ensureNavigableRoutes', () => {
     expect(out[1]?.component).toBeUndefined()
     expect(out[2]?.component).toBe(page)
   })
-  it('il padre senza component si risolve (non cade nel catch-all)', async () => {
+  it('the parent without component resolves (does not fall into the catch-all)', async () => {
     const { createRouter, createMemoryHistory } = await import('vue-router')
     const routes = ensureNavigableRoutes([
       { path: '/inv', children: [{ path: 'a', component: page }] }

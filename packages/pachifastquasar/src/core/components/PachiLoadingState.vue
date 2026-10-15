@@ -40,7 +40,7 @@ import { useI18n } from 'vue-i18n'
 
 withDefaults(
   defineProps<{
-    /** Etichetta del footer; default tradotto (`common.loading`). */
+    /** Footer label; default is translated (`common.loading`). */
     label?: string
     columns?: number
   }>(),

@@ -45,16 +45,16 @@ interface Row {
   name: string
 }
 
-const columns: QTableColumn[] = [{ name: 'name', label: 'Nome', field: 'name' }]
+const columns: QTableColumn[] = [{ name: 'name', label: 'Name', field: 'name' }]
 const date = ref<string | undefined>(undefined)
 const text = ref('')
 
-/** Fissa il tipo di riga `T` della tabella (come nelle app reali). */
+/** Fixes the row type `T` of the table (as in real apps). */
 function canEditRow(row: Row): boolean {
   return row.id > 0
 }
 
-/** Listener tipizzati: se i d.ts degradano a `never` la compilazione fallisce. */
+/** Typed listeners: if the d.ts files degrade to `never` the compilation fails. */
 function onData(response: IPaginatedResponse<Row>): void {
   void response.items
 }

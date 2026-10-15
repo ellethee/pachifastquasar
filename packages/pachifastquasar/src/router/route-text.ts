@@ -2,29 +2,29 @@ import { useI18n } from 'vue-i18n'
 import type { RouteMeta } from 'vue-router'
 
 /**
- * Risolutore dei testi di una route (titolo e descrizione) nella lingua corrente.
- * `meta.titleKey` / `meta.descriptionKey` sono chiavi i18n risolte con `t()` (reattive al cambio
- * lingua); `meta.title` / `meta.description` restano stringhe letterali (retrocompatibili) usate
- * quando la chiave non è presente.
+ * Resolver of the texts of a route (title and description) in the current language.
+ * `meta.titleKey` / `meta.descriptionKey` are i18n keys resolved with `t()` (reactive to language
+ * changes); `meta.title` / `meta.description` remain literal strings (backward compatible) used
+ * when the key is not present.
  *
- * @returns funzioni `routeTitle(meta)` e `routeDescription(meta)`; stringa vuota se assenti
+ * @returns `routeTitle(meta)` and `routeDescription(meta)` functions; empty string if absent
  */
 export function useRouteText() {
   const { t } = useI18n()
 
-  /** Titolo della route nella lingua corrente. */
+  /** Route title in the current language. */
   function routeTitle(meta?: Partial<RouteMeta>): string {
     if (meta?.titleKey) return t(meta.titleKey)
     return meta?.title ?? ''
   }
 
-  /** Descrizione della route nella lingua corrente. */
+  /** Route description in the current language. */
   function routeDescription(meta?: Partial<RouteMeta>): string {
     if (meta?.descriptionKey) return t(meta.descriptionKey)
     return meta?.description ?? ''
   }
 
-  /** Vero se la route ha un titolo (letterale o chiave). */
+  /** True if the route has a title (literal or key). */
   function hasTitle(meta?: Partial<RouteMeta>): boolean {
     return !!(meta?.titleKey || meta?.title)
   }

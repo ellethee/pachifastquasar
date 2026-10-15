@@ -15,7 +15,7 @@ vi.mock('@ilpachi/pachi-i18n', () => ({
 const { fieldProperties, resolveSchemaText, sectionTitle } = await import('../src/helpers/schema-text')
 
 describe('resolveSchemaText', () => {
-  it('traduce se la chiave esiste, altrimenti usa il fallback', () => {
+  it('translates if the key exists, otherwise uses the fallback', () => {
     expect(resolveSchemaText('settings.audit.title', 'Audit')).toBe('Audit (tradotto)')
     expect(resolveSchemaText('settings.missing', 'Audit')).toBe('Audit')
     expect(resolveSchemaText(undefined, 'Audit')).toBe('Audit')
@@ -23,14 +23,14 @@ describe('resolveSchemaText', () => {
 })
 
 describe('sectionTitle', () => {
-  it('usa titleKey con fallback su title', () => {
+  it('uses titleKey with fallback to title', () => {
     expect(sectionTitle({ title: 'Audit', titleKey: 'settings.audit.title', icon: null, route: null, fields: {} })).toBe('Audit (tradotto)')
     expect(sectionTitle({ title: 'Audit', icon: null, route: null, fields: {} })).toBe('Audit')
   })
 })
 
 describe('fieldProperties', () => {
-  it('applica labelKey, propertyKeys e optionKeys senza modificare lo schema', () => {
+  it('applies labelKey, propertyKeys and optionKeys without modifying the schema', () => {
     const field = {
       component: 'select',
       label: 'A',

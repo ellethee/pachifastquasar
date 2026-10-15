@@ -2,24 +2,24 @@ import { describe, expect, it } from 'vitest'
 import { matchesConfirmWord, resolveConfirmWord } from '../../src/ui/helper/confirm-word'
 
 describe('matchesConfirmWord', () => {
-  it('conferma solo con la parola esatta', () => {
+  it('confirms only with the exact word', () => {
     expect(matchesConfirmWord('ELIMINA', 'ELIMINA')).toBe(true)
     expect(matchesConfirmWord('elimina', 'ELIMINA')).toBe(false)
     expect(matchesConfirmWord('ELIM', 'ELIMINA')).toBe(false)
   })
-  it('ignora gli spazi ai bordi', () => {
+  it('ignores surrounding spaces', () => {
     expect(matchesConfirmWord('  ELIMINA ', 'ELIMINA')).toBe(true)
   })
-  it('parola vuota mai valida', () => {
+  it('empty word is never valid', () => {
     expect(matchesConfirmWord('', '')).toBe(false)
   })
 })
 
 describe('resolveConfirmWord', () => {
-  it('usa la parola personalizzata se non vuota', () => {
+  it('uses the custom word if not empty', () => {
     expect(resolveConfirmWord('OK', 'ELIMINA')).toBe('OK')
   })
-  it('ripiega sul default se assente, vuota o di soli spazi', () => {
+  it('falls back to the default if missing, empty or only spaces', () => {
     expect(resolveConfirmWord(undefined, 'ELIMINA')).toBe('ELIMINA')
     expect(resolveConfirmWord('', 'ELIMINA')).toBe('ELIMINA')
     expect(resolveConfirmWord('  ', 'ELIMINA')).toBe('ELIMINA')

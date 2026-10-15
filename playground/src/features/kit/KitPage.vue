@@ -1,19 +1,19 @@
 <template>
   <q-page padding class="column q-gutter-md">
     <div>
-      Nome:
+      Name:
       <span class="text-primary cursor-pointer" data-test="kit-name">{{ name }}</span>
-      <pachi-popup-edit v-model="name" title="Nome" :rules="[(v) => !!v || 'Obbligatorio']" />
+      <pachi-popup-edit v-model="name" title="Name" :rules="[(v) => !!v || 'Required']" />
     </div>
     <div>
-      <pachi-duotone-icon :icon="duotone" title="Icona duotone" />
+      <pachi-duotone-icon :icon="duotone" title="Duotone icon" />
     </div>
     <div>
-      <q-btn label="Conferma" data-test="kit-confirm" @click="confirm" />
+      <q-btn label="Confirm" data-test="kit-confirm" @click="confirm" />
       <span class="q-ml-md" data-test="kit-result">{{ result }}</span>
     </div>
     <div>
-      <q-btn label="Dialogo" data-test="kit-dialog" @click="showDialog" />
+      <q-btn label="Dialog" data-test="kit-dialog" @click="showDialog" />
     </div>
   </q-page>
 </template>
@@ -25,30 +25,30 @@ import { mdiPuzzleOutline } from '@quasar/extras/mdi-v7'
 import { PachiConfirmDialog, PachiDuotoneIcon, PachiPopupEdit } from '@ilpachi/pachi-kit/ui'
 import { usePachiDialog } from '@ilpachi/pachi-kit/dialog'
 
-/** Icona a due toni (path primario a piena opacità, secondario ridotto). */
+/** Two-tone icon (primary path at full opacity, secondary reduced). */
 const duotone = { primary: mdiPuzzleOutline, secondary: mdiPuzzleOutline }
 const $q = useQuasar()
 const createDialog = usePachiDialog()
-const name = ref('Esempio')
+const name = ref('Example')
 const result = ref('')
 
-/** Apre il dialogo di conferma di `pachi-kit/ui`. */
+/** Opens the confirm dialog of `pachi-kit/ui`. */
 function confirm(): void {
   $q.dialog({
     component: PachiConfirmDialog,
     componentProps: {
-      title: 'Conferma esempio',
-      description: 'Dialogo di conferma di pachi-kit/ui.',
+      title: 'Example confirmation',
+      description: 'Confirm dialog from pachi-kit/ui.',
       tone: 'info',
-      submitLabel: 'Procedi'
+      submitLabel: 'Proceed'
     }
   }).onOk(() => {
-    result.value = 'confermato'
+    result.value = 'confirmed'
   })
 }
 
-/** Apre un `PachiDialog` di `pachi-kit/dialog` con contenuto a render function. */
+/** Opens a `PachiDialog` of `pachi-kit/dialog` with render-function content. */
 function showDialog(): void {
-  createDialog({ title: 'Dialogo', content: () => h('p', 'Dialogo di pachi-kit/dialog.') })
+  createDialog({ title: 'Dialog', content: () => h('p', 'Dialog from pachi-kit/dialog.') })
 }
 </script>

@@ -1,4 +1,4 @@
-/** Animazioni disponibili per il titolo delle card della dashboard (`.pachi-dc-title`) al passaggio del mouse. */
+/** Animations available for the dashboard card title (`.pachi-dc-title`) on mouse hover. */
 export const PACHI_TITLE_ANIMATIONS = [
   'rubber-band',
   'pulse',
@@ -9,10 +9,10 @@ export const PACHI_TITLE_ANIMATIONS = [
   'none'
 ] as const
 
-/** Nome di un'animazione del titolo delle card (`none` = nessuna animazione). */
+/** Name of a card title animation (`none` = no animation). */
 export type PachiTitleAnimation = (typeof PACHI_TITLE_ANIMATIONS)[number]
 
-/** Valore CSS `animation` di ciascuna animazione (le `@keyframes` stanno in `scss/quasar-hacks.scss`). */
+/** CSS `animation` value of each animation (the `@keyframes` live in `scss/quasar-hacks.scss`). */
 const CSS_ANIMATIONS: Record<PachiTitleAnimation, string> = {
   'rubber-band': 'rubber-band 0.8s',
   pulse: 'pachi-pulse 0.6s ease-in-out',
@@ -24,10 +24,10 @@ const CSS_ANIMATIONS: Record<PachiTitleAnimation, string> = {
 }
 
 /**
- * Normalizza il nome di un'animazione del titolo.
+ * Normalizes the name of a title animation.
  *
- * @param value - valore da configurazione, `route.meta` o variabile d'ambiente
- * @returns il nome valido (maiuscole e spazi ignorati) o `undefined` se assente o sconosciuto
+ * @param value - value from configuration, `route.meta` or environment variable
+ * @returns the valid name (case and spaces ignored) or `undefined` if absent or unknown
  */
 export function resolveTitleAnimation(value: unknown): PachiTitleAnimation | undefined {
   if (typeof value !== 'string') return undefined
@@ -38,10 +38,10 @@ export function resolveTitleAnimation(value: unknown): PachiTitleAnimation | und
 }
 
 /**
- * Valore CSS `animation` di un'animazione del titolo.
+ * CSS `animation` value of a title animation.
  *
- * @param name - nome dell'animazione
- * @returns il valore per la custom property `--pachi-dc-title-animation`
+ * @param name - animation name
+ * @returns the value for the custom property `--pachi-dc-title-animation`
  */
 export function titleAnimationCss(name: PachiTitleAnimation): string {
   return CSS_ANIMATIONS[name]

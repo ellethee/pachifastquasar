@@ -115,22 +115,22 @@ import { loadRowLabels } from '../helpers/row-labels'
 import { describeRequestError, useAdminApi } from '../helpers/use-admin'
 
 /**
- * Dialogo di creazione / modifica / dettaglio di una riga, generato dallo schema. In modifica carica la riga
- * (`GET`), invia con `PATCH` solo i campi cambiati, mostra gli errori 422 sul campo e la cronologia in un tab.
+ * Create / edit / detail dialog for a row, generated from the schema. In edit mode it loads the row
+ * (`GET`), sends only the changed fields with `PATCH`, shows 422 errors on the field and the history in a tab.
  */
 const props = defineProps<{
   modelValue: boolean
   schema: IAdminSchema
   mode: AdminFormMode
-  /** Chiave primaria della riga (modifica). */
+  /** Primary key of the row (edit). */
   pk?: AdminPk | null
 }>()
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: boolean): void
-  /** Riga creata o modificata: la lista va ricaricata. */
+  /** Row created or modified: the list must be reloaded. */
   (e: 'saved', payload: { mode: AdminFormMode, row: AdminRow }): void
-  /** Riga eliminata. */
+  /** Row deleted. */
   (e: 'deleted', pk: AdminPk): void
 }>()
 
@@ -152,7 +152,7 @@ const deleteLabels = ref<string[]>([])
 const names = computed(() => formFieldNames(props.schema, props.mode))
 const canChange = computed(() => props.schema.permissions.change)
 const canDelete = computed(() => props.schema.permissions.delete)
-/** Dettaglio in sola lettura: modifica senza permesso `change`. */
+/** Read-only detail: edit mode without the `change` permission. */
 const readOnlyForm = computed(() => props.mode === 'edit' && !canChange.value)
 const showHistory = computed(
   () => props.mode === 'edit' && props.schema.history && props.schema.permissions.view && props.pk != null
@@ -163,28 +163,28 @@ const title = computed(() => {
   return t(readOnlyForm.value ? 'pachiAdmin.form.viewTitle' : 'pachiAdmin.form.editTitle', { model })
 })
 
-/** Etichetta (con asterisco per i campi obbligatori in creazione). */
+/** Label (with an asterisk for required fields on create). */
 function labelOf(name: string): string {
   const field = props.schema.fields[name]!
   const base = fieldLabel(fieldKey(props.schema.app, props.schema.model, name), field)
   return props.mode === 'create' && field.required ? `${base} *` : base
 }
 
-/** Campo non modificabile. */
+/** Non-editable field. */
 function isReadonly(name: string): boolean {
   return readOnlyForm.value || !isWritable(props.schema.fields[name]!)
 }
 
-/** Campi che occupano tutta la riga. */
+/** Fields that span the whole row. */
 function isWide(name: string): boolean {
   const c = props.schema.fields[name]!.component
   return c === 'textarea' || c === 'json'
 }
 
 /**
- * Riempie il form con i valori della riga (o i default).
+ * Fills the form with the row values (or the defaults).
  *
- * @param row - riga caricata, assente in creazione
+ * @param row - loaded row, absent on create
  */
 function fill(row: AdminRow | null): void {
   const next = initialFormValues(props.schema, row)
@@ -194,7 +194,7 @@ function fill(row: AdminRow | null): void {
   original.value = row
 }
 
-/** Prepara il dialogo all'apertura. */
+/** Prepares the dialog on open. */
 async function open(): Promise<void> {
   errors.value = {}
   formError.value = ''
@@ -215,7 +215,7 @@ async function open(): Promise<void> {
   }
 }
 
-/** Apre la conferma di eliminazione mostrando il titolo della riga (`_options?ids=`). */
+/** Opens the delete confirmation showing the row title (`_options?ids=`). */
 function askDelete(): void {
   deleteLabels.value = []
   confirmDelete.value = true
@@ -225,15 +225,15 @@ function askDelete(): void {
   })
 }
 
-/** Chiude il dialogo. */
+/** Closes the dialog. */
 function close(): void {
   emit('update:modelValue', false)
 }
 
 /**
- * Applica a form e banner l'errore di una richiesta di scrittura.
+ * Applies the error of a write request to the form and banner.
  *
- * @param err - errore lanciato
+ * @param err - thrown error
  */
 async function showError(err: unknown): Promise<void> {
   const d = await describeRequestError(err, (k, p) => t(k, p ?? {}))
@@ -241,7 +241,7 @@ async function showError(err: unknown): Promise<void> {
   formError.value = d.message
 }
 
-/** Valida, invia (POST o PATCH con i soli campi cambiati) e chiude. */
+/** Validates, sends (POST or PATCH with only the changed fields) and closes. */
 async function submit(): Promise<void> {
   if (busy.value || readOnlyForm.value) return
   errors.value = {}
@@ -270,7 +270,7 @@ async function submit(): Promise<void> {
   }
 }
 
-/** Elimina la riga dopo la conferma. */
+/** Deletes the row after confirmation. */
 async function remove(): Promise<void> {
   if (busy.value || props.pk == null) return
   busy.value = true

@@ -74,23 +74,23 @@ import { usePachiI18n } from '@ilpachi/pachi-i18n'
 import { messages } from './locales'
 const { t } = usePachiI18n(messages)
 const dataProxy = useTemplateRef<QPopupProxy>('dataProxy')
-/** Con `clearable` il modello può diventare `null` a runtime (il tipo resta `string` per compatibilità). */
+/** With `clearable` the model can become `null` at runtime (the type stays `string` for compatibility). */
 const model = defineModel<string>()
 const props = defineProps({
-  /** Angoli arrotondati del `q-input` (default `true`). */
+  /** Rounded corners of the `q-input` (default `true`). */
   rounded: { type: Boolean, default: true },
-  /** Stile outlined del `q-input` (default `true`). */
+  /** Outlined style of the `q-input` (default `true`). */
   outlined: { type: Boolean, default: true },
   autoClose: {type: Boolean, default: true},
   mask: { type: String, default: 'YYYY-MM-DD HH:mm' },
-  /** Sola lettura: i pulsanti calendario/orologio sono disabilitati e il modello non cambia. */
+  /** Read-only: the calendar/clock buttons are disabled and the model does not change. */
   readonly: { type: Boolean, default: false },
-  /** Disabilita il campo e i pulsanti calendario/orologio. */
+  /** Disables the field and the calendar/clock buttons. */
   disable: { type: Boolean, default: false },
-  /** Orologio in formato 24 ore (default `true`); `false` per AM/PM. */
+  /** 24-hour clock (default `true`); `false` for AM/PM. */
   format24h: { type: Boolean, default: true },
 })
-/** `true` se i trigger dei popup devono essere inerti. */
+/** `true` if the popup triggers must be inert. */
 const locked = computed(() => props.readonly || props.disable)
 </script>
 

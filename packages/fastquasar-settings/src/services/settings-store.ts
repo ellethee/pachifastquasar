@@ -3,37 +3,37 @@ import { ref } from 'vue'
 import type { IUserSettings } from '../types/settings-manager'
 import { getByPath, setByPath } from '../helpers/path'
 
-/** Impostazioni iniziali (vuote). */
+/** Initial settings (empty). */
 function initialSettings(): Record<string, IUserSettings> {
   return {}
 }
 
 /**
- * Store Pinia delle impostazioni dell'utente corrente. NON è persistito: ogni utente ha le proprie impostazioni,
- * caricate dal backend al login; i valori che servono prima della risposta (tema, lingua, ...) stanno nella cache
- * per utente (`pachi-settings-cache:<utente>`), vedi `SettingsManager`.
+ * Pinia store of the current user's settings. NOT persisted: each user has their own settings,
+ * loaded from the backend at login; values needed before the response (theme, language, ...) live in the
+ * per-user cache (`pachi-settings-cache:<user>`), see `SettingsManager`.
  */
 export const useSettingsStore = defineStore('settings', () => {
   const userSettings = ref<Record<string, IUserSettings>>(initialSettings())
 
   /**
-   * Svuota le impostazioni (e quindi il dato persistito): da chiamare al logout.
+   * Clears the settings (and thus the persisted data): call at logout.
    */
   function clearSettings(): void {
     userSettings.value = initialSettings()
   }
 
-  /** Alias retrocompatibile di {@link clearSettings}. */
+  /** Backward-compatible alias of {@link clearSettings}. */
   function resetSettings(): void {
     clearSettings()
   }
 
   /**
-   * Imposta un valore (anche annidato con `a.b`); chiavi pericolose (`__proto__`, `constructor`, `prototype`) sono ignorate.
+   * Sets a value (also nested with `a.b`); dangerous keys (`__proto__`, `constructor`, `prototype`) are ignored.
    *
-   * @param appKey - categoria
-   * @param settingKey - chiave o percorso
-   * @param value - nuovo valore
+   * @param appKey - category
+   * @param settingKey - key or path
+   * @param value - new value
    */
   function setValue(appKey: string, settingKey: string, value: unknown): void {
     if (['__proto__', 'constructor', 'prototype'].includes(appKey)) return
@@ -42,10 +42,10 @@ export const useSettingsStore = defineStore('settings', () => {
   }
 
   /**
-   * Legge un valore (anche annidato con `a.b`).
+   * Reads a value (also nested with `a.b`).
    *
-   * @param appKey - categoria
-   * @param settingKey - chiave o percorso
+   * @param appKey - category
+   * @param settingKey - key or path
    */
   function getValue(appKey: string, settingKey: string): unknown {
     if (!Object.hasOwn(userSettings.value, appKey)) return undefined

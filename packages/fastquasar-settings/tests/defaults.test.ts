@@ -11,8 +11,8 @@ import type { ISettingsSchemaResponse } from '../src/types/settings-manager'
 
 const f = (extra: Record<string, unknown> = {}) => ({ component: 'select', ...extra })
 
-describe('default dello schema', () => {
-  it('usa `default` dello schema invece del fallback', () => {
+describe('schema defaults', () => {
+  it('uses the schema `default` instead of the fallback', () => {
     const schema: ISettingsSchemaResponse = {
       appearance: { title: 'A', icon: null, route: null, fields: { theme: f({ default: 'dark' }), reduceMotion: f({ default: true }) } },
     }
@@ -20,7 +20,7 @@ describe('default dello schema', () => {
     expect(resolveFieldDefault(schema, 'appearance', 'reduceMotion')).toEqual({ found: true, value: true })
   })
 
-  it('senza `default` usa il fallback (vecchi backend)', () => {
+  it('without `default` uses the fallback (old backends)', () => {
     const schema: ISettingsSchemaResponse = {
       appearance: { title: 'A', icon: null, route: null, fields: { theme: f(), accent: f(), custom: f() } },
     }
@@ -30,7 +30,7 @@ describe('default dello schema', () => {
     expect(resolveFieldDefault(schema, 'appearance', 'missing').found).toBe(false)
   })
 
-  it('`null` è un default valido e batte il fallback', () => {
+  it('`null` is a valid default and beats the fallback', () => {
     const schema: ISettingsSchemaResponse = {
       preferences: { title: 'P', icon: null, route: null, fields: { locale: f({ default: null }), timezone: f({ default: null }) } },
     }
@@ -38,7 +38,7 @@ describe('default dello schema', () => {
     expect(collectDefaults(schema)).toEqual({ 'preferences.locale': null, 'preferences.timezone': null })
   })
 
-  it('un `default` dello schema diverso dal fallback vince', () => {
+  it('a schema `default` different from the fallback wins', () => {
     const schema: ISettingsSchemaResponse = {
       appearance: { title: 'A', icon: null, route: null, fields: { accent: f({ default: 'coral' }) } },
     }
@@ -46,8 +46,8 @@ describe('default dello schema', () => {
   })
 })
 
-describe('applier su reset', () => {
-  it('resetSettingsAppliers passa il default dello schema (anche null)', () => {
+describe('appliers on reset', () => {
+  it('resetSettingsAppliers passes the schema default (also null)', () => {
     const seen: Array<[string, unknown, string]> = []
     const off1 = registerSettingsApplier('dfltA', (v, ctx) => { seen.push(['dfltA', v, ctx.source]) })
     const off2 = registerSettingsApplier('dfltB', (v, ctx) => { seen.push(['dfltB', v, ctx.source]) })
@@ -57,7 +57,7 @@ describe('applier su reset', () => {
     off1(); off2()
   })
 
-  it('clearSettings passa ai default dello schema agli applier', () => {
+  it('clearSettings passes the schema defaults to the appliers', () => {
     setActivePinia(createPinia())
     const seen: unknown[] = []
     const off = registerSettingsApplier('dfltC', (v, ctx) => { if (ctx.source === 'reset') seen.push(v) })
@@ -69,7 +69,7 @@ describe('applier su reset', () => {
     off()
   })
 
-  it('getDefault del manager legge lo schema', () => {
+  it('manager getDefault reads the schema', () => {
     const mgr = SettingsManager.getInstance() as unknown as Record<string, unknown>
     mgr.lastSchema = { appearance: { title: 'A', icon: null, route: null, fields: { theme: f({ default: 'light' }) } } }
     expect(SettingsManager.getInstance().getDefault('appearance', 'theme')).toEqual({ found: true, value: 'light' })

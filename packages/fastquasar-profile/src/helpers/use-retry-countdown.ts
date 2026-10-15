@@ -2,32 +2,32 @@ import { computed, onBeforeUnmount, ref } from 'vue'
 import type { ComputedRef, Ref } from 'vue'
 import { formatCountdown, remainingSeconds } from './retry-after'
 
-/** Conto alla rovescia reattivo restituito da {@link useRetryCountdown}. */
+/** Reactive countdown returned by {@link useRetryCountdown}. */
 export interface IRetryCountdown {
-  /** Secondi residui (0 quando non attivo). */
+  /** Remaining seconds (0 when not active). */
   remaining: Readonly<Ref<number>>
-  /** `true` finché il conto alla rovescia non è scaduto. */
+  /** `true` until the countdown has expired. */
   active: ComputedRef<boolean>
-  /** Testo `mm:ss` dei secondi residui. */
+  /** `mm:ss` text of the remaining seconds. */
   text: ComputedRef<string>
-  /** Avvia (o riavvia) il conto con i secondi indicati. */
+  /** Starts (or restarts) the countdown with the given seconds. */
   start: (seconds: number) => void
-  /** Ferma il conto e azzera l'avviso. */
+  /** Stops the countdown and clears the notice. */
   stop: () => void
 }
 
 /**
- * Conto alla rovescia live basato su una scadenza assoluta (resta corretto anche se il timer rallenta in
- * background). Il timer viene fermato allo smontaggio del componente e a scadenza avvenuta.
+ * Live countdown based on an absolute deadline (it stays correct even if the timer slows down in the
+ * background). The timer is stopped when the component unmounts and once the deadline has passed.
  *
- * @returns stato reattivo e comandi `start`/`stop`
+ * @returns reactive state and `start`/`stop` commands
  */
 export function useRetryCountdown(): IRetryCountdown {
   const remaining = ref(0)
   let deadline = 0
   let timer: ReturnType<typeof setInterval> | null = null
 
-  /** Ferma il timer di aggiornamento. */
+  /** Stops the update timer. */
   function clear(): void {
     if (timer !== null) {
       clearInterval(timer)
@@ -35,16 +35,16 @@ export function useRetryCountdown(): IRetryCountdown {
     }
   }
 
-  /** Ricalcola i secondi residui e, a zero, ferma il timer. */
+  /** Recomputes the remaining seconds and, at zero, stops the timer. */
   function tick(): void {
     remaining.value = remainingSeconds(deadline)
     if (remaining.value <= 0) clear()
   }
 
   /**
-   * Avvia (o riavvia) il conto.
+   * Starts (or restarts) the countdown.
    *
-   * @param seconds - secondi di attesa
+   * @param seconds - seconds to wait
    */
   function start(seconds: number): void {
     clear()
@@ -53,7 +53,7 @@ export function useRetryCountdown(): IRetryCountdown {
     if (remaining.value > 0) timer = setInterval(tick, 250)
   }
 
-  /** Ferma il conto e azzera lo stato. */
+  /** Stops the countdown and resets the state. */
   function stop(): void {
     clear()
     deadline = 0

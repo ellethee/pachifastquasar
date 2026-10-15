@@ -1,11 +1,11 @@
 import { createUseAlova } from '@ilpachi/use-alova'
 
-/** Base URL del backend di prova (`COMPAT_PORT`, default 8030). */
+/** Base URL of the test backend (`COMPAT_PORT`, default 8030). */
 export const ORIGIN = `http://127.0.0.1:${process.env.COMPAT_PORT ?? '8030'}`
-/** Password degli utenti di prova: `COMPAT_PASSWORD` (come in compat/backend.sh); credenziale locale usa e getta, non un segreto. */
+/** Password of the test users: `COMPAT_PASSWORD` (as in compat/backend.sh); throwaway local credential, not a secret. */
 export const PASSWORD = process.env.COMPAT_PASSWORD ?? 'Compat-Test-1234!'
 
-/** Coppia di token restituita da `POST /api/auth/token`. */
+/** Token pair returned by `POST /api/auth/token`. */
 export interface Tokens {
   access_token: string
   token_type: string
@@ -13,12 +13,12 @@ export interface Tokens {
 }
 
 /**
- * Chiamata HTTP grezza (fetch) con il contratto documentato, per i controlli sul formato esatto della risposta.
+ * Raw HTTP call (fetch) with the documented contract, for checks on the exact response format.
  *
- * @param method - metodo HTTP
- * @param path - percorso sotto `/api`
- * @param opts - token Bearer e corpo JSON o form
- * @returns stato e corpo JSON (o `null`)
+ * @param method - HTTP method
+ * @param path - path under `/api`
+ * @param opts - Bearer token and JSON or form body
+ * @returns status and JSON body (or `null`)
  */
 export async function raw(
   method: string,
@@ -41,10 +41,10 @@ export async function raw(
 }
 
 /**
- * Login con password (form-urlencoded, come `AuthManager`).
+ * Password login (form-urlencoded, like `AuthManager`).
  *
- * @param username - utente
- * @returns i token
+ * @param username - user
+ * @returns the tokens
  */
 export async function login(username: string): Promise<Tokens> {
   const res = await raw('POST', '/auth/token', {
@@ -55,11 +55,11 @@ export async function login(username: string): Promise<Tokens> {
 }
 
 /**
- * Client HTTP del frontend (`@ilpachi/use-alova`, lo stesso della shell) con token e unwrap dell'envelope.
+ * Frontend HTTP client (`@ilpachi/use-alova`, the same as the shell) with token and envelope unwrapping.
  *
- * @param base - percorso base sotto `/api` (es. `/auth`, `/admin/models`)
+ * @param base - base path under `/api` (e.g. `/auth`, `/admin/models`)
  * @param token - access token
- * @returns client con `Get/Post/Put/Patch/Delete`
+ * @returns client with `Get/Post/Put/Patch/Delete`
  */
 export function http(base: string, token: string) {
   const factory = createUseAlova({
@@ -73,10 +73,10 @@ export function http(base: string, token: string) {
 }
 
 /**
- * Esegue una richiesta che deve fallire e restituisce stato e corpo dell'errore.
+ * Runs a request that must fail and returns the status and body of the error.
  *
- * @param fn - richiesta
- * @returns stato HTTP e corpo JSON
+ * @param fn - request
+ * @returns HTTP status and JSON body
  */
 export async function failure(fn: () => PromiseLike<unknown>): Promise<{ status: number, body: any }> {
   try {
@@ -85,5 +85,5 @@ export async function failure(fn: () => PromiseLike<unknown>): Promise<{ status:
     const body = await e.response?.clone().json().catch(() => null)
     return { status: e.status ?? e.response?.status ?? 0, body }
   }
-  throw new Error('la richiesta doveva fallire')
+  throw new Error('the request was expected to fail')
 }

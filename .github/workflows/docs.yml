@@ -1,6 +1,6 @@
-# Costruisce il sito unico (MkDocs + mkdocs-monorepo-plugin, mkdocs.yml in radice) e lo pubblica su GitHub Pages
-# (https://ellethee.github.io/pachifastquasar/). Le PR fanno solo la build `--strict`.
-# Setup una tantum: Settings > Pages > Source = "GitHub Actions".
+# Builds the single site (MkDocs + mkdocs-monorepo-plugin, mkdocs.yml at the root) and publishes it on GitHub Pages
+# (https://ellethee.github.io/pachifastquasar/). PRs only run the `--strict` build.
+# One-time setup: Settings > Pages > Source = "GitHub Actions".
 name: Documentation
 
 on:

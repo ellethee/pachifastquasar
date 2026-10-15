@@ -1,6 +1,6 @@
 <template>
   <div>
-    <!-- Toolbar interna (quando non è dentro PachiDialog) -->
+    <!-- Internal toolbar (when not inside PachiDialog) -->
     <q-toolbar v-if="!target" class="q-pt-none pachi-uploader__toolbar">
       <q-toolbar-title> {{ label }} </q-toolbar-title>
       <pachi-uploader-header-actions
@@ -13,7 +13,7 @@
       />
     </q-toolbar>
 
-    <!-- Teleport nella toolbar del dialog (quando è dentro PachiDialog) -->
+    <!-- Teleport into the dialog toolbar (when inside PachiDialog) -->
     <teleport v-else :to="target">
       <pachi-uploader-header-actions
         v-model:use-batch="useBatch"
@@ -37,7 +37,7 @@ const { scope, label = undefined, headerTarget = undefined, showToggles = false,
   label?: string | undefined
   scope: IUploaderHeaderScope
   headerTarget?: HTMLElement | undefined
-  /** Mostra i toggle batch / dry run (default false). */
+  /** Shows the batch / dry run toggles (default false). */
   showToggles?: boolean
   onUploadClick?: (() => void) | undefined
 }>()

@@ -5,7 +5,7 @@ import { resetAdminModels, setAdminModels, visibleModels } from '../src/helpers/
 import { resetPachiAdminOptions, setPachiAdminOptions } from '../src/helpers/options'
 import routes from '../src/routes'
 
-// il package i18n importa quasar (richiede `window`): nei test non serve
+// the i18n package imports quasar (requires `window`): not needed in tests
 vi.mock('@ilpachi/pachi-i18n', () => ({ getPachiI18n: () => undefined, collectLocales: () => ({}), pachiT: (k: string) => k }))
 
 const perms = { view: true, add: false, change: false, delete: false }
@@ -15,14 +15,14 @@ afterEach(() => {
   resetPachiAdminOptions()
 })
 
-describe('menu: voce Admin', () => {
-  it('voce con testi, icona, route e ordine', () => {
+describe('menu: Admin entry', () => {
+  it('entry with texts, icon, route and order', () => {
     const item = getMenuItem({ t: (k) => `tr:${k}` })
     expect(item).toMatchObject({ label: 'tr:pachiAdmin.menuLabel', icon: mdiShieldAccountOutline, to: '/admin', order: 30 })
     expect(getMenuItemDefault).toBe(getMenuItem)
   })
 
-  it('è visibile solo con almeno un modello visibile', () => {
+  it('is visible only with at least one visible model', () => {
     const item = getMenuItem({ t: (k) => k })
     setAdminModels([])
     expect(item.visible()).toBe(false)
@@ -30,11 +30,11 @@ describe('menu: voce Admin', () => {
     expect(item.visible()).toBe(true)
   })
 
-  it('senza client HTTP la prima lettura è silenziosa e resta nascosta', () => {
+  it('without an HTTP client the first read is silent and stays hidden', () => {
     expect(getMenuItem({ t: (k) => k }).visible()).toBe(false)
   })
 
-  it('i modelli senza view o nascosti non contano', () => {
+  it('models without view or hidden do not count', () => {
     setPachiAdminOptions({ hideModels: ['a.hidden'] })
     const list = [
       { app: 'a', model: 'm', title: 'M', permissions: perms },
@@ -46,7 +46,7 @@ describe('menu: voce Admin', () => {
 })
 
 describe('routes', () => {
-  it('espone /admin e /admin/:app/:model con props di route', () => {
+  it('exposes /admin and /admin/:app/:model with route props', () => {
     expect(routes.map((r) => r.path)).toEqual(['/admin', '/admin/:app/:model'])
     expect(routes.every((r) => r.props === true && r.meta?.hidden === true)).toBe(true)
   })

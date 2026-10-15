@@ -13,7 +13,7 @@ vi.mock('@ilpachi/pachi-i18n', () => ({
   getPachiI18n: () => ({ global: { te: () => true } }),
   pachiT: (key: string) => `T(${key})`
 }))
-// niente WebSocket reale: la connessione agli eventi è opzionale e lazy
+// no real WebSocket: the events connection is optional and lazy
 vi.mock('src/stores/pachi-events', () => ({
   usePachiEventsStore: () => ({
     connected: true,
@@ -28,7 +28,7 @@ vi.stubGlobal('sessionStorage', { getItem: () => null, setItem: () => undefined,
 const { createPachiHttp } = await import('src/app/create-http')
 const { setPachiConfig } = await import('src/core/config')
 const { setPachiQuasar } = await import('src/helpers/quasar-instance')
-// l'istanza `$q` dell'app (la registra createPachiApp): plugin fittizi
+// the app's `$q` instance (registered by createPachiApp): fake plugins
 setPachiQuasar({ dialog: dialog.create, notify: vi.fn(), loading } as never)
 const { AuthManager } = await import('src/services/auth-manager/auth-manager')
 const { useAuthStore } = await import('src/services/auth-manager/auth-store')
@@ -40,7 +40,7 @@ interface Call {
   body: unknown
 }
 
-/** Gestore fittizio: restituisce la risposta per una richiesta (o una Promise per controllarne i tempi). */
+/** Fake handler: returns the response for a request (or a Promise to control its timing). */
 type Handler = (call: Call) => Response | Promise<Response>
 
 let calls: Call[] = []
@@ -49,7 +49,7 @@ let handler: Handler = () => json({})
 const json = (body: unknown, status = 200): Response =>
   new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } })
 
-/** Token JWT-like (payload con `exp`) usato dal refresh per programmare il rinnovo. */
+/** JWT-like token (payload with `exp`) used by the refresh to schedule the renewal. */
 const jwt = (): string => `h.${btoa(JSON.stringify({ exp: Math.floor(Date.now() / 1000) + 3600 }))}.s`
 
 const USER = {
@@ -57,7 +57,7 @@ const USER = {
   isStaff: false, isSuperuser: false, permissions: []
 }
 
-/** Crea la factory HTTP e il singleton AuthManager con una sessione già avviata. */
+/** Creates the HTTP factory and the AuthManager singleton with an already started session. */
 function setup(session = true, options?: Parameters<typeof createPachiHttp>[0]) {
   setActivePinia(createPinia())
   ;(AuthManager as unknown as { instance: unknown }).instance = undefined
@@ -85,7 +85,7 @@ beforeEach(() => {
     const call: Call = { method: String(init.method), url, headers, body: init.body }
     calls.push(call)
     const result = handler(call)
-    // come fetch: una richiesta annullata (signal) viene rifiutata con AbortError
+    // like fetch: an aborted request (signal) is rejected with AbortError
     return Promise.race([
       result,
       new Promise<never>((_, reject) =>
@@ -99,7 +99,7 @@ afterEach(() => {
 })
 
 describe('refresh del token su 401', () => {
-  it('rinnova una sola volta per richieste concorrenti e ripete ciascuna una volta', async () => {
+  it('renews only once for concurrent requests and repeats each one once', async () => {
     const { useAlova } = setup()
     const fresh = jwt()
     handler = ({ url, headers }) => {
@@ -112,12 +112,12 @@ describe('refresh del token su 401', () => {
     expect(results).toEqual([[1], [1], [1]])
     expect(calls.filter(c => c.url === '/api/auth/refresh-token')).toHaveLength(1)
     for (const path of ['/api/a', '/api/b', '/api/c']) {
-      expect(calls.filter(c => c.url === path)).toHaveLength(2) // originale + un solo retry
+      expect(calls.filter(c => c.url === path)).toHaveLength(2) // original + a single retry
     }
     expect(dialog.create).not.toHaveBeenCalled()
   })
 
-  it('un secondo 401 dopo il retry esegue il logout e rifiuta senza cicli né messaggi', async () => {
+  it('a second 401 after the retry logs out and rejects without loops or messages', async () => {
     const { useAlova, store } = setup()
     handler = ({ url }) => {
       if (url === '/api/auth/refresh-token') return json({ access_token: jwt(), token_type: 'bearer' })
@@ -131,7 +131,7 @@ describe('refresh del token su 401', () => {
     expect(dialog.create).not.toHaveBeenCalled()
   })
 
-  it('refresh fallito: logout e rifiuto, senza ritentare il refresh', async () => {
+  it('failed refresh: logout and rejection, without retrying the refresh', async () => {
     const { useAlova, store } = setup()
     handler = ({ url }) => (url === '/api/auth/refresh-token' ? json({ detail: 'bad' }, 401) : json({ detail: 'no' }, 401))
     const { alova } = useAlova({ url: '/api' })
@@ -140,7 +140,7 @@ describe('refresh del token su 401', () => {
     expect(store.refresh_token).toBeNull()
   })
 
-  it('un 401 senza Authorization (credenziali errate) non fa il refresh e mostra il messaggio', async () => {
+  it('a 401 without Authorization (wrong credentials) does not refresh and shows the message', async () => {
     const { useAlova } = setup(false)
     handler = () => json({ detail: 'Credenziali errate' }, 401)
     const { alova } = useAlova({ url: '/api' })
@@ -151,7 +151,7 @@ describe('refresh del token su 401', () => {
 })
 
 describe('header Authorization', () => {
-  it('va alle richieste relative e same-origin, non alle origini esterne', async () => {
+  it('applies to relative and same-origin requests, not to external origins', async () => {
     const { useAlova } = setup()
     const { alova } = useAlova()
     await alova.Get('/api/rel')
@@ -165,22 +165,22 @@ describe('header Authorization', () => {
     expect(auth('/steal2')).toBeUndefined()
   })
 
-  it('usa il token_type del backend come schema', async () => {
+  it('uses the backend token_type as scheme', async () => {
     const { useAlova, store } = setup()
     store.token_type = 'Token'
     await useAlova().alova.Get('/api/t')
     expect(calls[0]?.headers.authorization).toBe('Token old')
   })
 
-  it('senza sessione non invia Authorization', async () => {
+  it('without a session it does not send Authorization', async () => {
     const { useAlova } = setup(false)
     await useAlova().alova.Get('/api/x')
     expect(calls[0]?.headers.authorization).toBeUndefined()
   })
 })
 
-describe('corpo delle risposte', () => {
-  it('scarta l\'envelope, lascia passare il resto e restituisce null per 204', async () => {
+describe('response body', () => {
+  it('discards the envelope, lets the rest through and returns null for 204', async () => {
     const { useAlova } = setup()
     const { alova } = useAlova()
     handler = () => json({ success: true, message: 'ok', data: { a: 1 } })
@@ -191,14 +191,14 @@ describe('corpo delle risposte', () => {
     expect(await alova.Delete('/api/c')).toBeNull()
   })
 
-  it('envelope:false (backend senza envelope): il corpo con success e data non viene scartato', async () => {
+  it('envelope:false (backend without envelope): the body with success and data is not discarded', async () => {
     const { useAlova } = setup(true, { envelope: false })
     const body = { success: true, message: 'm', data: { a: 1 } }
     handler = () => json(body)
     expect(await useAlova().alova.Get('/api/a')).toEqual(body)
   })
 
-  it('senza opzioni l\'envelope segue http.envelope della configurazione', async () => {
+  it('without options the envelope follows http.envelope from the configuration', async () => {
     setPachiConfig({ http: { envelope: false } })
     try {
       const { useAlova } = setup()
@@ -221,7 +221,7 @@ describe('corpo delle risposte', () => {
     expect(String(call?.body)).toBe('username=mario&password=pw&scope=&grant_type=password')
   })
 
-  it('le GET non sono in cache di default (come con httpachi), con cacheFor esplicito sì', async () => {
+  it('GETs are not cached by default (as with httpachi), with explicit cacheFor they are', async () => {
     const { useAlova } = setup()
     const { alova } = useAlova()
     await alova.Get('/api/n')
@@ -233,8 +233,8 @@ describe('corpo delle risposte', () => {
   })
 })
 
-describe('spinner (overlay auto con ritardo)', () => {
-  /** Richiesta sospesa: si risolve a comando. */
+describe('spinner (auto overlay with delay)', () => {
+  /** Pending request: resolved on demand. */
   function deferred() {
     let release!: () => void
     const promise = new Promise<Response>(resolve => {
@@ -243,7 +243,7 @@ describe('spinner (overlay auto con ritardo)', () => {
     return { promise, release }
   }
 
-  it('non compare per risposte veloci, compare dopo 300 ms ed è condiviso (ref-count)', async () => {
+  it('does not show for fast responses, shows after 300 ms and is shared (ref-count)', async () => {
     vi.useFakeTimers()
     const { useAlova } = setup()
     const { alova } = useAlova()
@@ -269,7 +269,7 @@ describe('spinner (overlay auto con ritardo)', () => {
     expect(loading.hide).toHaveBeenCalledTimes(1)
   })
 
-  it('meta.spinner:false e showOverlay:false non lo mostrano', async () => {
+  it('meta.spinner:false and showOverlay:false do not show it', async () => {
     vi.useFakeTimers()
     const { useAlova } = setup()
     const { alova } = useAlova()
@@ -286,13 +286,13 @@ describe('spinner (overlay auto con ritardo)', () => {
     expect(loading.show).not.toHaveBeenCalled()
   })
 
-  it('una cache hit non tocca lo spinner', async () => {
+  it('a cache hit does not touch the spinner', async () => {
     vi.useFakeTimers()
     const { useAlova } = setup()
     const { alova } = useAlova()
     await alova.Get('/api/c', { cacheFor: 60_000 })
     const d = deferred()
-    handler = () => d.promise // se la hit andasse in rete resterebbe appesa
+    handler = () => d.promise // if the hit went to the network it would hang
     await alova.Get('/api/c', { cacheFor: 60_000 })
     await vi.advanceTimersByTimeAsync(1000)
     expect(loading.show).not.toHaveBeenCalled()
@@ -305,7 +305,7 @@ describe('errori', () => {
     detail: [{ type: 'x', loc: ['body', 'name'], msg: 'bad', input: '', code: 'a.b' }]
   }
 
-  it('mostra il dialog con il dettaglio tradotto e rifiuta con ResponseError', async () => {
+  it('shows the dialog with the translated detail and rejects with ResponseError', async () => {
     const { useAlova } = setup()
     handler = () => json(validation, 422)
     await expect(useAlova().alova.Post('/api/x', {})).rejects.toMatchObject({ status: 422 })
@@ -315,7 +315,7 @@ describe('errori', () => {
     expect(arg.message).toContain('body.name')
   })
 
-  it('autoError:false (nativo o via meta) non mostra nulla ma rifiuta', async () => {
+  it('autoError:false (native or via meta) shows nothing but rejects', async () => {
     const { useAlova } = setup()
     handler = () => json(validation, 422)
     const { alova } = useAlova()
@@ -325,14 +325,14 @@ describe('errori', () => {
     expect(dialog.create).not.toHaveBeenCalled()
   })
 
-  it('errore di rete: dialog con il messaggio dell\'errore', async () => {
+  it('network error: dialog with the error message', async () => {
     const { useAlova } = setup()
     handler = () => Promise.reject(new TypeError('Failed to fetch'))
     await expect(useAlova().alova.Get('/api/x')).rejects.toMatchObject({ status: 0 })
     await vi.waitFor(() => expect(dialog.create).toHaveBeenCalledTimes(1))
   })
 
-  it('una richiesta annullata non mostra messaggi', async () => {
+  it('an aborted request shows no messages', async () => {
     const { useAlova } = setup()
     handler = ({ }) => new Promise<Response>(() => undefined)
     const method = useAlova().alova.Get('/api/slow')

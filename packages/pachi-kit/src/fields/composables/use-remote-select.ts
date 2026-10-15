@@ -1,12 +1,12 @@
 /**
  * module use-remote-select.ts
  *
- * Logica di selezione/filtro/creazione-al-volo dei select remoti, sopra un
- * client HTTP iniettabile (`setPachiFieldsHttp`, default il client di `@ilpachi/use-alova`): un fetch una tantum (pageSize alto, il backend
- * risponde paginato `{items,total,page,pageSize}`), un filtro client-side
- * per l'evento `@filter` di `q-select`, e una creazione "virtuale"
- * (get-or-create lato frontend, risolta per id-o-nome dal backend al save)
- * per l'evento `@new-value`.
+ * Selection/filter/on-the-fly-creation logic of remote selects, on top of an
+ * injectable HTTP client (`setPachiFieldsHttp`, default the `@ilpachi/use-alova` client): a one-off fetch (high pageSize, the backend
+ * answers paginated `{items,total,page,pageSize}`), a client-side filter
+ * for the `@filter` event of `q-select`, and a "virtual" creation
+ * (frontend get-or-create, resolved by id-or-name by the backend on save)
+ * for the `@new-value` event.
  */
 import { ref, toValue, watch, type MaybeRefOrGetter, type Ref } from 'vue'
 import { usePachiI18n } from '@ilpachi/pachi-i18n'
@@ -18,17 +18,17 @@ import { messages } from '../locales'
 import type { IFieldDef, IFieldsState } from '../types'
 
 export interface IRemoteSelectApi {
-  /** Opzioni correntemente visibili nel select (dopo un eventuale filtro). */
+  /** Options currently visible in the select (after any filter). */
   options: Ref<unknown[]>
-  /** In caricamento la prima fetch delle opzioni. */
+  /** The first fetch of the options is loading. */
   loading: Ref<boolean>
-  /** `true` se l'ultimo caricamento delle opzioni è fallito. */
+  /** `true` if the last options load failed. */
   error: Ref<boolean>
-  /** Handler per l'evento `@filter` di `q-select`. */
+  /** Handler for the `@filter` event of `q-select`. */
   filterFn: (val: string, update: (callbackFn: () => void) => void) => void
-  /** Handler per l'evento `@new-value` di `q-select` (creazione al volo). */
+  /** Handler for the `@new-value` event of `q-select` (on-the-fly creation). */
   createValueFn: (val: string, done: (value: unknown, mode?: 'add' | 'add-unique' | 'toggle') => void) => void
-  /** Richiede di nuovo la lista completa delle opzioni dal backend. */
+  /** Requests the full list of options from the backend again. */
   reload: () => Promise<void>
 }
 
@@ -44,19 +44,19 @@ function getOptionLabelGetter(optionLabel: IFieldDef['optionLabel']) {
 }
 
 /**
- * Composable per il popolamento remoto di un `q-select` a partire da un
- * `IFieldDef` con `type: 'select'` e `url` impostati. Reattivo: se `url`, `type` o `options`
- * del campo cambiano le opzioni vengono ricalcolate. Va chiamato in `setup()`.
+ * Composable for the remote population of a `q-select` from an
+ * `IFieldDef` with `type: 'select'` and `url` set. Reactive: if the field's `url`, `type` or `options`
+ * change the options are recomputed. Must be called in `setup()`.
  *
- * Il fetch è unico (`pageSize` 1000 di default, `field.pageSize` per cambiarlo): se il backend
- * dichiara più elementi di quelli ricevuti, in sviluppo viene stampato un avviso in console.
- * In caso di errore imposta `error` e mostra una notifica Quasar tradotta (it/en).
+ * The fetch is single (`pageSize` 1000 by default, `field.pageSize` to change it): if the backend
+ * declares more items than received, a warning is printed to the console in development.
+ * On error it sets `error` and shows a translated Quasar notification (it/en).
  *
- * Con `dependsOn`/`params` (e `valuesSource`) le opzioni si ricaricano al cambio dei valori da cui
- * dipendono; finché una dipendenza è vuota non si carica nulla e le opzioni sono vuote.
+ * With `dependsOn`/`params` (and `valuesSource`) the options reload when the values they
+ * depend on change; while a dependency is empty nothing is loaded and the options are empty.
  *
- * @param fieldSource - definizione del campo (valore, ref o getter)
- * @param valuesSource - valori correnti della sezione, per `dependsOn`/`params` (valore, ref o getter)
+ * @param fieldSource - field definition (value, ref or getter)
+ * @param valuesSource - current section values, for `dependsOn`/`params` (value, ref or getter)
  */
 export function useRemoteSelect(
   fieldSource: MaybeRefOrGetter<IFieldDef>,
@@ -71,11 +71,11 @@ export function useRemoteSelect(
   const options = ref<unknown[]>(allOptions.value)
   const loading = ref(false)
   const error = ref(false)
-  // opzioni "virtuali" create al volo: sopravvivono a ricalcoli/ricaricamenti finché lo scope (url/params) non cambia
+  // "virtual" options created on the fly: they survive recomputations/reloads until the scope (url/params) changes
   let virtualOptions: unknown[] = []
   let scopeKey = ''
   const { t } = usePachiI18n(messages)
-  // $q dell'app risolto in setup (indipendente dalla copia di quasar vista dal package)
+  // the app's $q resolved in setup (independent of the copy of quasar seen by the package)
   const $q = resolveQuasar()
   let requestId = 0
 
@@ -86,7 +86,7 @@ export function useRemoteSelect(
         message: t('pachiEditDialogFields.loadError', { label: field().label ?? field().field }),
       })
     } catch {
-      // plugin Notify non installato: resta lo stato `error`
+      // Notify plugin not installed: the `error` state remains
     }
   }
 
@@ -105,7 +105,7 @@ export function useRemoteSelect(
     loading.value = true
     error.value = false
     try {
-      // client risolto qui (lazy): i form senza select remoti non richiedono alcun client HTTP
+      // client resolved here (lazy): forms without remote selects do not require any HTTP client
       const http = getPachiFieldsHttp()
       const query = buildRemoteQuery(current, values())
       const parsed = parseRemoteResponse(await http.get<unknown>(current.url, query))
@@ -115,7 +115,7 @@ export function useRemoteSelect(
         (parsed.total ?? 0) > parsed.items.length
       ) {
         console.warn(
-          `[pachi-kit/fields] "${current.field}": ricevuti ${parsed.items.length} elementi su ${parsed.total} (pageSize ${query.pageSize}): opzioni troncate, usa field.pageSize.`,
+          `[pachi-kit/fields] "${current.field}": received ${parsed.items.length} items out of ${parsed.total} (pageSize ${query.pageSize}): options truncated, use field.pageSize.`,
         )
       }
       allOptions.value = mergeVirtualOptions(parsed.items, virtualOptions, optionValue())
@@ -123,7 +123,7 @@ export function useRemoteSelect(
     } catch (err) {
       if (id !== requestId) return
       if (import.meta.env?.DEV) {
-        console.error(`[pachi-kit/fields] "${current.field}": caricamento opzioni fallito`, err)
+        console.error(`[pachi-kit/fields] "${current.field}": failed to load options`, err)
       }
       error.value = true
       notifyError()
@@ -138,7 +138,7 @@ export function useRemoteSelect(
         field().type,
         field().url,
         field().options,
-        // dipendenze/params: serializzati per ricaricare solo quando il risultato cambia davvero
+        // dependencies/params: serialized to reload only when the result really changes
         JSON.stringify(resolveFieldParams(field(), values())),
         dependenciesReady(field(), values()),
       ] as const,
@@ -170,14 +170,14 @@ export function useRemoteSelect(
     }
     const found = allOptions.value.find((item) => getLabel(item).toLowerCase() === needle.toLowerCase())
     if (found) {
-      // DynamicField usa emitValue+mapOptions: il valore passato a `done()` diventa
-      // direttamente il model, senza ulteriore mappatura — qui l'id dell'opzione trovata.
+      // DynamicField uses emitValue+mapOptions: the value passed to `done()` becomes
+      // the model directly, without further mapping — here the id of the found option.
       done(getOptionValueOf(found), 'add-unique')
       return
     }
-    // Nessuna opzione esistente corrisponde al testo digitato: il backend (es. un campo `int|str|RelatedRef`) risolve il get-or-create per nome dal valore
-    // stringa grezzo. Si registra comunque un'opzione "virtuale" per poterla ri-selezionare
-    // senza doverla ridigitare, con optionValue coincidente col testo digitato.
+    // No existing option matches the typed text: the backend (e.g. an `int|str|RelatedRef` field) resolves the get-or-create by name from the raw
+    // string value. A "virtual" option is still registered so it can be re-selected
+    // without retyping it, with optionValue equal to the typed text.
     const optionLabelKey = typeof field().optionLabel === 'string' ? (field().optionLabel as string) : 'label'
     const virtual = { [optionValue()]: needle, [optionLabelKey]: needle }
     virtualOptions = [...virtualOptions, virtual]

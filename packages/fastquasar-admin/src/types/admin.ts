@@ -1,10 +1,10 @@
-/** Valore della chiave primaria di una riga (int, uuid o stringa). */
+/** Primary key value of a row (int, uuid or string). */
 export type AdminPk = number | string
 
-/** Riga di un modello: chiavi camelCase come nello schema. */
+/** Row of a model: camelCase keys as in the schema. */
 export type AdminRow = Record<string, unknown>
 
-/** Permessi dell'utente corrente su un modello. */
+/** Permissions of the current user on a model. */
 export interface IAdminPermissions {
   view: boolean
   add: boolean
@@ -12,7 +12,7 @@ export interface IAdminPermissions {
   delete: boolean
 }
 
-/** Voce di `GET /admin/models`. */
+/** Entry of `GET /admin/models`. */
 export interface IAdminModelInfo {
   app: string
   model: string
@@ -21,7 +21,7 @@ export interface IAdminModelInfo {
   permissions: IAdminPermissions
 }
 
-/** Controllo di un campo (`fields.<nome>.component`). */
+/** Control of a field (`fields.<name>.component`). */
 export type AdminComponentName =
   | 'input'
   | 'textarea'
@@ -34,7 +34,7 @@ export type AdminComponentName =
   | 'json'
   | 'lookup'
 
-/** Tipo del valore di un campo (`fields.<nome>.type`). */
+/** Value type of a field (`fields.<name>.type`). */
 export type AdminFieldType =
   | 'string'
   | 'integer'
@@ -45,31 +45,31 @@ export type AdminFieldType =
   | 'time'
   | 'json'
 
-/** Opzione di un campo `select`. */
+/** Option of a `select` field. */
 export interface IAdminOption {
   label: string
   value: unknown
 }
 
-/** Proprietà del controllo (`properties`). */
+/** Control properties (`properties`). */
 export interface IAdminFieldProperties {
   options?: IAdminOption[]
   emitValue?: boolean
   mapOptions?: boolean
   min?: number
   max?: number
-  /** `'any'` o un numero. */
+  /** `'any'` or a number. */
   step?: number | 'any'
   [key: string]: unknown
 }
 
-/** Riferimento a un modello registrato (campi `lookup`). */
+/** Reference to a registered model (`lookup` fields). */
 export interface IAdminLookup {
   app: string
   model: string
 }
 
-/** Campo dello schema. */
+/** Schema field. */
 export interface IAdminField {
   component: AdminComponentName
   type: AdminFieldType
@@ -82,12 +82,12 @@ export interface IAdminField {
   primaryKey?: boolean
   maxlength?: number
   properties?: IAdminFieldProperties
-  /** Chiavi di messaggio per le etichette delle opzioni: `{ <valore>: 'admin.x.y.options.v' }`. */
+  /** Message keys for the option labels: `{ <value>: 'admin.x.y.options.v' }`. */
   optionKeys?: Record<string, string>
   lookup?: IAdminLookup
 }
 
-/** Filtro della lista. */
+/** List filter. */
 export interface IAdminFilter {
   field: string
   component: AdminComponentName
@@ -96,11 +96,11 @@ export interface IAdminFilter {
   properties?: IAdminFieldProperties
   optionKeys?: Record<string, string>
   lookup?: IAdminLookup
-  /** Filtro a intervallo: parametri `<campo>__gte` e `<campo>__lte`. */
+  /** Range filter: `<field>__gte` and `<field>__lte` parameters. */
   range?: boolean
 }
 
-/** Azione in blocco. */
+/** Bulk action. */
 export interface IAdminAction {
   name: string
   label: string
@@ -110,17 +110,17 @@ export interface IAdminAction {
   allowed?: boolean
 }
 
-/** Configurazione della lista. */
+/** List configuration. */
 export interface IAdminListConfig {
   display: string[]
   search: boolean
-  /** Ordinamento di default: `['-id']`. */
+  /** Default ordering: `['-id']`. */
   ordering: string[]
   orderFields: string[]
   filters: IAdminFilter[]
 }
 
-/** Schema di un modello (`GET .../_schema`). */
+/** Schema of a model (`GET .../_schema`). */
 export interface IAdminSchema {
   app: string
   model: string
@@ -135,7 +135,7 @@ export interface IAdminSchema {
   history: boolean
 }
 
-/** Risposta paginata. */
+/** Paginated response. */
 export interface IAdminPage<T> {
   items: T[]
   total: number
@@ -144,25 +144,25 @@ export interface IAdminPage<T> {
   pages: number
 }
 
-/** Elemento di `_options` (lookup). */
+/** `_options` item (lookup). */
 export interface IAdminLookupOption {
   value: AdminPk
   label: string
 }
 
-/** Risultato di un'azione in blocco. */
+/** Result of a bulk action. */
 export interface IAdminActionResult {
   affected: number
   message?: string
 }
 
-/** Voce di cronologia. */
+/** History entry. */
 export interface IAdminHistoryEntry {
   id: AdminPk
   timestamp: string
   userId?: AdminPk | null
   username?: string | null
-  /** `add`, `change`, `delete` oppure `action:<nome>`. */
+  /** `add`, `change`, `delete` or `action:<name>`. */
   action: string
   changes?: Record<string, { old?: unknown, new?: unknown }>
 }

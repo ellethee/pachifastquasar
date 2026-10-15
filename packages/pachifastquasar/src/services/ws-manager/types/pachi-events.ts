@@ -1,4 +1,4 @@
-/** Attività registrata dal backend (evento `activity` e voci dello `snapshot`). Chiavi in camelCase. */
+/** Activity recorded by the backend (`activity` event and `snapshot` entries). Keys in camelCase. */
 export interface ActivityLogEntry {
   id?: number
   timestamp?: string
@@ -11,13 +11,13 @@ export interface ActivityLogEntry {
   description: string | null
 }
 
-/** Dati dell'evento `login`. */
+/** Data of the `login` event. */
 export interface LoginEventData {
   userId: string
   username: string
 }
 
-/** Dati dell'evento `logout` (stesso schema di `login`). */
+/** Data of the `logout` event (same schema as `login`). */
 export interface LogoutEventData {
   userId: string
   username: string

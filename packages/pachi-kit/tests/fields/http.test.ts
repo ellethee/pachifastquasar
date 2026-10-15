@@ -15,7 +15,7 @@ describe('getPachiFieldsHttp', () => {
     getUseAlovaInstance.mockImplementation(() => factory)
   })
 
-  it('di default usa il client di use-alova con cacheFor null', async () => {
+  it('by default it uses the use-alova client with cacheFor null', async () => {
     const { getPachiFieldsHttp } = await import('../../src/fields/helpers/http')
     await getPachiFieldsHttp().get('/api/x', { a: 1 })
     expect(factory).toHaveBeenCalledWith({ url: '' })
@@ -24,13 +24,13 @@ describe('getPachiFieldsHttp', () => {
     expect(get).toHaveBeenLastCalledWith('/api/y', { cacheFor: null })
   })
 
-  it('memorizza il client finché la factory resta la stessa', async () => {
+  it('memoizes the client as long as the factory stays the same', async () => {
     const { getPachiFieldsHttp } = await import('../../src/fields/helpers/http')
     expect(getPachiFieldsHttp()).toBe(getPachiFieldsHttp())
     expect(factory).toHaveBeenCalledTimes(1)
   })
 
-  it('setPachiFieldsHttp ha la precedenza', async () => {
+  it('setPachiFieldsHttp takes precedence', async () => {
     const { getPachiFieldsHttp, setPachiFieldsHttp } = await import('../../src/fields/helpers/http')
     const custom = { get: vi.fn() }
     setPachiFieldsHttp(custom as never)
@@ -38,7 +38,7 @@ describe('getPachiFieldsHttp', () => {
     expect(getUseAlovaInstance).not.toHaveBeenCalled()
   })
 
-  it('senza istanza use-alova lancia un errore chiaro', async () => {
+  it('without a use-alova instance it throws a clear error', async () => {
     getUseAlovaInstance.mockImplementation(() => {
       throw new Error('no instance')
     })

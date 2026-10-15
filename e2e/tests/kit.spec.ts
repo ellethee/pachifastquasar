@@ -7,21 +7,21 @@ test.describe('pachi-kit', () => {
   test('popup edit, confirm dialog and dialog render and work', async ({ page }) => {
     await loginUi(page, USERS.admin, '/kit')
     const name = page.locator('[data-test=kit-name]')
-    await expect(name).toHaveText('Esempio')
+    await expect(name).toHaveText('Example')
 
     await name.click()
-    await page.locator('.q-popup-edit input').fill('Modificato')
+    await page.locator('.q-popup-edit input').fill('Edited')
     await page.keyboard.press('Enter')
-    await expect(name).toHaveText('Modificato')
+    await expect(name).toHaveText('Edited')
 
     await page.locator('[data-test=kit-confirm]').click()
-    await expect(page.getByText('Conferma esempio')).toBeVisible()
+    await expect(page.getByText('Example confirmation')).toBeVisible()
     await page.getByRole('textbox', { name: /DELETE/ }).fill('DELETE')
-    await page.getByRole('button', { name: 'Procedi' }).click()
-    await expect(page.locator('[data-test=kit-result]')).toHaveText('confermato')
+    await page.getByRole('button', { name: 'Proceed' }).click()
+    await expect(page.locator('[data-test=kit-result]')).toHaveText('confirmed')
 
     await page.locator('[data-test=kit-dialog]').click()
-    await expect(page.getByText('Dialogo di pachi-kit/dialog.')).toBeVisible()
+    await expect(page.getByText('Dialog from pachi-kit/dialog.')).toBeVisible()
   })
 
   test('a parent route without component opens the dashboard of its children', async ({ page }) => {

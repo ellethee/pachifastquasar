@@ -1,11 +1,11 @@
 import type { ISettingsSchemaResponse } from '../types/settings-manager'
 
-/** Mappa `categoria.campo` -> nome dell'applier. */
+/** `category.field` -> applier name map. */
 export type SettingsApplyMap = Record<string, string>
 
 /**
- * Applier assegnati ai campi standard quando lo schema del backend non dichiara `apply`
- * (backend precedente al contratto `apply`). Valgono solo se il campo esiste nello schema e non ha `apply`.
+ * Appliers assigned to standard fields when the backend schema does not declare `apply`
+ * (backend predating the `apply` contract). They only apply if the field exists in the schema and has no `apply`.
  */
 export const DEFAULT_APPLY: Readonly<SettingsApplyMap> = {
   'appearance.theme': 'theme',
@@ -17,17 +17,17 @@ export const DEFAULT_APPLY: Readonly<SettingsApplyMap> = {
   'preferences.theme': 'theme',
 }
 
-/** Chiave della mappa per un campo. */
+/** Map key for a field. */
 export function applyKey(category: string, field: string): string {
   return `${category}.${field}`
 }
 
 /**
- * Ricava dallo schema quali campi hanno un applier: il nome è `field.apply` (stringa); `apply: null`/`''` lo
- * disattiva; se `apply` manca valgono i default per i campi standard ({@link DEFAULT_APPLY}).
+ * Derives from the schema which fields have an applier: the name is `field.apply` (string); `apply: null`/`''`
+ * disables it; if `apply` is missing the defaults for standard fields apply ({@link DEFAULT_APPLY}).
  *
- * @param schema - schema delle impostazioni
- * @returns mappa `categoria.campo` -> nome dell'applier
+ * @param schema - settings schema
+ * @returns `category.field` -> applier name map
  */
 export function collectApplyMap(schema: ISettingsSchemaResponse): SettingsApplyMap {
   const map: SettingsApplyMap = {}

@@ -8,7 +8,7 @@ vi.mock('quasar', () => ({ Notify: { create: pluginNotify }, Dark: pluginDark })
 
 import { isDarkActive, quasarDeps, resetQuasarCache, resolveQuasar, showNotify } from '../src/helpers/quasar-instance'
 
-/** Esegue `fn` in `setup()` di un'app con il `$q` dato. */
+/** Runs `fn` in the `setup()` of an app with the given `$q`. */
 async function inSetup($q: unknown, fn: () => void): Promise<void> {
   const app = createSSRApp(defineComponent({ setup() { fn(); return () => h('div') } }))
   app.config.globalProperties.$q = $q
@@ -21,11 +21,11 @@ describe('quasar-instance', () => {
     vi.clearAllMocks()
   })
 
-  it('fuori da un componente e senza cache restituisce null', () => {
+  it('outside a component and without cache returns null', () => {
     expect(resolveQuasar()).toBeNull()
   })
 
-  it('in setup restituisce $q e lo ricorda per le chiamate successive', async () => {
+  it('in setup returns $q and remembers it for subsequent calls', async () => {
     const $q = { notify: vi.fn(), dark: { isActive: false, set: vi.fn(), toggle: vi.fn() } }
     await inSetup($q, () => { expect(resolveQuasar()).toBe($q) })
     expect(resolveQuasar()).toBe($q)
@@ -35,13 +35,13 @@ describe('quasar-instance', () => {
     expect(isDarkActive()).toBe(false)
   })
 
-  it('senza $q ripiega sui plugin importati', () => {
+  it('without $q falls back to the imported plugins', () => {
     showNotify({ message: 'm' })
     expect(pluginNotify).toHaveBeenCalledTimes(1)
     expect(isDarkActive()).toBe(true)
   })
 
-  it('quasarDeps risolve Dark e Notify a ogni chiamata', async () => {
+  it('quasarDeps resolves Dark and Notify on every call', async () => {
     const deps = quasarDeps()
     deps.Dark?.toggle()
     expect(pluginDark.toggle).toHaveBeenCalledTimes(1)

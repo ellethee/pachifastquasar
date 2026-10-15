@@ -7,14 +7,14 @@ import dts from 'vite-plugin-dts'
 import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js'
 
 /**
- * Il logo SVG (~83 KB) non va inlinato in base64 nel JS, ma in lib mode Vite inlina SEMPRE gli asset
- * (`new URL('...logo.svg', import.meta.url)` diventa un data URL). Questo plugin, solo in build, sostituisce il
- * data URL con un riferimento relativo `./assets/logo.svg` ed emette il file in `dist/assets/`: l'app che installa
- * il pacchetto vede un `new URL('./assets/logo.svg', import.meta.url)` letterale e lo gestisce lei (dev server e
- * `quasar build` copiano l'asset con hash). In sviluppo/test (alias ai sorgenti) il plugin non agisce.
+ * The SVG logo (~83 KB) must not be inlined as base64 in the JS, but in lib mode Vite ALWAYS inlines assets
+ * (`new URL('...logo.svg', import.meta.url)` becomes a data URL). This plugin, in build only, replaces the
+ * data URL with a relative reference `./assets/logo.svg` and emits the file in `dist/assets/`: the app that installs
+ * the package sees a literal `new URL('./assets/logo.svg', import.meta.url)` and handles it itself (dev server and
+ * `quasar build` copy the asset with a hash). In development/test (source aliases) the plugin does nothing.
  */
 function pachiLogoAsset(): Plugin {
-  // rolldown emette `"" + import.meta.url` (Rollup: `import.meta.url`): accetta entrambe le forme
+  // rolldown emits `"" + import.meta.url` (Rollup: `import.meta.url`): accept both forms
   const dataUrl = /new URL\("data:image\/svg\+xml[^"]*", (?:"" \+ )?import\.meta\.url\)/g
   return {
     name: 'pachi-logo-asset',
@@ -34,10 +34,10 @@ function pachiLogoAsset(): Plugin {
   }
 }
 
-// Build principale del pacchetto (browser): `dist/index.js` + `.d.ts`.
-// Quasar: i componenti usati nei template diventano import espliciti (l'app non deve registrarli).
-// Il CSS dei componenti è iniettato nel JS; gli stili globali sono in `dist/styles.css` (vedi scripts/build-styles.mjs).
-// L'entry Node `./quasar` ha una build separata: vite.config.node.ts.
+// Main package build (browser): `dist/index.js` + `.d.ts`.
+// Quasar: components used in templates become explicit imports (the app does not need to register them).
+// The component CSS is injected into the JS; the global styles are in `dist/styles.css` (see scripts/build-styles.mjs).
+// The Node `./quasar` entry has a separate build: vite.config.node.ts.
 export default defineConfig({
   plugins: [
     vue(),

@@ -20,15 +20,15 @@ import { gravatarHash, gravatarUrl, initialsOf } from '../../helpers/gravatar-he
 const appConfig = getPachiConfig()
 
 /**
- * Avatar dell'utente: immagine Gravatar (SHA-256 dell'email) con fallback alle iniziali.
+ * User avatar: Gravatar image (SHA-256 of the email) with fallback to initials.
  */
 const props = withDefaults(
   defineProps<{
-    /** email dell'utente */
+    /** user email */
     email?: string
-    /** nome completo, usato per le iniziali di fallback */
+    /** full name, used for the fallback initials */
     fullName?: string
-    /** lato in pixel; se omesso riempie il contenitore */
+    /** side in pixels; if omitted it fills the container */
     size?: number | string
   }>(),
   {
@@ -55,7 +55,7 @@ watch(
   () => [props.email, props.size] as const,
   async ([email, size]) => {
     failed.value = false
-    // Gravatar è opt-in (QCLI_APP_GRAVATAR=true): di default nessuna richiesta esterna, solo iniziali
+    // Gravatar is opt-in (QCLI_APP_GRAVATAR=true): by default no external request, initials only
     const hash = appConfig.app.gravatar !== true ? null : await gravatarHash(email)
     const px = size === '' ? 200 : Math.max(1, Number(size)) * 2
     url.value = hash ? gravatarUrl(hash, px) : null

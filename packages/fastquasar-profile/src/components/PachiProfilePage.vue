@@ -1,6 +1,6 @@
 <template>
   <div v-if="!user" class="pachi-profile-layout" aria-busy="true">
-    <!-- Skeleton mostrato finché `user` non è disponibile -->
+    <!-- Skeleton shown until `user` is available -->
     <div class="pachi-profile-identity">
       <div class="pachi-profile-skeleton pachi-profile-skeleton--avatar"></div>
       <div class="pachi-profile-skeleton pachi-profile-skeleton--line"></div>
@@ -141,7 +141,7 @@
       </div>
     </div>
 
-    <!-- Sicurezza: cambio password e MFA -->
+    <!-- Security: change password and MFA -->
     <pachi-profile-security :security="security ?? true" @password-changed="emit('password-changed')" />
   </div>
 </template>
@@ -162,23 +162,23 @@ import { resolveEditOptions } from '../helpers/edit-options'
 import '../styles/security.scss'
 
 /**
- * Pagina profilo utente (sola lettura). L'utente e l'eventuale avatar sono iniettati dall'app.
+ * User profile page (read-only). The user and the optional avatar are injected by the app.
  */
 const props = withDefaults(defineProps<{
-  /** Utente corrente da mostrare; se `null`/`undefined` (es. in caricamento) si mostra uno skeleton. */
+  /** Current user to show; if `null`/`undefined` (e.g. while loading) a skeleton is shown. */
   user?: IPachiProfileUser | null
-  /** Testo per "Ultimo accesso"; se assente si usa `user.lastLoginAt` formattato (altrimenti "—"). */
+  /** Text for "Last login"; if missing, the formatted `user.lastLoginAt` is used (otherwise "—"). */
   lastLogin?: string
-  /** Testo per "Account dal"; se assente si usa `user.createdAt` formattato (altrimenti "—"). */
+  /** Text for "Member since"; if missing, the formatted `user.createdAt` is used (otherwise "—"). */
   memberSince?: string
   /**
-   * Sezione «Sicurezza»: `false` la nasconde; un oggetto sceglie i blocchi (`password`, `mfa`) e le opzioni
-   * (`minPasswordLength`, `apiBase`, `mfaMethods`, `onPasswordChanged`). Default: solo il cambio password.
+   * «Security» section: `false` hides it; an object picks the blocks (`password`, `mfa`) and the options
+   * (`minPasswordLength`, `apiBase`, `mfaMethods`, `onPasswordChanged`). Default: password change only.
    */
   security?: boolean | IPachiProfileSecurityOptions
   /**
-   * Modifica di nome, cognome ed email (`PATCH /auth/user`): `true` mostra il pulsante «Modifica»; un oggetto
-   * ne imposta le opzioni (`apiBase`, `onUpdated`). Default `false` (pagina in sola lettura).
+   * Editing of first name, last name and email (`PATCH /auth/user`): `true` shows the «Edit» button; an object
+   * sets its options (`apiBase`, `onUpdated`). Default `false` (read-only page).
    */
   editable?: boolean | IPachiProfileEditOptions
 }>(), {
@@ -187,16 +187,16 @@ const props = withDefaults(defineProps<{
 })
 
 const emit = defineEmits<{
-  /** Password cambiata: la shell (`pachiLogout`) o l'app devono fare logout e nuovo login. */
+  /** Password changed: the shell (`pachiLogout`) or the app must log out and require a new login. */
   (e: 'password-changed'): void
-  /** Profilo modificato: `user` è la risposta del backend; l'app deve aggiornare la propria copia dell'utente. */
+  /** Profile edited: `user` is the backend response; the app must update its own copy of the user. */
   (e: 'updated', user: IPachiProfileUser): void
 }>()
 
 const { t, locale } = usePachiI18n(messages)
 
 defineSlots<{
-  /** Avatar dell'utente (es. Gravatar). Default: iniziali. */
+  /** User avatar (e.g. Gravatar). Default: initials. */
   avatar?: (props: { user: IPachiProfileUser | null | undefined, initials: string }) => unknown
 }>()
 
@@ -205,16 +205,16 @@ const canEdit = computed(() => editOptions.value.enabled)
 const editing = ref(false)
 const notice = ref('')
 
-/** Apre il form di modifica. */
+/** Opens the edit form. */
 function startEdit(): void {
   notice.value = ''
   editing.value = true
 }
 
 /**
- * Profilo salvato: chiude il form, avvisa l'app (`onUpdated` e evento `updated`).
+ * Profile saved: closes the form and notifies the app (`onUpdated` and the `updated` event).
  *
- * @param updated - utente restituito dal backend
+ * @param updated - user returned by the backend
  */
 async function onUpdated(updated: IPachiProfileUser): Promise<void> {
   editing.value = false
@@ -226,9 +226,9 @@ async function onUpdated(updated: IPachiProfileUser): Promise<void> {
 const initials = computed(() => getInitials(props.user))
 
 /**
- * Avatar: la shell (`@ilpachi/pachifastquasar`, `createPachiApp`) fornisce con `provide('pachiAvatarUrl', ...)`
- * una funzione `(email, size) => Promise<string | null>` (Gravatar, o `null` se disattivato). Senza, o se
- * l'immagine non esiste (Gravatar `d=404`), restano le iniziali.
+ * Avatar: the shell (`@ilpachi/pachifastquasar`, `createPachiApp`) provides via `provide('pachiAvatarUrl', ...)`
+ * a function `(email, size) => Promise<string | null>` (Gravatar, or `null` if disabled). Without it, or if
+ * the image does not exist (Gravatar `d=404`), the initials are shown.
  */
 const resolveAvatar = inject<
   ((email: string | null | undefined, size?: number) => Promise<string | null>) | null
@@ -267,8 +267,8 @@ const memberSinceText = computed(() =>
   grid-template-columns: 340px 1fr;
   gap: 16px;
   padding: 16px;
-  // il layout della shell è alto un viewport e non scrolla: la pagina scrolla da sé entro lo spazio utile
-  // (`--pachi-page-height` è definita dalla shell; senza, nessun limite)
+  // the shell layout is one viewport tall and does not scroll: the page scrolls by itself within the available space
+  // (`--pachi-page-height` is defined by the shell; without it, no limit)
   max-height: var(--pachi-page-height, none);
   overflow-y: auto;
   align-content: start;
@@ -386,7 +386,7 @@ const memberSinceText = computed(() =>
   }
 }
 
-// Badges colorati
+// Colored badges
 .pachi-profile-badge {
   padding: 3px 9px;
   font-size: 10.5px;
@@ -483,7 +483,7 @@ const memberSinceText = computed(() =>
   100% { background-position: -200% 0; }
 }
 
-// ── Responsive: una colonna sotto i 760px ─────────────────────────────────────
+// ── Responsive: single column below 760px ─────────────────────────────────────
 @media (max-width: 760px) {
   .pachi-profile-layout {
     grid-template-columns: minmax(0, 1fr);

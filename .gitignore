@@ -20,7 +20,7 @@ yarn-debug.log*
 *.code-workspace
 .vscode/
 
-# Config di lint/format: locali, non versionati
+# Lint/format configs: local, not versioned
 eslint.config.js
 oxlint.config.ts
 stylelint.config.js
@@ -28,12 +28,12 @@ stylelint.config.js
 .prettierrc*
 prettier.config.js
 
-# env locali (possono contenere segreti)
+# local env files (may contain secrets)
 .env
 .env.*
 !.env.example
 
-# Logo: tracciati solo gli SVG (logo.svg, favicon.svg, master)
+# Logo: only the SVGs are tracked (logo.svg, favicon.svg, master)
 assets/*.png
 assets/*.jpeg
 assets/*.jpg

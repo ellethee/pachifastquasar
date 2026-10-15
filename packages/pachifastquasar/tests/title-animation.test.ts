@@ -7,17 +7,17 @@ describe('resolveTitleAnimation', () => {
     for (const name of PACHI_TITLE_ANIMATIONS) expect(resolveTitleAnimation(name)).toBe(name)
     expect(resolveTitleAnimation('  PULSE ')).toBe('pulse')
   })
-  it('valori sconosciuti o non stringa -> undefined', () => {
+  it('unknown or non-string values -> undefined', () => {
     for (const v of ['', 'spin', undefined, null, 3]) expect(resolveTitleAnimation(v)).toBeUndefined()
   })
-  it('none = animation none; le altre hanno un valore CSS', () => {
+  it('none = animation none; the others have a CSS value', () => {
     expect(titleAnimationCss('none')).toBe('none')
     for (const name of PACHI_TITLE_ANIMATIONS) expect(titleAnimationCss(name)).not.toBe('')
   })
 })
 
 describe('config titleAnimation', () => {
-  it('default non impostato; QCLI_APP_TITLE_ANIMATION valida', () => {
+  it('default not set; QCLI_APP_TITLE_ANIMATION validated', () => {
     expect(resolvePachiConfig().app.titleAnimation).toBeUndefined()
     expect(resolvePachiConfig(pachiConfigFromEnv({ QCLI_APP_TITLE_ANIMATION: 'none' })).app.titleAnimation).toBe('none')
     expect(resolvePachiConfig(pachiConfigFromEnv({ QCLI_APP_TITLE_ANIMATION: 'boh' })).app.titleAnimation).toBeUndefined()

@@ -7,10 +7,10 @@ describe('resolveDashboardColumns', () => {
     expect(resolveDashboardColumns(3)).toBe('repeat(3, 1fr)')
     expect(resolveDashboardColumns('5')).toBe('repeat(5, 1fr)')
   })
-  it('stringa CSS usata così com\'è', () => {
+  it('CSS string used as is', () => {
     expect(resolveDashboardColumns(' repeat(auto-fill, minmax(220px, 1fr)) ')).toBe('repeat(auto-fill, minmax(220px, 1fr))')
   })
-  it('valori non validi -> undefined', () => {
+  it('invalid values -> undefined', () => {
     for (const v of [0, -1, 2.5, '', '  ', undefined, null, {}]) expect(resolveDashboardColumns(v)).toBeUndefined()
   })
 })
@@ -22,18 +22,18 @@ describe('resolveDashboardMaxWidth', () => {
     expect(resolveDashboardMaxWidth('90%')).toBe('90%')
     expect(resolveDashboardMaxWidth('none')).toBe('none')
   })
-  it('valori non validi -> undefined', () => {
+  it('invalid values -> undefined', () => {
     for (const v of [0, '', undefined, null]) expect(resolveDashboardMaxWidth(v)).toBeUndefined()
   })
 })
 
-describe('config della dashboard', () => {
-  it('default non impostati (resta il CSS)', () => {
+describe('dashboard config', () => {
+  it('defaults not set (the CSS stays)', () => {
     const cfg = resolvePachiConfig()
     expect(cfg.app.dashboardMaxWidth).toBeUndefined()
     expect(cfg.app.dashboardColumns).toBeUndefined()
   })
-  it('legge le variabili QCLI_APP_DASHBOARD_*', () => {
+  it('reads the QCLI_APP_DASHBOARD_* variables', () => {
     const cfg = resolvePachiConfig(
       pachiConfigFromEnv({ QCLI_APP_DASHBOARD_MAX_WIDTH: '1400px', QCLI_APP_DASHBOARD_COLUMNS: '3' })
     )

@@ -91,11 +91,11 @@ const props = withDefaults(defineProps<{
   description: string
   warning?: string
   confirmWord?: string
-  /** Testo del bottone di conferma (default: «Elimina»/«Delete»): per conferme non distruttive passa un testo adatto. */
+  /** Text of the confirm button (default: the translated "Delete"): for non-destructive confirmations pass a suitable text. */
   submitLabel?: string
-  /** Testo della riga sopra il titolo (default: «azione distruttiva»). */
+  /** Text of the line above the title (default: the translated "destructive action"). */
   metaLabel?: string
-  /** Tono dell'azione: `danger` (default, rosso), `warning` (ambra) o `info` (blu) per conferme non distruttive. */
+  /** Action tone: `danger` (default, red), `warning` (amber) or `info` (blue) for non-destructive confirmations. */
   tone?: 'danger' | 'warning' | 'info'
 }>(), {
   warning: '',
@@ -118,7 +118,7 @@ function onConfirm() {
 
 <style lang="scss">
 .pachi-confirm-dialog {
-  // tono (rosso di default): le variabili locali seguono `tone`
+  // tone (red by default): the local variables follow `tone`
   --pachi-confirm-tone: var(--pachi-red);
   --pachi-confirm-tone-soft: var(--pachi-red-soft);
   --pachi-confirm-tone-border: var(--pachi-red-border, rgba(248, 113, 113, 0.2));

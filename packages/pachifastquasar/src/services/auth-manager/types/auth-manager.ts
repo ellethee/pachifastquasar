@@ -1,19 +1,19 @@
 export interface IToken {
   access_token: string
   token_type: string
-  /** Nuovo refresh token (rotazione: monouso, sostituisce il precedente); assente con la rotazione disattivata. */
+  /** New refresh token (rotation: single-use, replaces the previous one); absent with rotation disabled. */
   refresh_token?: string
 }
 export interface ITokenResponse extends IToken {
   refresh_token: string
 }
-/** Risposta di `POST /api/auth/token` quando l'utente ha l'MFA attiva (serve il secondo step). */
+/** Response of `POST /api/auth/token` when the user has MFA enabled (the second step is required). */
 export interface IMfaRequiredResponse {
   mfa_required: true
-  /** Token di breve durata della sfida MFA (da tenere solo in memoria). */
+  /** Short-lived MFA challenge token (to be kept in memory only). */
   mfa_token: string
 }
-/** Esito di `AuthManager.login`: `mfaRequired` true se manca il secondo step (`verifyMfa`). */
+/** Outcome of `AuthManager.login`: `mfaRequired` true if the second step is missing (`verifyMfa`). */
 export interface LoginResult {
   mfaRequired: boolean
 }
@@ -25,13 +25,13 @@ export interface IUserInfo {
   isActive: boolean
   isStaff: boolean
   isSuperuser: boolean
-  /** UUID dell'utente. */
+  /** User UUID. */
   id: string
-  /** Data (ISO 8601 UTC) della verifica dell'email, `null` se non verificata. */
+  /** Date (ISO 8601 UTC) of the email verification, `null` if not verified. */
   emailVerifiedAt?: string | null
-  /** Data (ISO 8601 UTC) dell'ultimo accesso. */
+  /** Date (ISO 8601 UTC) of the last access. */
   lastLoginAt?: string | null
-  /** Data (ISO 8601 UTC) di creazione dell'account. */
+  /** Date (ISO 8601 UTC) of the account creation. */
   createdAt?: string | null
   permissions: string[]
 }

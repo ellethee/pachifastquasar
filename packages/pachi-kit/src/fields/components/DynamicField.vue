@@ -25,9 +25,9 @@
 /**
  * module DynamicField.vue
  *
- * Renderizza dinamicamente UN campo del form a partire dal suo `IFieldDef`
- * (vocabolario dichiarativo dei campi): `text`/`textarea`
- * via `q-input`, `select` (locale o remoto, con filtro e creazione al volo)
+ * Dynamically renders ONE form field from its `IFieldDef`
+ * (declarative field vocabulary): `text`/`textarea`
+ * via `q-input`, `select` (local or remote, with filter and on-the-fly creation)
  * via `q-select`, `pdate` via `PachiDatePicker`.
  */
 import { computed, ref } from 'vue'
@@ -45,7 +45,7 @@ const props = defineProps<{
   modelValue: unknown
   field: IFieldDef
   readonly?: boolean | undefined
-  /** Valori correnti della sezione: servono a `dependsOn`/`params` (le passa `FieldsSection`). */
+  /** Current values of the section: needed by `dependsOn`/`params` (passed by `FieldsSection`). */
   values?: IFieldsState | undefined
 }>()
 const emit = defineEmits<{
@@ -59,19 +59,19 @@ const model = computed({
 
 const { t } = usePachiI18n(messages)
 
-/** `type: 'boolean'` usa il toggle, salvo `component` custom (che ha la precedenza). */
+/** `type: 'boolean'` uses the toggle, unless a custom `component` is set (which takes precedence). */
 const isBoolean = computed(() => props.field.type === 'boolean' && !props.field.component)
 
-/** Select standard gestito qui (non un `component` custom). */
+/** Standard select handled here (not a custom `component`). */
 const isSelect = computed(() => props.field.type === 'select' && !props.field.component)
-// reattivo: segue i cambi di `field.url`/`type`/`options`
+// reactive: follows changes of `field.url`/`type`/`options`
 const remoteSelect = useRemoteSelect(
   () => props.field,
   () => props.values,
 )
 
 const fieldComponent = computed(() => {
-  // `component`: un componente Vue custom (v-model + le altre chiavi come prop), es. FlagsInput/EnumSelect.
+  // `component`: a custom Vue component (v-model + the other keys as props), e.g. FlagsInput/EnumSelect.
   if (props.field.component) return props.field.component as Component
   switch (props.field.type) {
     case 'select':
@@ -86,12 +86,12 @@ const fieldComponent = computed(() => {
   }
 })
 
-/** Chiavi del vocabolario dichiarativo gestite qui e NON da ripassare al componente sottostante. */
+/** Declarative vocabulary keys handled here and NOT to be passed on to the underlying component. */
 const RESERVED_KEYS = new Set(['field', 'type', 'url', 'optionLabel', 'optionValue', 'options', 'component',
   'dependsOn', 'params', 'resetOnDependencyChange'])
-// (con `component` le chiavi `options`/`optionLabel`/... vanno al componente: vedi bindProps)
+// (with `component` the `options`/`optionLabel`/... keys go to the component: see bindProps)
 
-/** Regole effettive: `required` (se impostato) seguita da `field.rules`. */
+/** Effective rules: `required` (if set) followed by `field.rules`. */
 const effectiveRules = computed<((val: unknown) => boolean | string)[]>(() => {
   const requiredRule = (val: unknown): boolean | string =>
     !isEmptyValue(val) || t('pachiEditDialogFields.required')
@@ -101,10 +101,10 @@ const effectiveRules = computed<((val: unknown) => boolean | string)[]>(() => {
 const inner = ref<{ validate?: () => unknown } | null>(null)
 
 /**
- * Valida il campo (`required` + `rules`, sincrone) e, se il componente sottostante espone
- * `validate()` (q-input, q-select, ...), ne mostra l'errore subito anche senza interazione.
+ * Validates the field (`required` + `rules`, synchronous) and, if the underlying component exposes
+ * `validate()` (q-input, q-select, ...), shows its error right away even without interaction.
  *
- * @returns `true` se il valore rispetta tutte le regole
+ * @returns `true` if the value satisfies all the rules
  */
 function validate(): boolean {
   const value = valueForValidation(props.field, props.modelValue)
@@ -112,7 +112,7 @@ function validate(): boolean {
   try {
     inner.value?.validate?.()
   } catch {
-    // il componente custom non supporta validate(): resta il risultato delle regole
+    // the custom component does not support validate(): the rules result stands
   }
   return valid
 }
@@ -125,7 +125,7 @@ const bindProps = computed(() => {
     if (!RESERVED_KEYS.has(key)) extra[key] = value
   }
   if (props.field.component) {
-    // Componente custom: gli riportiamo `options` (se presenti) e nient'altro del vocabolario select.
+    // Custom component: we pass it `options` (if present) and nothing else of the select vocabulary.
     if (props.field.options) extra.options = props.field.options
     return extra
   }
@@ -150,10 +150,10 @@ const bindProps = computed(() => {
 })
 
 /**
- * `filter`/`new-value` servono solo ai q-select standard gestiti qui sotto (non a q-input/PachiDatePicker). Un componente custom
- * (`field.component`: FlagsInput, EnumSelect, i picker...) ha già il proprio q-select con i propri
- * listener: passargli anche questi li fonderebbe in un array (warning "Expected Function, got
- * Array") e farebbe girare due volte `update()` del filtro.
+ * `filter`/`new-value` are only needed by the standard q-selects handled below (not q-input/PachiDatePicker). A custom component
+ * (`field.component`: FlagsInput, EnumSelect, the pickers...) already has its own q-select with its own
+ * listeners: passing these too would merge them into an array (warning "Expected Function, got
+ * Array") and make the filter's `update()` run twice.
  */
 const fieldListeners = computed(() =>
   isSelect.value ? { filter: onFilter, 'new-value': onNewValue } : {},

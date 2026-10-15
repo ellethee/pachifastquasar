@@ -1,7 +1,7 @@
 import { resolveTitleAnimation } from '../dashboard/helpers/title-animation'
 import type { PachiConfigInput, PachiEnv } from './types/app-config'
 
-/** Valore di una variabile se impostata e non vuota (la prima disponibile tra gli alias), altrimenti `undefined`. */
+/** Value of a variable if set and non-empty (the first available among the aliases), otherwise `undefined`. */
 function pick(...values: unknown[]): string | undefined {
   for (const value of values) {
     const text = value === undefined || value === null ? '' : String(value).trim()
@@ -10,13 +10,13 @@ function pick(...values: unknown[]): string | undefined {
   return undefined
 }
 
-/** Booleano da variabile: `'false'` = false, qualunque altro valore impostato = true, assente = `undefined`. */
+/** Boolean from a variable: `'false'` = false, any other set value = true, absent = `undefined`. */
 function flag(...values: unknown[]): boolean | undefined {
   const value = pick(...values)
   return value === undefined ? undefined : value !== 'false'
 }
 
-/** Rimuove le chiavi `undefined` (ricorsivamente) e gli oggetti rimasti vuoti. */
+/** Removes `undefined` keys (recursively) and objects left empty. */
 function compact<T extends Record<string, unknown>>(value: T): T {
   const out: Record<string, unknown> = {}
   for (const [key, item] of Object.entries(value)) {
@@ -32,22 +32,22 @@ function compact<T extends Record<string, unknown>>(value: T): T {
 }
 
 /**
- * Mappa le variabili d'ambiente `QCLI_*` / `VITE_*` nella configurazione della shell. Va chiamata
- * dall'app con `import.meta.env`: i valori sono così letti dal build dell'app e non congelati nel pacchetto.
+ * Maps the `QCLI_*` / `VITE_*` environment variables into the shell configuration. It must be called
+ * by the app with `import.meta.env`: values are thus read at the app build and not frozen in the package.
  *
- * Il risultato contiene SOLO le impostazioni per cui esiste una variabile non vuota: ciò che non è
- * impostato nell'ambiente è assente (non vale il default), così unito con {@link mergePachiConfig} o
- * {@link definePachiConfig} non sovrascrive la configurazione di base dell'app. Booleani: `false` solo se la
- * variabile vale esattamente `'false'` (`QCLI_APP_HIDE_HUB_HEADER`: vero solo con `'true'`).
+ * The result contains ONLY the settings for which a non-empty variable exists: whatever is not
+ * set in the environment is absent (the default does not apply), so when merged with {@link mergePachiConfig} or
+ * {@link definePachiConfig} it does not overwrite the app's base configuration. Booleans: `false` only if the
+ * variable is exactly `'false'` (`QCLI_APP_HIDE_HUB_HEADER`: true only with `'true'`).
  *
- * Variabili: `QCLI_AUTH_ENABLED`, `QCLI_AUTH_STORAGE` (`session`|`local`), `QCLI_AUTH_MENU_PROFILE|SETTINGS|HOME`,
+ * Variables: `QCLI_AUTH_ENABLED`, `QCLI_AUTH_STORAGE` (`session`|`local`), `QCLI_AUTH_MENU_PROFILE|SETTINGS|HOME`,
  * `QCLI_APP_TITLE`, `QCLI_APP_DESCRIPTION`, `QCLI_APP_SHOW_LOGO`, `QCLI_APP_LOGO_SIZE`, `QCLI_APP_LOGO_OVERLAP`, `QCLI_APP_LOCALE`, `QCLI_APP_AUTO_DASHBOARD`,
  * `QCLI_APP_SHOW_LOCALE_SWITCHER`, `QCLI_APP_HIDE_HUB_HEADER`, `QCLI_APP_DASHBOARD_MAX_WIDTH`, `QCLI_APP_DASHBOARD_COLUMNS`, `QCLI_APP_TITLE_ANIMATION`, `QCLI_APP_GRAVATAR`, `QCLI_APP_HOVER_EFFECTS`,
- * `QCLI_HTTP_ENVELOPE` (`false` = il backend non usa l'envelope `{ success, message, data }`)
- * (e gli omologhi `VITE_AUTH_ENABLED`, `VITE_AUTH_MENU_*`, `VITE_APP_HOVER_EFFECTS`).
+ * `QCLI_HTTP_ENVELOPE` (`false` = the backend does not use the envelope `{ success, message, data }`)
+ * (and the equivalents `VITE_AUTH_ENABLED`, `VITE_AUTH_MENU_*`, `VITE_APP_HOVER_EFFECTS`).
  *
- * @param env - tipicamente `import.meta.env`
- * @returns configurazione parziale (passabile a `setPachiConfig`, `createPachiApp`, `createPachiRouter`)
+ * @param env - typically `import.meta.env`
+ * @returns partial configuration (can be passed to `setPachiConfig`, `createPachiApp`, `createPachiRouter`)
  */
 export function pachiConfigFromEnv(env: PachiEnv): PachiConfigInput {
   const storage = pick(env.QCLI_AUTH_STORAGE)

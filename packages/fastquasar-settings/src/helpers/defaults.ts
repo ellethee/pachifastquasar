@@ -1,12 +1,12 @@
 import { applyKey } from './apply'
 import type { ISettingsSchemaResponse } from '../types/settings-manager'
 
-/** Mappa `categoria.campo` -> valore predefinito. */
+/** `category.field` -> default value map. */
 export type SettingsDefaultsMap = Record<string, unknown>
 
 /**
- * Valori predefiniti usati SOLO come fallback con backend precedenti a pachifast 0.6.0, il cui schema non espone
- * `default` per i campi. Se lo schema ha `default` (anche `null`) vince sempre lo schema.
+ * Default values used ONLY as a fallback with backends older than pachifast 0.6.0, whose schema does not expose
+ * `default` for fields. If the schema has `default` (even `null`) the schema always wins.
  */
 export const FALLBACK_DEFAULTS: Readonly<SettingsDefaultsMap> = {
   'appearance.theme': 'auto',
@@ -18,13 +18,13 @@ export const FALLBACK_DEFAULTS: Readonly<SettingsDefaultsMap> = {
 }
 
 /**
- * Risolve il valore predefinito di un campo: `default` dello schema se presente (anche `null`, es. lingua
- * automatica), altrimenti il fallback per i campi standard ({@link FALLBACK_DEFAULTS}).
+ * Resolves the default value of a field: the schema `default` if present (even `null`, e.g. automatic
+ * language), otherwise the fallback for standard fields ({@link FALLBACK_DEFAULTS}).
  *
- * @param schema - schema delle impostazioni
- * @param category - categoria
- * @param field - chiave del campo
- * @returns `{ found, value }`: `found` è `false` se non esiste alcun default
+ * @param schema - settings schema
+ * @param category - category
+ * @param field - field key
+ * @returns `{ found, value }`: `found` is `false` if no default exists
  */
 export function resolveFieldDefault(
   schema: ISettingsSchemaResponse,
@@ -40,10 +40,10 @@ export function resolveFieldDefault(
 }
 
 /**
- * Raccoglie i default di tutti i campi dello schema che ne hanno uno (schema o fallback).
+ * Collects the defaults of all schema fields that have one (schema or fallback).
  *
- * @param schema - schema delle impostazioni
- * @returns mappa `categoria.campo` -> default
+ * @param schema - settings schema
+ * @returns `category.field` -> default map
  */
 export function collectDefaults(schema: ISettingsSchemaResponse): SettingsDefaultsMap {
   const out: SettingsDefaultsMap = {}

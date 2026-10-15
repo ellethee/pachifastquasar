@@ -2,14 +2,14 @@ import { DEFAULT_PACHI_CONFIG } from './defaults'
 import { pachiConfigFromEnv } from './env'
 import type { IAppConfig, PachiConfigInput, PachiEnv } from './types/app-config'
 
-/** Oggetto semplice (non array, non componente Vue, non funzione): unico caso in cui si fa merge ricorsivo. */
+/** Plain object (not an array, Vue component or function): the only case in which a recursive merge is done. */
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   if (typeof value !== 'object' || value === null) return false
   const proto = Object.getPrototypeOf(value)
   return proto === Object.prototype || proto === null
 }
 
-/** Merge ricorsivo di oggetti semplici: i valori `undefined` del sorgente non sovrascrivono. */
+/** Recursive merge of plain objects: `undefined` values in the source do not overwrite. */
 function merge<T extends Record<string, unknown>>(base: T, extra: Record<string, unknown>): T {
   const out: Record<string, unknown> = { ...base }
   for (const [key, value] of Object.entries(extra)) {
@@ -21,11 +21,11 @@ function merge<T extends Record<string, unknown>>(base: T, extra: Record<string,
 }
 
 /**
- * Applica i default a una configurazione parziale (merge ricorsivo sui soli oggetti semplici; array,
- * funzioni e componenti Vue sostituiscono il valore).
+ * Applies the defaults to a partial configuration (recursive merge on plain objects only; arrays,
+ * functions and Vue components replace the value).
  *
- * @param input - configurazione fornita dall'app (anche parziale)
- * @returns configurazione completa
+ * @param input - configuration provided by the app (even partial)
+ * @returns complete configuration
  */
 export function resolvePachiConfig(input: PachiConfigInput = {}): IAppConfig {
   return merge(
@@ -35,12 +35,12 @@ export function resolvePachiConfig(input: PachiConfigInput = {}): IAppConfig {
 }
 
 /**
- * Unisce più configurazioni parziali (merge ricorsivo sui soli oggetti semplici; array, funzioni e
- * componenti Vue sostituiscono; i valori `undefined` non sovrascrivono). Le successive vincono sulle
- * precedenti, ma ciò che non specificano resta com'era: nessuna impostazione già presente va persa.
+ * Merges several partial configurations (recursive merge on plain objects only; arrays, functions and
+ * Vue components replace; `undefined` values do not overwrite). Later ones win over
+ * earlier ones, but whatever they do not specify stays as it was: no existing setting is lost.
  *
- * @param configs - configurazioni da unire, dalla meno alla più prioritaria
- * @returns configurazione parziale unita
+ * @param configs - configurations to merge, from lowest to highest priority
+ * @returns merged partial configuration
  */
 export function mergePachiConfig(...configs: (PachiConfigInput | undefined)[]): PachiConfigInput {
   return configs.reduce<Record<string, unknown>>(
@@ -50,14 +50,14 @@ export function mergePachiConfig(...configs: (PachiConfigInput | undefined)[]): 
 }
 
 /**
- * Configurazione dell'app: base scritta nel codice + override dalle variabili d'ambiente. Le variabili
- * impostate vincono sulla base; quelle assenti non toccano nulla. Equivale a
+ * App configuration: base written in code + overrides from environment variables. Set variables
+ * win over the base; absent ones touch nothing. Equivalent to
  * `mergePachiConfig(base, pachiConfigFromEnv(env), ...overrides)`.
  *
- * @param base - configurazione di base dell'app (logo, componenti, menu, default propri)
+ * @param base - app base configuration (logo, components, menu, own defaults)
  * @param env - tipicamente `import.meta.env`
- * @param overrides - ulteriori override (più prioritari anche dell'ambiente)
- * @returns configurazione parziale, da passare a `createPachiApp`/`createPachiRouter`
+ * @param overrides - further overrides (higher priority than the environment too)
+ * @returns partial configuration, to pass to `createPachiApp`/`createPachiRouter`
  */
 export function definePachiConfig(
   base: PachiConfigInput,
@@ -70,11 +70,11 @@ export function definePachiConfig(
 let current: IAppConfig = resolvePachiConfig()
 
 /**
- * Registra la configurazione della shell (con i default applicati). Va chiamata prima di creare router
- * e app: lo fanno già `createPachiRouter` e `createPachiApp` se ricevono `config`.
+ * Registers the shell configuration (with defaults applied). Must be called before creating router
+ * and app: `createPachiRouter` and `createPachiApp` already do it if they receive `config`.
  *
- * @param input - configurazione fornita dall'app (anche parziale)
- * @returns la configurazione risolta
+ * @param input - configuration provided by the app (even partial)
+ * @returns the resolved configuration
  */
 export function setPachiConfig(input: PachiConfigInput = {}): IAppConfig {
   current = resolvePachiConfig(input)
@@ -82,9 +82,9 @@ export function setPachiConfig(input: PachiConfigInput = {}): IAppConfig {
 }
 
 /**
- * Configurazione corrente della shell (default se non è mai stata impostata).
+ * Current shell configuration (defaults if it was never set).
  *
- * @returns configurazione risolta
+ * @returns resolved configuration
  */
 export function getPachiConfig(): IAppConfig {
   return current

@@ -14,7 +14,7 @@ let calls: string[]
 let uninstall: () => void
 let target: EventTarget
 
-/** Client finto: conta le richieste `GET` e risponde con l'elenco dei modelli. */
+/** Fake client: counts the `GET` requests and replies with the model list. */
 function fakeHttp(): IPachiAdminHttp {
   return {
     Get: <T>(url: string) => {
@@ -27,14 +27,14 @@ function fakeHttp(): IPachiAdminHttp {
   }
 }
 
-/** Emette `pachi:auth-changed` come fa la shell. */
+/** Emits `pachi:auth-changed` as the shell does. */
 function emitAuth(userId: string | null): void {
   target.dispatchEvent(new CustomEvent(AUTH_CHANGED_EVENT, {
     detail: { authenticated: userId !== null, userId, username: userId },
   }))
 }
 
-/** Lascia completare le promise in sospeso. */
+/** Lets pending promises complete. */
 async function settle(): Promise<void> {
   for (let i = 0; i < 5; i++) await Promise.resolve()
 }
@@ -53,21 +53,21 @@ afterEach(() => {
   vi.unstubAllGlobals()
 })
 
-describe('GET /api/admin/models al primo caricamento', () => {
-  it('menu che parte prima del primo pachi:auth-changed: una sola richiesta anche se la pagina si monta dopo', async () => {
-    // il menu legge `visible` con la sessione ripristinata dallo storage: parte il caricamento
+describe('GET /api/admin/models on first load', () => {
+  it('menu starting before the first pachi:auth-changed: a single request even if the page mounts later', async () => {
+    // the menu reads `visible` with the session restored from storage: loading starts
     expect(hasAdminModels()).toBe(false)
     await settle()
-    // la shell conferma l'utente (primo evento): non deve buttare via l'elenco già richiesto
+    // the shell confirms the user (first event): it must not throw away the already requested list
     emitAuth('u1')
     await settle()
-    // la pagina Admin si monta e chiede l'elenco
+    // the Admin page mounts and requests the list
     await fetchAdminModels(createAdminApi(fakeHttp()))
     expect(calls).toHaveLength(1)
     expect(hasAdminModels()).toBe(true)
   })
 
-  it('richiesta ancora in volo quando arriva l\'evento: pagina e menu la condividono', async () => {
+  it('request still in flight when the event arrives: page and menu share it', async () => {
     hasAdminModels()
     emitAuth('u1')
     const list = fetchAdminModels(createAdminApi(fakeHttp()))
@@ -77,7 +77,7 @@ describe('GET /api/admin/models al primo caricamento', () => {
     expect(calls).toHaveLength(1)
   })
 
-  it('un altro utente invalida l\'elenco e lo ricarica', async () => {
+  it('another user invalidates the list and reloads it', async () => {
     hasAdminModels()
     await settle()
     emitAuth('u1')
@@ -87,7 +87,7 @@ describe('GET /api/admin/models al primo caricamento', () => {
     expect(calls).toHaveLength(2)
   })
 
-  it('l\'evento con lo stesso utente non ripete la richiesta', async () => {
+  it('the event with the same user does not repeat the request', async () => {
     emitAuth('u1')
     await settle()
     emitAuth('u1')

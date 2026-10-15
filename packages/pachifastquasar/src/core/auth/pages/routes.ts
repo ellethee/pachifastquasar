@@ -3,10 +3,10 @@ import { mdiAccountCircleOutline } from '@quasar/extras/mdi-v7'
 import type { IAppConfig } from '../../config'
 
 /**
- * Route di autenticazione della shell (login). La pagina è sostituibile con `config.components.loginPage`.
+ * Shell authentication routes (login). The page can be replaced with `config.components.loginPage`.
  *
- * @param config - configurazione risolta
- * @returns route di auth
+ * @param config - resolved configuration
+ * @returns auth routes
  */
 export default function authRoutes(config: IAppConfig): RouteRecordRaw[] {
   return [

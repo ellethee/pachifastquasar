@@ -1,16 +1,16 @@
-// Variabili Sass di Quasar del tema Pachi (palette e tooltip), valori di default (`!default`).
-// Uso nell'app, in `src/css/quasar.variables.scss` (il file letto da Quasar): definire PRIMA gli override,
-// poi importare questo file, così i valori dell'app prevalgono:
-//   (esempio) $primary: #7c3aed;
+// Quasar Sass variables of the Pachi theme (palette and tooltip), default values (`!default`).
+// Usage in the app, in `src/css/quasar.variables.scss` (the file read by Quasar): define the overrides FIRST,
+// then import this file, so the app values prevail:
+//   (example) $primary: #7c3aed;
 //   @import '@ilpachi/pachifastquasar/scss/quasar-variables';
-// Sono variabili compile-time di Sass: servono a Quasar quando compila i suoi stili nell'app.
-// I token CSS `--pachi-*` (colori dell'interfaccia) stanno in `tokens.scss`.
+// These are Sass compile-time variables: Quasar needs them when it compiles its styles in the app.
+// The `--pachi-*` CSS tokens (interface colors) live in `tokens.scss`.
 
 @use 'quasar/src/css/variables' as q;
 
 // ── Quasar palette ──────────────────────────────────────────────────────────
-$primary: #2dd4bf !default; // teal — accento principale e CTA primary
-$secondary: #60a5fa !default; // blue — info secondaria
+$primary: #2dd4bf !default; // teal — main accent and primary CTA
+$secondary: #60a5fa !default; // blue — secondary info
 $accent: #5eead4 !default; // teal hover
 
 $dark: #10141b !default; // surface

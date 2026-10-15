@@ -5,12 +5,12 @@ const collator = new Intl.Collator(undefined, {
   sensitivity: 'accent'
 })
 /**
- * Ordina una copia dell'array secondo piu' colonne (confronto numerico/accent-sensitive).
+ * Sorts a copy of the array by multiple columns (numeric/accent-sensitive comparison).
  *
- * @param items - elementi da ordinare
- * @param sortState - colonne e direzioni, in ordine di priorita'
- * @param nullsLast - true (tutte le colonne) o elenco di colonne i cui valori null/undefined vanno in fondo
- * @returns nuovo array ordinato
+ * @param items - items to sort
+ * @param sortState - columns and directions, in priority order
+ * @param nullsLast - true (all columns) or list of columns whose null/undefined values go last
+ * @returns new sorted array
  */
 export function multiSort<T>(items: T[], sortState: IOrderState[], nullsLast: boolean | string[] = false): T[] {
   return [...items].sort((a, b) => {

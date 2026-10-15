@@ -2,14 +2,14 @@ import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 
 /**
- * Pacchetti `@ilpachi/*` dichiarati dall'app (dependencies e devDependencies).
+ * `@ilpachi/*` packages declared by the app (dependencies and devDependencies).
  *
- * In sviluppo Vite pre-impacchetta le dipendenze (optimizeDeps) ma serve file grezzi quelli caricati da
- * `import.meta.glob` (rotte e menu dei package): lo stato di modulo (es. `setPachiProfileUser`) finirebbe in
- * due copie diverse. Escluderli dalla pre-ottimizzazione li fa servire tutti come file grezzi, una sola copia.
+ * In development Vite pre-bundles dependencies (optimizeDeps) but serves as raw files those loaded by
+ * `import.meta.glob` (package routes and menus): module state (e.g. `setPachiProfileUser`) would end up in
+ * two different copies. Excluding them from pre-optimization serves them all as raw files, a single copy.
  *
- * @param appDir - cartella dell'app (contiene `package.json`)
- * @returns i nomi dei pacchetti `@ilpachi/*` (vuoto se non c'è `package.json`)
+ * @param appDir - app folder (contains `package.json`)
+ * @returns the names of the `@ilpachi/*` packages (empty if there is no `package.json`)
  */
 export function readIlpachiDependencies(appDir: string): string[] {
   const file = path.join(appDir, 'package.json')
@@ -27,16 +27,16 @@ export function readIlpachiDependencies(appDir: string): string[] {
   }
 }
 
-/** Entry di `alova` usati dai package `@ilpachi/*` (che restano esclusi dal prebundle: lo scanner non li vede). */
+/** `alova` entries used by the `@ilpachi/*` packages (which stay excluded from the prebundle: the scanner does not see them). */
 export const ALOVA_PREBUNDLE_ENTRIES = ['alova', 'alova/client', 'alova/fetch', 'alova/vue']
 
 /**
- * Entry da prebundlare insieme in sviluppo. I package `@ilpachi/*` sono esclusi da `optimizeDeps` e quindi
- * Vite non scopre i loro import di `alova/client`: l'app finirebbe con due copie di alova (una prebundlata, una
- * grezza) e `usePagination` fallirebbe con "`statesHook` is not set in alova instance".
+ * Entries to prebundle together in development. The `@ilpachi/*` packages are excluded from `optimizeDeps`, so
+ * Vite does not discover their `alova/client` imports: the app would end up with two copies of alova (one prebundled, one
+ * raw) and `usePagination` would fail with "`statesHook` is not set in alova instance".
  *
- * @param appDir - cartella dell'app (con il suo `package.json`)
- * @returns le entry di alova se l'app dipende da `alova`, altrimenti `[]`
+ * @param appDir - app folder (with its `package.json`)
+ * @returns the alova entries if the app depends on `alova`, otherwise `[]`
  */
 export function readPrebundleDependencies(appDir: string): string[] {
   const file = path.join(appDir, 'package.json')

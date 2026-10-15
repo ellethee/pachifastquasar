@@ -1,22 +1,22 @@
 #!/usr/bin/env node
 // @ts-check
 /**
- * Release per-pacchetto del monorepo (versioni indipendenti, tag `<nome>@<versione>`).
+ * Per-package release of the monorepo (independent versions, tag `<name>@<version>`).
  *
- * Uso: node scripts/release.mjs <nome> <patch|minor|major|x.y.z> [--dry-run]
+ * Usage: node scripts/release.mjs <name> <patch|minor|major|x.y.z> [--dry-run]
  *
- * Passi: albero git pulito -> bump di `packages/<nome>/package.json` -> controlla che il CHANGELOG del pacchetto
- * abbia la sezione `## [x.y.z]` -> commit `chore(<nome>): release x.y.z` -> tag `<nome>@x.y.z`.
- * NON fa push e NON pubblica: `git push --follow-tags` avvia il workflow di release della CI, che pubblica.
+ * Steps: clean git tree -> bump `packages/<name>/package.json` -> check that the package CHANGELOG
+ * has the `## [x.y.z]` section -> commit `chore(<name>): release x.y.z` -> tag `<name>@x.y.z`.
+ * It does NOT push and does NOT publish: `git push --follow-tags` starts the CI release workflow, which publishes.
  */
 import { execFileSync } from 'node:child_process'
 import { readFileSync, writeFileSync, existsSync } from 'node:fs'
 
 /**
- * Calcola la nuova versione.
- * @param {string} current Versione attuale (x.y.z).
- * @param {string} bump `patch`, `minor`, `major` oppure una versione esplicita.
- * @returns {string} La nuova versione.
+ * Computes the new version.
+ * @param {string} current Current version (x.y.z).
+ * @param {string} bump `patch`, `minor`, `major` or an explicit version.
+ * @returns {string} The new version.
  */
 function nextVersion(current, bump) {
   if (/^\d+\.\d+\.\d+$/.test(bump)) return bump
@@ -24,37 +24,37 @@ function nextVersion(current, bump) {
   if (bump === 'major') return `${maj + 1}.0.0`
   if (bump === 'minor') return `${maj}.${min + 1}.0`
   if (bump === 'patch') return `${maj}.${min}.${pat + 1}`
-  throw new Error(`Incremento non valido: ${bump}`)
+  throw new Error(`Invalid increment: ${bump}`)
 }
 
 /**
- * Esegue git e restituisce lo stdout.
- * @param {string[]} args Argomenti di git.
- * @returns {string} Output senza newline finale.
+ * Runs git and returns stdout.
+ * @param {string[]} args Git arguments.
+ * @returns {string} Output without trailing newline.
  */
 function git(args) {
   return execFileSync('git', args, { encoding: 'utf8' }).trim()
 }
 
-/** Punto di ingresso. */
+/** Entry point. */
 function main() {
   const [name, bump, ...flags] = process.argv.slice(2)
   const dry = flags.includes('--dry-run')
-  if (!name || !bump) throw new Error('Uso: release.mjs <nome> <patch|minor|major|x.y.z> [--dry-run]')
+  if (!name || !bump) throw new Error('Usage: release.mjs <name> <patch|minor|major|x.y.z> [--dry-run]')
   const dir = `packages/${name}`
-  if (!existsSync(`${dir}/package.json`)) throw new Error(`Pacchetto sconosciuto: ${name}`)
-  if (git(['status', '--porcelain'])) throw new Error('Albero git non pulito')
+  if (!existsSync(`${dir}/package.json`)) throw new Error(`Unknown package: ${name}`)
+  if (git(['status', '--porcelain'])) throw new Error('Git tree not clean')
   const pkg = JSON.parse(readFileSync(`${dir}/package.json`, 'utf8'))
-  if (pkg.private) throw new Error(`${name} è privato`)
+  if (pkg.private) throw new Error(`${name} is private`)
   const version = nextVersion(pkg.version, bump)
   const tag = `${name}@${version}`
-  if (git(['tag', '-l', tag])) throw new Error(`Il tag ${tag} esiste già`)
+  if (git(['tag', '-l', tag])) throw new Error(`Tag ${tag} already exists`)
   const changelog = readFileSync(`${dir}/CHANGELOG.md`, 'utf8')
   if (!changelog.includes(`## [${version}]`)) {
-    throw new Error(`${dir}/CHANGELOG.md non ha la sezione "## [${version}]": aggiungila prima`)
+    throw new Error(`${dir}/CHANGELOG.md does not have the section "## [${version}]": add it first`)
   }
   if (!new RegExp(`^\\[${version.replace(/\./g, '\\.')}\\]: `, 'm').test(changelog)) {
-    throw new Error(`${dir}/CHANGELOG.md non ha la riga di link "[${version}]: ...compare/${name}@<precedente>...${name}@${version}": aggiungila prima`)
+    throw new Error(`${dir}/CHANGELOG.md does not have the link line "[${version}]: ...compare/${name}@<previous>...${name}@${version}": add it first`)
   }
   console.log(`${pkg.name}: ${pkg.version} -> ${version} (tag ${tag})${dry ? ' [dry-run]' : ''}`)
   if (dry) return
@@ -68,7 +68,7 @@ function main() {
   git(['add', `${dir}/package.json`])
   git(['commit', '-m', `chore(${name}): release ${version}`])
   git(['tag', '-a', tag, '-m', tag])
-  console.log(`Fatto. Pubblica con: git push --follow-tags`)
+  console.log(`Done. Publish with: git push --follow-tags`)
 }
 
 try {

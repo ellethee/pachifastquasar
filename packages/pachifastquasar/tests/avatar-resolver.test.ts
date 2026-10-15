@@ -7,15 +7,15 @@ afterEach(() => setPachiConfig({}))
 
 describe('createPachiAvatarResolver', () => {
   const hash = createHash('sha256').update('mario@example.com').digest('hex')
-  it('chiave di injection stabile', () => expect(PACHI_AVATAR_URL_KEY).toBe('pachiAvatarUrl'))
-  it('Gravatar con hash dell\'email normalizzata e dimensione richiesta', async () => {
+  it('stable injection key', () => expect(PACHI_AVATAR_URL_KEY).toBe('pachiAvatarUrl'))
+  it('Gravatar with hash of the normalized email and requested size', async () => {
     setPachiConfig({ app: { gravatar: true } })
     const resolve = createPachiAvatarResolver()
     expect(await resolve(' Mario@Example.com ', 120)).toBe(
       `https://www.gravatar.com/avatar/${hash}?s=120&d=404`
     )
   })
-  it('di default (opt-in) → null, nessuna richiesta esterna', async () => {
+  it('by default (opt-in) → null, no external request', async () => {
     const resolve = createPachiAvatarResolver()
     expect(await resolve('mario@example.com')).toBeNull()
   })
@@ -25,7 +25,7 @@ describe('createPachiAvatarResolver', () => {
     expect(await resolve('')).toBeNull()
     expect(await resolve(null)).toBeNull()
   })
-  it('gravatar: false esplicito (letto a ogni chiamata) → null, nessuna richiesta esterna', async () => {
+  it('gravatar: explicit false (read on every call) → null, no external request', async () => {
     const resolve = createPachiAvatarResolver()
     setPachiConfig({ app: { gravatar: true } })
     expect(await resolve('mario@example.com')).not.toBeNull()

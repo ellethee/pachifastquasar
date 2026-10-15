@@ -1,9 +1,9 @@
 /**
- * Indica se un URL è relativo o punta alla stessa origine dell'app (sicuro per inviare credenziali).
+ * Tells whether a URL is relative or points to the same origin as the app (safe to send credentials).
  *
- * @param url - URL relativo o assoluto
- * @param base - origine di riferimento (default: `window.location.href`)
- * @returns true se same-origin
+ * @param url - relative or absolute URL
+ * @param base - reference origin (default: `window.location.href`)
+ * @returns true if same-origin
  */
 export function isSameOrigin(url: string, base: string = window.location.href): boolean {
   try {

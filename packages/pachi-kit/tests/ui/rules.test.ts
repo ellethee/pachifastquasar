@@ -2,23 +2,23 @@ import { describe, expect, it } from 'vitest'
 import { passesRules } from '../../src/ui/helper/rules'
 
 describe('passesRules', () => {
-  it('senza regole e\' sempre valido', () => {
+  it('without rules it is always valid', () => {
     expect(passesRules(undefined, 'x')).toBe(true)
     expect(passesRules([], '')).toBe(true)
   })
-  it('true = valido; false o messaggio = non valido', () => {
+  it('true = valid; false or message = invalid', () => {
     expect(passesRules([v => !!v || 'obbligatorio'], 'a')).toBe(true)
     expect(passesRules([v => !!v || 'obbligatorio'], '')).toBe(false)
     expect(passesRules([() => false], 'a')).toBe(false)
   })
-  it('tutte le regole devono passare', () => {
+  it('all the rules must pass', () => {
     expect(passesRules([v => String(v).length > 1, v => String(v).length < 4], 'abc')).toBe(true)
     expect(passesRules([v => String(v).length > 1, v => String(v).length < 4], 'abcd')).toBe(false)
   })
-  it('ignora risultati asincroni (Promise)', () => {
+  it('ignores async results (Promise)', () => {
     expect(passesRules([(() => Promise.resolve(true)) as never], 'a')).toBe(true)
   })
-  it('come q-input: undefined/null/true sono validi, false o stringa no', () => {
+  it('like q-input: undefined/null/true are valid, false or string are not', () => {
     expect(passesRules([(() => undefined) as never], 'a')).toBe(true)
     expect(passesRules([(() => null) as never], 'a')).toBe(true)
     expect(passesRules([() => 'errore'], 'a')).toBe(false)

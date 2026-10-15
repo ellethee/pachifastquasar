@@ -5,6 +5,6 @@ export interface IMenuButton {
   to?: string
   onClick?: () => void
   visible?: (() => boolean | null) | boolean
-  /** Posizione nel menu (crescente; default 50). Predefinite: Profilo 10, Impostazioni 20, Home 90. */
+  /** Position in the menu (ascending; default 50). Defaults: Profile 10, Settings 20, Home 90. */
   order?: number
 }

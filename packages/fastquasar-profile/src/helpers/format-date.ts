@@ -1,17 +1,17 @@
-/** Opzioni di formattazione di {@link formatProfileDate}. */
+/** Formatting options for {@link formatProfileDate}. */
 export interface IFormatProfileDateOptions {
-  /** Include anche l'ora (`timeStyle: 'short'`); default `false` (solo data). */
+  /** Also include the time (`timeStyle: 'short'`); default `false` (date only). */
   withTime?: boolean
 }
 
 /**
- * Formatta una data ISO 8601 in modo locale-aware (`dateStyle: 'medium'`, opzionalmente `timeStyle: 'short'`).
- * Funzione pura: non lancia mai eccezioni.
+ * Formats an ISO 8601 date in a locale-aware way (`dateStyle: 'medium'`, optionally `timeStyle: 'short'`).
+ * Pure function: never throws.
  *
- * @param value - data ISO 8601 (es. `2026-10-05T14:02:23.430541Z`), `null` o `undefined`
- * @param locale - codice lingua BCP 47 (default `it`; un codice non valido ricade su `it`)
- * @param options - opzioni di formattazione
- * @returns la data formattata, o `null` se il valore è assente o non è una data valida
+ * @param value - ISO 8601 date (e.g. `2026-10-05T14:02:23.430541Z`), `null` or `undefined`
+ * @param locale - BCP 47 language code (default `it`; an invalid code falls back to `it`)
+ * @param options - formatting options
+ * @returns the formatted date, or `null` if the value is missing or not a valid date
  */
 export function formatProfileDate(
   value: string | null | undefined,
@@ -38,13 +38,13 @@ export function formatProfileDate(
 }
 
 /**
- * Sceglie il testo da mostrare: la prop esplicita ha la precedenza, poi la data dell'utente formattata.
+ * Picks the text to show: the explicit prop takes precedence, then the formatted user date.
  *
- * @param explicit - testo passato esplicitamente (prop)
- * @param iso - data ISO dell'utente
- * @param locale - lingua corrente
- * @param options - opzioni di formattazione
- * @returns il testo, o `null` se non disponibile (il chiamante mostra "—")
+ * @param explicit - explicitly passed text (prop)
+ * @param iso - user ISO date
+ * @param locale - current language
+ * @param options - formatting options
+ * @returns the text, or `null` if unavailable (the caller shows "—")
  */
 export function resolveProfileDate(
   explicit: string | undefined,

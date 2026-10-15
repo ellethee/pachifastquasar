@@ -2,17 +2,17 @@ import type { IPachiApiError } from './api-error'
 import { primaryItem } from './api-error'
 
 /**
- * Pausa minima, in secondi, tra due invii di codice email/SMS (backend pachifast 0.15.0). Vale anche come attesa di
- * ripiego quando il `429` non porta un `Retry-After` leggibile (il client lo espone solo se `ResponseError` conserva
- * la `Response` e il server lo include in `Access-Control-Expose-Headers`).
+ * Minimum pause, in seconds, between two email/SMS code sends (pachifast backend 0.15.0). It also serves as the
+ * fallback wait when the `429` carries no readable `Retry-After` (the client exposes it only if `ResponseError` keeps
+ * the `Response` and the server includes it in `Access-Control-Expose-Headers`).
  */
 export const SEND_COOLDOWN_SECONDS = 30
 
 /**
- * `true` se l'errore è il limite sulla frequenza degli invii (`429 auth.rate_limited`, oppure `429` senza codice).
- * Il blocco per troppi tentativi (`mfa.too_many_attempts`) non conta: ha un'altra gestione.
+ * `true` if the error is the send-frequency limit (`429 auth.rate_limited`, or `429` without a code).
+ * The lock for too many attempts (`mfa.too_many_attempts`) does not count: it is handled differently.
  *
- * @param error - errore normalizzato
+ * @param error - normalized error
  */
 export function isSendRateLimited(error: IPachiApiError): boolean {
   if (error.status !== 429) return false
@@ -21,11 +21,11 @@ export function isSendRateLimited(error: IPachiApiError): boolean {
 }
 
 /**
- * Secondi di attesa prima di poter reinviare un codice dopo un `429`: `Retry-After` se valido, altrimenti
+ * Seconds to wait before a code can be resent after a `429`: `Retry-After` if valid, otherwise
  * {@link SEND_COOLDOWN_SECONDS}.
  *
- * @param error - errore normalizzato
- * @returns secondi (intero > 0)
+ * @param error - normalized error
+ * @returns seconds (integer > 0)
  */
 export function sendCooldownSeconds(error: IPachiApiError): number {
   const wait = error.retryAfter

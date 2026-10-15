@@ -122,18 +122,18 @@ import {
 import type { IPasswordFormErrors } from '../helpers/password'
 
 /**
- * Form di cambio password (`POST {apiBase}/auth/user/password`). Dopo il successo il backend revoca tutti i token:
- * si mostra un messaggio e poi si chiama `afterChange`, altrimenti `pachiLogout` fornita dalla shell con
- * `provide('pachiLogout')`. L'evento `password-changed` è emesso sempre. Le password non vengono mai loggate.
+ * Change password form (`POST {apiBase}/auth/user/password`). After success the backend revokes all tokens:
+ * a message is shown and then `afterChange` is called, otherwise `pachiLogout` provided by the shell via
+ * `provide('pachiLogout')`. The `password-changed` event is always emitted. Passwords are never logged.
  */
 const props = withDefaults(defineProps<{
-  /** Lunghezza minima iniziale della nuova password. */
+  /** Initial minimum length of the new password. */
   minPasswordLength?: number
-  /** Base URL delle API (default `/api`). */
+  /** API base URL (default `/api`). */
   apiBase?: string
-  /** Chiamata dopo il successo, al posto di `pachiLogout`. */
+  /** Called after success, instead of `pachiLogout`. */
   afterChange?: () => void | Promise<void>
-  /** Attesa in ms tra il messaggio di successo e il logout/callback. */
+  /** Delay in ms between the success message and the logout/callback. */
   logoutDelay?: number
 }>(), {
   minPasswordLength: DEFAULT_MIN_PASSWORD_LENGTH,
@@ -142,7 +142,7 @@ const props = withDefaults(defineProps<{
 })
 
 const emit = defineEmits<{
-  /** Password cambiata: la sessione non è più valida e serve un nuovo login. */
+  /** Password changed: the session is no longer valid and a new login is required. */
   (e: 'password-changed'): void
 }>()
 
@@ -165,16 +165,16 @@ const serverErrors = ref<{ current?: string, next?: string, form?: string }>({})
 
 watch(() => props.minPasswordLength, (n) => { minLength.value = n })
 
-/** Errori di validazione client (mostrati solo dopo il primo invio). */
+/** Client validation errors (shown only after the first submit). */
 const validation = computed<IPasswordFormErrors>(() =>
   submitted.value
     ? validatePasswordForm({ current: current.value, next: next.value, confirm: confirm.value }, minLength.value)
     : {})
 
 /**
- * Testo tradotto per un errore di validazione.
+ * Translated text for a validation error.
  *
- * @param key - chiave di errore del campo
+ * @param key - field error key
  */
 function validationText(key: string | undefined): string {
   return key ? t(`pachiProfile.security.password.validation.${key}`, { min: minLength.value }) : ''
@@ -185,11 +185,11 @@ const nextError = computed(() => validationText(validation.value.next) || server
 const confirmError = computed(() => validationText(validation.value.confirm))
 const formError = computed(() => serverErrors.value.form ?? '')
 
-// una modifica ai campi toglie l'errore del server relativo
+// editing a field clears the related server error
 watch(current, () => { serverErrors.value = { ...serverErrors.value, current: '', form: '' } })
 watch(next, () => { serverErrors.value = { ...serverErrors.value, next: '', form: '' } })
 
-/** Svuota i campi (le password non restano in memoria dopo il successo). */
+/** Clears the fields (passwords do not stay in memory after success). */
 function clearFields(): void {
   current.value = ''
   next.value = ''
@@ -199,7 +199,7 @@ function clearFields(): void {
 }
 
 /**
- * Esegue la richiesta; in caso di successo mostra il messaggio e dopo `logoutDelay` chiama callback o logout.
+ * Performs the request; on success shows the message and, after `logoutDelay`, calls the callback or logout.
  */
 async function submit(): Promise<void> {
   submitted.value = true
@@ -212,16 +212,16 @@ async function submit(): Promise<void> {
   } catch (err) {
     const parsed = await parseApiError(err)
     if (parsed.status === 429 && parsed.retryAfter !== undefined) {
-      // account bloccato: avviso con conto alla rovescia, invio disabilitato fino alla scadenza
+      // account locked: warning with countdown, submit disabled until it expires
       countdown.start(parsed.retryAfter)
       busy.value = false
       return
     }
-    // 422 con `params.min_length`: aggiorna il minimo e rivalida
+    // 422 with `params.min_length`: update the minimum and revalidate
     minLength.value = minLengthFromError(parsed, minLength.value)
     const message = translateApiError(parsed, t)
     const target = passwordErrorTarget(parsed)
-    // se il nuovo minimo rende già invalida la password, basta la rivalidazione («almeno N caratteri»)
+    // if the new minimum already invalidates the password, revalidation is enough («at least N characters»)
     if (!(target === 'next' && next.value.length < minLength.value)) serverErrors.value = { [target]: message }
     busy.value = false
     return

@@ -1,9 +1,9 @@
 /**
- * Tipi strutturali per `quasar.config.ts`: il pacchetto non importa `#q-app` (esiste solo dentro
- * un'app Quasar), quindi descrive solo ciò che usa.
+ * Structural types for `quasar.config.ts`: the package does not import `#q-app` (it only exists inside
+ * a Quasar app), so it describes only what it uses.
  */
 
-/** Contesto che Quasar passa alla funzione di configurazione (parte usata qui). */
+/** Context Quasar passes to the configuration function (the part used here). */
 export interface PachiQuasarContext {
   appPaths?: { appDir?: string; srcDir?: string }
   dev?: boolean
@@ -11,7 +11,7 @@ export interface PachiQuasarContext {
   [key: string]: unknown
 }
 
-/** Configurazione di Vite (parte usata da `extendViteConf`). */
+/** Vite configuration (the part used by `extendViteConf`). */
 export interface PachiViteConf {
   envDir?: string
   envPrefix?: string | string[]
@@ -26,7 +26,7 @@ export interface PachiViteConf {
   [key: string]: unknown
 }
 
-/** Configurazione di Quasar (oggetto restituito da `quasar.config.ts`). */
+/** Quasar configuration (object returned by `quasar.config.ts`). */
 export interface PachiQuasarConfig {
   boot?: (string | Record<string, unknown>)[]
   css?: (string | Record<string, unknown>)[]
@@ -44,21 +44,21 @@ export interface PachiQuasarConfig {
   [key: string]: unknown
 }
 
-/** Override accettati da {@link definePachiQuasarConfig}: oggetto (merge) o funzione `(base, ctx) => config`. */
+/** Overrides accepted by {@link definePachiQuasarConfig}: object (merge) or function `(base, ctx) => config`. */
 export type PachiQuasarOverrides =
   | PachiQuasarConfig
   | ((base: PachiQuasarConfig, ctx: PachiQuasarContext) => PachiQuasarConfig)
 
-/** Opzioni del preset (non fanno parte della configurazione di Quasar). */
+/** Preset options (not part of the Quasar configuration). */
 export interface PachiQuasarOptions {
-  /** Target del proxy `/api` (default `QCLI_PROXY_TARGET` oppure `http://localhost:8000`). */
+  /** `/api` proxy target (default `QCLI_PROXY_TARGET` or `http://localhost:8000`). */
   proxyTarget?: string
-  /** Porta del dev server (default 9001). */
+  /** Dev server port (default 9001). */
   port?: number
-  /** Attiva `vite-plugin-checker` con vue-tsc (default true; richiede `vue-tsc` e `typescript` nell'app). */
+  /** Enables `vite-plugin-checker` with vue-tsc (default true; requires `vue-tsc` and `typescript` in the app). */
   checker?: boolean
-  /** Lingua del language pack di Quasar all'avvio (default `it`). */
+  /** Quasar language pack language at startup (default `it`). */
   lang?: string
-  /** Alias aggiuntivi verso i sorgenti dell'app, oltre a `src`, `assets`, `boot`, `stores`, `features`. */
+  /** Additional aliases to the app sources, besides `src`, `assets`, `boot`, `stores`, `features`. */
   aliases?: string[]
 }

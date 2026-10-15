@@ -1,9 +1,9 @@
 import type { IWebSocketManagerHandler, IWebSocketManagerMessage } from './types/ws-manager'
 
-/** URL del WebSocket: stringa, getter sincrono o asincrono (es. con ticket monouso da richiedere a ogni apertura). */
+/** WebSocket URL: string, synchronous or asynchronous getter (e.g. with a single-use ticket to request at every open). */
 export type WebSocketUrl = string | (() => string | Promise<string>)
 
-/** Errore del getter asincrono dell'URL: `closeCode` (es. 4401) è trattato come se arrivasse dalla chiusura del socket. */
+/** Error of the asynchronous URL getter: `closeCode` (e.g. 4401) is treated as if it came from the socket close. */
 export interface WebSocketUrlError extends Error {
   closeCode?: number
 }
@@ -19,24 +19,24 @@ export class WebSocketManager {
   }
 
   private socket: WebSocket | null = null
-  /** URL fisso o getter: con il getter l'URL (e il token) è ricalcolato a ogni (ri)connessione. */
+  /** Fixed URL or getter: with the getter the URL (and token) is recomputed at every (re)connection. */
   private url: WebSocketUrl
-  /** Incrementa a ogni apertura/disconnect: scarta le aperture asincrone superate. */
+  /** Incremented at every open/disconnect: discards superseded asynchronous opens. */
   private openGeneration = 0
   private handlers: Map<string, Set<IWebSocketManagerHandler>> = new Map()
   private reconnectTimer: ReturnType<typeof setTimeout> | null = null
   private reconnectDelay = 1000
   private readonly maxReconnectDelay = 30000
   private shouldReconnect = false
-  /** Codice di chiusura inviato dal server per token mancante, non valido o scaduto: inutile riconnettersi con lo stesso token. */
+  /** Close code sent by the server for a missing, invalid or expired token: reconnecting with the same token is pointless. */
   private static readonly CLOSE_UNAUTHORIZED = 4401
-  /** Il backend chiude con 4403 quando cambia il ruolo superuser: riconnettere subito, stesso token. */
+  /** The backend closes with 4403 when the superuser role changes: reconnect immediately, same token. */
   private static readonly CLOSE_ROLE_CHANGED = 4403
   /**
-   * Tentativi consecutivi di apertura falliti prima di rinunciare, se la connessione non si è MAI aperta.
-   * Un handshake rifiutato (es. 403 perché il backend non ha gli eventi attivi) per il browser è solo una
-   * chiusura 1006 senza `open`: riprovare all'infinito non servirebbe. Dopo la prima apertura riuscita si
-   * riprova sempre (il backend può essere temporaneamente irraggiungibile).
+   * Consecutive failed open attempts before giving up, if the connection has NEVER been opened.
+   * A rejected handshake (e.g. 403 because the backend has events disabled) is, for the browser, just a
+   * 1006 close without `open`: retrying forever would be useless. After the first successful open it
+   * always retries (the backend may be temporarily unreachable).
    */
   private static readonly MAX_INITIAL_FAILURES = 5
   private lastRoleReconnect = 0
@@ -51,7 +51,7 @@ export class WebSocketManager {
     return this.socket?.readyState === WebSocket.OPEN
   }
 
-  /** true se la connessione è aperta, in apertura o in riconnessione (false dopo disconnect, 4401 o troppi fallimenti). */
+  /** true if the connection is open, opening or reconnecting (false after disconnect, 4401 or too many failures). */
   get isActive(): boolean {
     return this.shouldReconnect
   }
@@ -112,17 +112,17 @@ export class WebSocketManager {
       } catch {
         return
       }
-      // `ping` non ha `data` né `timestamp`: si controlla sempre `type` prima di leggere `data`
+      // `ping` has no `data` nor `timestamp`: always check `type` before reading `data`
       if (!msg || typeof msg.type !== 'string' || msg.type === 'ping') return
       this.handlers.get(msg.type)?.forEach(h => h.onMessage?.(msg.data))
     }
   }
 
-  /** Gestisce la chiusura (o il fallimento di apertura) con le regole di riconnessione. */
+  /** Handles the close (or open failure) with the reconnection rules. */
   private _handleClose(code: number) {
     this.handlers.forEach(set => set.forEach(h => h.onClose?.(code)))
     if (code === WebSocketManager.CLOSE_ROLE_CHANGED && this.shouldReconnect) {
-      // non è un errore: niente backoff né conteggio dei fallimenti (salvo 4403 ravvicinati: evita un loop)
+      // not an error: no backoff nor failure count (except closely repeated 4403s: avoids a loop)
       const now = Date.now()
       const quick = now - this.lastRoleReconnect < 1000
       this.lastRoleReconnect = now
@@ -151,7 +151,7 @@ export class WebSocketManager {
     const socket = this.socket
     this.socket = null
     if (socket) {
-      // chiusura volontaria: nessun evento dal vecchio socket (può arrivare dopo un nuovo connect)
+      // voluntary close: no events from the old socket (may arrive after a new connect)
       socket.onopen = socket.onclose = socket.onerror = socket.onmessage = null
       socket.close()
     }

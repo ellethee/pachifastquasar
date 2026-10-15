@@ -1,14 +1,14 @@
-/** Attesa massima accettata da `Retry-After` (un giorno): valori oltre sono considerati non validi. */
+/** Maximum wait accepted from `Retry-After` (one day): larger values are considered invalid. */
 export const MAX_RETRY_AFTER_SECONDS = 86400
 
 /**
- * Interpreta l'header `Retry-After`: secondi interi (`"120"`) oppure data HTTP (`"Wed, 21 Oct 2026 07:28:00 GMT"`).
- * I valori assenti, vuoti, negativi, decimali, non numerici, con data non valida o oltre un giorno sono ignorati.
- * Una data già passata vale 0 secondi.
+ * Parses the `Retry-After` header: whole seconds (`"120"`) or an HTTP date (`"Wed, 21 Oct 2026 07:28:00 GMT"`).
+ * Missing, empty, negative, decimal, non-numeric values, invalid dates or values over one day are ignored.
+ * A date already in the past counts as 0 seconds.
  *
- * @param value - valore dell'header (stringa, numero già letto, `null`/`undefined`)
- * @param now - istante di riferimento in ms (default `Date.now()`), usato per le date HTTP
- * @returns secondi di attesa (intero >= 0) oppure `null` se il valore non è utilizzabile
+ * @param value - header value (string, already-read number, `null`/`undefined`)
+ * @param now - reference instant in ms (default `Date.now()`), used for HTTP dates
+ * @returns seconds to wait (integer >= 0) or `null` if the value is unusable
  */
 export function parseRetryAfter(value: unknown, now: number = Date.now()): number | null {
   let seconds: number | null = null
@@ -29,21 +29,21 @@ export function parseRetryAfter(value: unknown, now: number = Date.now()): numbe
 }
 
 /**
- * Secondi che mancano a una scadenza, arrotondati per eccesso (mai negativi).
+ * Seconds left until a deadline, rounded up (never negative).
  *
- * @param deadline - scadenza in ms (epoch)
- * @param now - istante corrente in ms (default `Date.now()`)
- * @returns secondi residui (>= 0)
+ * @param deadline - deadline in ms (epoch)
+ * @param now - current instant in ms (default `Date.now()`)
+ * @returns remaining seconds (>= 0)
  */
 export function remainingSeconds(deadline: number, now: number = Date.now()): number {
   return Math.max(0, Math.ceil((deadline - now) / 1000))
 }
 
 /**
- * Formatta i secondi come `mm:ss` (i minuti possono superare 59, es. `75:00`).
+ * Formats seconds as `mm:ss` (minutes may exceed 59, e.g. `75:00`).
  *
- * @param seconds - secondi (valori negativi o non finiti valgono 0)
- * @returns testo `mm:ss`
+ * @param seconds - seconds (negative or non-finite values count as 0)
+ * @returns `mm:ss` text
  */
 export function formatCountdown(seconds: number): string {
   const total = Number.isFinite(seconds) ? Math.max(0, Math.floor(seconds)) : 0

@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { retryAfterFromError } from '../src/helpers/retry-after'
 import { createPinia, setActivePinia } from 'pinia'
 
-/** Client HTTP simulato: ogni chiamata è registrata e risolta/rifiutata dai test. */
+/** Simulated HTTP client: each call is recorded and resolved/rejected by the tests. */
 const http = vi.hoisted(() => ({
   form: vi.fn(),
   post: vi.fn(),
@@ -39,7 +39,7 @@ const { AuthManager, unwrapAuthResponse, isMfaRequired } = await import(
 const { useAuthStore } = await import('src/services/auth-manager/auth-store')
 const { createPachiLogout } = await import('src/helpers/logout-provider')
 
-/** JWT fittizio con `exp` (secondi epoch) indicato. */
+/** Fake JWT with the given `exp` (epoch seconds). */
 function jwt(expSeconds: number): string {
   return `h.${btoa(JSON.stringify({ exp: expSeconds }))}.s`
 }
@@ -73,13 +73,13 @@ describe('AuthManager: login, MFA, refresh, logout', () => {
     expect(push).toHaveBeenCalledWith('/')
   })
 
-  it('login: la richiesta /token non apre il dialog automatico (meta.autoError false)', async () => {
+  it('login: the /token request does not open the automatic dialog (meta.autoError false)', async () => {
     http.form.mockResolvedValue({ access_token: jwt(farFuture()), token_type: 'bearer', refresh_token: 'r1' })
     await auth.login('u', 'p')
     expect(http.form).toHaveBeenCalledWith('/token', expect.any(Object), { meta: { autoError: false } })
   })
 
-  it('login 429: l\'errore conserva Retry-After per il conto alla rovescia', async () => {
+  it('login 429: the error keeps Retry-After for the countdown', async () => {
     const err = Object.assign(apiError(429, 'auth.too_many_attempts'), {
       response: { headers: new Headers({ 'Retry-After': '90' }) }
     })
@@ -88,7 +88,7 @@ describe('AuthManager: login, MFA, refresh, logout', () => {
     expect(retryAfterFromError(caught)).toBe(90)
   })
 
-  it('login con mfa_required: conserva il mfa_token solo in memoria', async () => {
+  it('login with mfa_required: keeps the mfa_token in memory only', async () => {
     http.form.mockResolvedValue({ mfa_required: true, mfa_token: 'm1' })
     const result = await auth.login('u', 'p')
     expect(result).toEqual({ mfaRequired: true })
@@ -98,12 +98,12 @@ describe('AuthManager: login, MFA, refresh, logout', () => {
     expect(push).not.toHaveBeenCalled()
   })
 
-  it('login con mfa_required dentro envelope', async () => {
+  it('login with mfa_required inside envelope', async () => {
     http.form.mockResolvedValue({ success: true, message: null, data: { mfa_required: true, mfa_token: 'm1' } })
     expect(await auth.login('u', 'p')).toEqual({ mfaRequired: true })
   })
 
-  it('verifyMfa ok: invia mfa_token e code, completa il login', async () => {
+  it('verifyMfa ok: sends mfa_token and code, completes the login', async () => {
     http.form.mockResolvedValue({ mfa_required: true, mfa_token: 'm1' })
     await auth.login('u', 'p')
     http.post.mockResolvedValue({ access_token: jwt(farFuture()), token_type: 'bearer', refresh_token: 'r9' })
@@ -122,7 +122,7 @@ describe('AuthManager: login, MFA, refresh, logout', () => {
       safeResponseData: async () => ({ detail: [{ code, msg: 'm', loc: [], type: 't', input: '' }] })
     })
 
-  it('verifyMfa con codice errato: si può riprovare', async () => {
+  it('verifyMfa with wrong code: can retry', async () => {
     http.form.mockResolvedValue({ mfa_required: true, mfa_token: 'm1' })
     await auth.login('u', 'p')
     http.post.mockRejectedValue(apiError(401, 'mfa.code_invalid'))
@@ -134,7 +134,7 @@ describe('AuthManager: login, MFA, refresh, logout', () => {
     [401, 'mfa.token_invalid'],
     [401, 'mfa.challenge_not_found'],
     [429, 'mfa.too_many_attempts']
-  ])('verifyMfa %i %s: scarta la sfida', async (status, code) => {
+  ])('verifyMfa %i %s: discards the challenge', async (status, code) => {
     http.form.mockResolvedValue({ mfa_required: true, mfa_token: 'm1' })
     await auth.login('u', 'p')
     http.post.mockRejectedValue(apiError(status, code))
@@ -142,7 +142,7 @@ describe('AuthManager: login, MFA, refresh, logout', () => {
     expect(auth.hasPendingMfa).toBe(false)
   })
 
-  it('verifyMfa 429: l\'errore conserva Retry-After leggibile dalla pagina', async () => {
+  it('verifyMfa 429: the error keeps a Retry-After the page can read', async () => {
     http.form.mockResolvedValue({ mfa_required: true, mfa_token: 'm1' })
     await auth.login('u', 'p')
     const err = Object.assign(apiError(429, 'mfa.too_many_attempts'), {
@@ -154,11 +154,11 @@ describe('AuthManager: login, MFA, refresh, logout', () => {
     expect(auth.hasPendingMfa).toBe(false)
   })
 
-  it('verifyMfa senza sfida in corso lancia', async () => {
+  it('verifyMfa without a pending challenge throws', async () => {
     await expect(auth.verifyMfa('123456')).rejects.toThrow()
   })
 
-  it('refresh: sostituisce il refresh token e lo riusa al refresh successivo', async () => {
+  it('refresh: replaces the refresh token and reuses it on the next refresh', async () => {
     const store = useAuthStore()
     store.refresh_token = 'r1'
     http.post.mockResolvedValueOnce({ access_token: jwt(farFuture()), token_type: 'bearer', refresh_token: 'r2' })
@@ -172,7 +172,7 @@ describe('AuthManager: login, MFA, refresh, logout', () => {
     expect(store.refresh_token).toBe('r3')
   })
 
-  it('refresh senza refresh_token in risposta (rotazione off) mantiene quello attuale', async () => {
+  it('refresh without refresh_token in the response (rotation off) keeps the current one', async () => {
     const store = useAuthStore()
     store.refresh_token = 'r1'
     http.post.mockResolvedValueOnce({ access_token: jwt(farFuture()), token_type: 'bearer' })
@@ -180,14 +180,14 @@ describe('AuthManager: login, MFA, refresh, logout', () => {
     expect(store.refresh_token).toBe('r1')
   })
 
-  it('refresh concorrenti: una sola POST', async () => {
+  it('concurrent refreshes: a single POST', async () => {
     useAuthStore().refresh_token = 'r1'
     http.post.mockResolvedValue({ access_token: jwt(farFuture()), token_type: 'bearer', refresh_token: 'r2' })
     await Promise.all([auth.requestRefreshToken(), auth.requestRefreshToken(), auth.requestRefreshToken()])
     expect(http.post).toHaveBeenCalledTimes(1)
   })
 
-  it('refresh: se un\'altra scheda ha già ruotato il token (access valido) non rifà la POST', async () => {
+  it('refresh: if another tab already rotated the token (valid access) it does not POST again', async () => {
     const store = useAuthStore()
     store.refresh_token = 'old'
     store.expires_at = Date.now() - 1000
@@ -201,7 +201,7 @@ describe('AuthManager: login, MFA, refresh, logout', () => {
     expect(store.access_token).toBe('newaccess')
   })
 
-  it('refresh: token cambiato in un\'altra scheda ma access scaduto, usa il token più recente', async () => {
+  it('refresh: token changed in another tab but access expired, uses the latest token', async () => {
     const store = useAuthStore()
     store.refresh_token = 'old'
     store.expires_at = Date.now() - 5000
@@ -211,29 +211,29 @@ describe('AuthManager: login, MFA, refresh, logout', () => {
     expect(http.post).toHaveBeenCalledWith('/refresh-token', { refresh_token: 'new' }, expect.anything())
   })
 
-  it('refresh con 401 revocato: l\'errore risale; il handler 401 fa logout locale', async () => {
+  it('refresh with revoked 401: the error propagates; the 401 handler does a local logout', async () => {
     const store = useAuthStore()
     store.refresh_token = 'r1'
     store.access_token = 'a'
     const err = apiError(401, 'auth.refresh_token_revoked')
     http.post.mockRejectedValue(err)
     await expect(auth.requestRefreshToken()).rejects.toBe(err)
-    // il fallimento del timer su 401 non ritenta: logout locale
+    // the timer failure on 401 does not retry: local logout
     ;(auth as unknown as { _onRenewFailed: (e: unknown) => void })._onRenewFailed(err)
     await vi.waitFor(() => expect(store.refresh_token).toBeNull())
     expect(push).toHaveBeenCalledWith('/auth/login')
-    // nessuna chiamata a /logout (sessione già invalida)
+    // no call to /logout (session already invalid)
     expect(http.post.mock.calls.some(c => c[0] === '/logout')).toBe(false)
   })
 
-  it('handleErrors: un 429 non fa refresh né logout', async () => {
+  it('handleErrors: a 429 does neither refresh nor logout', async () => {
     useAuthStore().refresh_token = 'r1'
     const handlers = AuthManager.handleErrors() as Record<string, unknown>
     expect(handlers['429']).toBeUndefined()
     expect(Object.keys(handlers)).toEqual(['401'])
   })
 
-  it('logout normale: invia il refresh_token e pulisce lo stato', async () => {
+  it('normal logout: sends the refresh_token and clears the state', async () => {
     const store = useAuthStore()
     store.access_token = 'a'
     store.refresh_token = 'r1'
@@ -245,7 +245,7 @@ describe('AuthManager: login, MFA, refresh, logout', () => {
     expect(push).toHaveBeenCalledWith('/auth/login')
   })
 
-  it('pachiLogout: locale, senza richieste, anche con il token revocato', async () => {
+  it('pachiLogout: local, without requests, even with a revoked token', async () => {
     const store = useAuthStore()
     store.access_token = 'a'
     store.refresh_token = 'r1'
@@ -258,7 +258,7 @@ describe('AuthManager: login, MFA, refresh, logout', () => {
   })
 })
 
-describe('helper di risposta', () => {
+describe('response helpers', () => {
   it('unwrapAuthResponse', () => {
     expect(unwrapAuthResponse({ success: true, data: { a: 1 } })).toEqual({ a: 1 })
     expect(unwrapAuthResponse({ access_token: 'x' })).toEqual({ access_token: 'x' })

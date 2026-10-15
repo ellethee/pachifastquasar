@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "description": "Smoke di compatibilita' dei package frontend contro un backend pachifast reale (vedi ../README.md)",
+  "description": "Compatibility smoke of the frontend packages against a real pachifast backend (see ../README.md)",
   "scripts": {
     "smoke": "vitest run"
   },

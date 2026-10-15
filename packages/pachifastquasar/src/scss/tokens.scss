@@ -1,7 +1,7 @@
-// Token CSS `--pachi-*` della shell (tema scuro e chiaro), come proprietà custom sul `body`.
-// Tre valori derivano dalla palette Sass dell'app e si possono configurare con `@use ... with (...)`:
+// Shell `--pachi-*` CSS tokens (dark and light theme), as custom properties on `body`.
+// Three values derive from the app Sass palette and can be configured with `@use ... with (...)`:
 //   @use '@ilpachi/pachifastquasar/scss/tokens' with ($dark-page: #000, $light-page: #fafafa);
-// Gli altri token si ridefiniscono con CSS normale (selettore `body.body--dark` / `body.body--light`).
+// The other tokens are redefined with plain CSS (selector `body.body--dark` / `body.body--light`).
 
 $dark-page: #0a0d12 !default;
 $light-page: #f0f4f8 !default;

@@ -11,7 +11,7 @@ describe('safeNextPath', () => {
       expect(safeNextPath(v, '/home')).toBe('/home')
     },
   )
-  it('rifiuta i valori non stringa', () => {
+  it('rejects non-string values', () => {
     expect(safeNextPath(undefined, '/')).toBe('/')
     expect(safeNextPath(['/a'], '/')).toBe('/')
     expect(safeNextPath(null, '/')).toBe('/')

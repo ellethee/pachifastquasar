@@ -9,8 +9,8 @@ vi.mock('@ilpachi/pachi-i18n', () => ({ usePachiI18n: () => ({ t: (key: string) 
 }))
 vi.mock('quasar', () => ({ Notify: { create: () => undefined } }))
 
-describe('useRemoteSelect con dependsOn', () => {
-  it('non carica senza dipendenza e ricarica con i params al cambio', async () => {
+describe('useRemoteSelect with dependsOn', () => {
+  it('does not load without a dependency and reloads with the params on change', async () => {
     const calls: Record<string, string | number>[] = []
     setPachiFieldsHttp({
       get: (async (_url: string, params?: Record<string, string | number>) => {
@@ -21,7 +21,7 @@ describe('useRemoteSelect con dependsOn', () => {
     const values = reactive<Record<string, unknown>>({ countryId: null })
     const field: IFieldDef = {
       field: 'cityId',
-      label: 'Città',
+      label: 'City',
       type: 'select',
       url: '/api/cities',
       dependsOn: 'countryId',
@@ -48,8 +48,8 @@ describe('useRemoteSelect con dependsOn', () => {
   })
 })
 
-describe('useRemoteSelect senza client HTTP', () => {
-  it('un campo non select non richiede alcun client (nessun throw al setup)', async () => {
+describe('useRemoteSelect without HTTP client', () => {
+  it('a non-select field requires no client (no throw at setup)', async () => {
     const { useRemoteSelect: use } = await import('../../src/fields/composables/use-remote-select')
     const api = use({ field: 'nome', label: 'Nome' })
     await nextTick()
@@ -57,12 +57,12 @@ describe('useRemoteSelect senza client HTTP', () => {
     expect(api.options.value).toEqual([])
   })
 
-  it('un select locale non richiede alcun client', () => {
+  it('a local select requires no client', () => {
     const api = useRemoteSelect({ field: 's', label: 'S', type: 'select', options: [{ value: 1, label: 'a' }] })
     expect(api.options.value).toHaveLength(1)
   })
 
-  it('un select remoto senza client non lancia: imposta error', async () => {
+  it('a remote select without a client does not throw: it sets error', async () => {
     vi.resetModules()
     const fresh = await import('../../src/fields/composables/use-remote-select')
     const api = fresh.useRemoteSelect({ field: 'r', label: 'R', type: 'select', url: '/api/x' })
@@ -72,8 +72,8 @@ describe('useRemoteSelect senza client HTTP', () => {
   })
 })
 
-describe('useRemoteSelect opzioni virtuali', () => {
-  it('createValueFn con optionLabel funzione che lancia non lancia e le virtuali sopravvivono al ricalcolo', async () => {
+describe('useRemoteSelect virtual options', () => {
+  it('createValueFn with a throwing function optionLabel does not throw and the virtual ones survive recomputation', async () => {
     const field = reactive<IFieldDef>({
       field: 't',
       label: 'T',
@@ -84,8 +84,8 @@ describe('useRemoteSelect opzioni virtuali', () => {
     })
     const api = useRemoteSelect(field)
     const done = vi.fn()
-    expect(() => api.createValueFn('nuovo', done)).not.toThrow()
-    expect(done).toHaveBeenCalledWith('nuovo', 'add-unique')
+    expect(() => api.createValueFn('new', done)).not.toThrow()
+    expect(done).toHaveBeenCalledWith('new', 'add-unique')
     field.options = [{ value: 1, label: 'a' }]
     await nextTick()
     expect(api.options.value).toHaveLength(2)

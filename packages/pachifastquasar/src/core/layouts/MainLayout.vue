@@ -37,7 +37,7 @@
             </div>
           </div>
         </div>
-        <!-- pagine instradate: con `meta.pageScroll` l'intera pagina scorre dentro il limite inferiore -->
+        <!-- routed pages: with `meta.pageScroll` the whole page scrolls within the bottom limit -->
         <div v-else-if="pageScroll" class="pachi-page-scroll">
           <router-view class="pachi-blueprint-card" />
         </div>
@@ -77,9 +77,9 @@ const router = useRouter();
 const $q = useQuasar();
 
 /**
- * Sfondo fotografico a tema per l'intera app, da `route.meta.img` (nessuno
- * sfondo se assente), con overlay a gradiente chiaro/scuro sopra, applicato
- * al `q-layout` così copre tutta la viewport (header incluso).
+ * Themed photographic background for the whole app, from `route.meta.img` (no
+ * background if absent), with a light/dark gradient overlay on top, applied
+ * to the `q-layout` so it covers the whole viewport (header included).
  */
 const pageBgStyle = computed(() => {
   const img = route.meta.img;
@@ -96,7 +96,7 @@ const pageBgStyle = computed(() => {
   };
 });
 
-/** Dimensione del logo (CSS) condivisa da barra e contenitore: l'altezza della barra ne deriva. */
+/** Logo size (CSS) shared by bar and container: the bar height derives from it. */
 const layoutVars = computed(() => ({ "--pachi-app-logo-size": appConfig.app.logoSize }));
 
 const deepest = computed(() => route.matched[route.matched.length - 1]);
@@ -105,7 +105,7 @@ const deepestRecord = computed(() =>
   router.getRoutes().find((r) => r.path === deepest.value?.path),
 );
 
-/** Home sempre dashboard; route con figli solo se `meta.dashboard` o `appConfig.app.autoDashboard` lo consentono. */
+/** Home is always a dashboard; routes with children only if `meta.dashboard` or `appConfig.app.autoDashboard` allow it. */
 const isDashboard = computed(
   () =>
     deepest.value?.path === "/" ||
@@ -113,7 +113,7 @@ const isDashboard = computed(
       (deepest.value?.meta?.dashboard ?? appConfig.app.autoDashboard !== false)),
 );
 
-/** Pagina intera scrollabile entro il limite inferiore (opt-in con `meta.pageScroll`). */
+/** Whole page scrollable within the bottom limit (opt-in with `meta.pageScroll`). */
 const pageScroll = computed(() => deepest.value?.meta?.pageScroll === true);
 
 const cardRoutes = computed((): RouteRecordRaw[] => {
@@ -147,7 +147,7 @@ const hubHeader = computed(() => {
   };
 });
 
-/** Larghezza massima e colonne della dashboard: `route.meta` > configurazione > default CSS. */
+/** Maximum width and columns of the dashboard: `route.meta` > configuration > CSS default. */
 const hubVars = computed(() => {
   const meta: RouteMeta = deepest.value?.meta ?? {};
   const vars: Record<string, string> = {};
@@ -202,10 +202,10 @@ const cards = computed<IDashboardCard[]>(() => {
 });
 
 /**
- * Altezza minima di `q-page`: la barra è un `q-toolbar` nel flusso (non un `q-header`), quindi l'offset di Quasar
- * è 0 e la pagina sarebbe alta un viewport intero, oltre il limite inferiore del layout.
+ * Minimum height of `q-page`: the bar is a `q-toolbar` in the flow (not a `q-header`), so Quasar's offset
+ * is 0 and the page would be a full viewport tall, beyond the bottom limit of the layout.
  *
- * @returns lo stile con la `min-height` al netto della barra
+ * @returns the style with `min-height` net of the bar
  */
 function pageStyleFn(): Record<string, string> {
   return { minHeight: "calc(100vh - var(--pachi-appbar-height, 52px))" };
@@ -218,10 +218,10 @@ function pageStyleFn(): Record<string, string> {
   overflow: hidden;
 }
 
-// la barra può crescere con il logo: l'altezza arriva da --pachi-appbar-height (default 52px)
+// the bar can grow with the logo: the height comes from --pachi-appbar-height (default 52px)
 $height: calc(100vh - 48px - var(--pachi-appbar-height, 52px));
 
-// altezza utile della pagina (sotto la barra, dentro il padding di q-page): usabile da qualsiasi stile dell'app
+// usable page height (below the bar, inside q-page padding): usable by any app style
 .q-layout {
   --pachi-page-height: #{$height};
 }
@@ -232,8 +232,8 @@ $height: calc(100vh - 48px - var(--pachi-appbar-height, 52px));
   overflow-y: auto;
 }
 
-// Area scrollabile che resta dentro il limite inferiore della pagina. Avvolge le pagine instradate con
-// `meta.pageScroll`; l'app può usare la stessa classe su un proprio contenitore (es. `<div class="pachi-page-scroll">`).
+// Scrollable area that stays within the bottom limit of the page. Wraps the routed pages with
+// `meta.pageScroll`; the app can use the same class on its own container (e.g. `<div class="pachi-page-scroll">`).
 .pachi-page-scroll {
   max-height: var(--pachi-page-height, #{$height});
   overflow-y: auto;

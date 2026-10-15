@@ -1,5 +1,5 @@
-// Stili globali della shell (compilati in `dist/styles.css`; sorgente disponibile come `./scss/app`).
-// Configurabile: `@use '@ilpachi/pachifastquasar/scss/app' with ($dark-page: ..., $light-page: ..., $light-color: ...)`
+// Shell global styles (compiled into `dist/styles.css`; source available as `./scss/app`).
+// Configurable: `@use '@ilpachi/pachifastquasar/scss/app' with ($dark-page: ..., $light-page: ..., $light-color: ...)`
 $dark-page: #0a0d12 !default;
 $light-page: #f0f4f8 !default;
 $light-color: #3a4252 !default;
@@ -36,7 +36,7 @@ $light-color: #3a4252 !default;
   border-bottom: 1px solid var(--pachi-app-card-avatar-border);
 }
 
-// Blueprint grid (fine + grossa) — solo metà superiore
+// Blueprint grid (fine + coarse) — top half only
 .pachi-card-avatar::before {
   content: '';
   position: absolute;
@@ -95,7 +95,7 @@ body.body--light {
   color: var(--pachi-body-color);
 }
 
-// ── pachi-layout-bg (dismesso — tenuto per compatibilità ma invisibile) ─────────────
+// ── pachi-layout-bg (retired — kept for compatibility but invisible) ─────────────
 .pachi-layout-bg {
   display: none;
 }

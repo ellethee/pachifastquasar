@@ -22,17 +22,17 @@
 /**
  * module FieldsSection.vue
  *
- * Sezione universale field-driven per `@ilpachi/pachi-kit/edit-dialog`:
- * avvolge `useSection()` e renderizza `props.rows` (array di righe di
- * `IFieldDef`, vocabolario dichiarativo dei campi) tramite {@link ./DynamicField.vue}.
+ * Universal field-driven section for `@ilpachi/pachi-kit/edit-dialog`:
+ * wraps `useSection()` and renders `props.rows` (array of rows of
+ * `IFieldDef`, declarative field vocabulary) through {@link ./DynamicField.vue}.
  *
- * Da passare come `component` di una `ISectionDefinition` con
- * `props: { rows: entitaFields }` e `initialValue: item ?? {}`.
+ * To be passed as the `component` of an `ISectionDefinition` with
+ * `props: { rows: entityFields }` and `initialValue: item ?? {}`.
  *
- * Lo stato contiene SOLO i campi dichiarati in `rows` (copiati da `initialValue` se presenti): le
- * chiavi extra del record non entrano in `getResults()`, quindi più sezioni sullo stesso record non
- * si sovrascrivono a vicenda quando i risultati vengono uniti. `initialValue` è reattivo (anche
- * se arriva dopo il mount) come l'opzione `initialValue` di `useSection`.
+ * The state contains ONLY the fields declared in `rows` (copied from `initialValue` if present): the
+ * record's extra keys do not enter `getResults()`, so several sections on the same record do not
+ * overwrite each other when the results are merged. `initialValue` is reactive (even
+ * if it arrives after mount) like the `initialValue` option of `useSection`.
  */
 import { watch } from 'vue'
 import type { ComponentPublicInstance } from 'vue'
@@ -51,7 +51,7 @@ const props = defineProps<{
   readonly?: boolean
 }>()
 
-/** Copia da `source` solo i campi dichiarati in `rows` e presenti nel record. */
+/** Copies from `source` only the fields declared in `rows` and present in the record. */
 function pickDeclared(source: IFieldsState | undefined): IFieldsState {
   const out: IFieldsState = {}
   if (!source) return out
@@ -63,7 +63,7 @@ function pickDeclared(source: IFieldsState | undefined): IFieldsState {
   return out
 }
 
-// Evita di rifare il baseline (perdendo le modifiche) se il genitore passa un oggetto nuovo ma uguale.
+// Avoids rebuilding the baseline (losing changes) if the parent passes a new but equal object.
 let lastPicked: IFieldsState | undefined
 let lastPickedJson = ''
 function initialPicked(): IFieldsState | undefined {
@@ -82,11 +82,11 @@ const $q = resolveQuasar()
 const { state, originalState, reset, setOriginalState, commit, getResults, hasChanges } =
   useSection<IFieldsState>(initialPicked() ?? {}, { initialValue: initialPicked })
 
-// --- dependsOn: reset del valore dei campi dipendenti quando l'utente cambia una dipendenza ------
+// --- dependsOn: reset the value of dependent fields when the user changes a dependency ------
 /**
- * Applica la modifica dell'utente e azzera i campi che dipendono da `name` (salvo
- * `resetOnDependencyChange: false`). Solo le modifiche dalla UI azzerano: il caricamento di un
- * record (`initialValue`) o `reset()` non toccano i valori.
+ * Applies the user's change and clears the fields that depend on `name` (unless
+ * `resetOnDependencyChange: false`). Only changes from the UI clear: loading a
+ * record (`initialValue`) or `reset()` do not touch the values.
  */
 function onFieldInput(name: string, value: unknown): void {
   const next = normalizeAgainstOriginal(originalState.value[name], value)
@@ -99,7 +99,7 @@ function onFieldInput(name: string, value: unknown): void {
   }
 }
 
-// --- validazione ----------------------------------------------------------------------------------
+// --- validation ----------------------------------------------------------------------------------
 const fieldRefs = new Map<string, { validate: () => boolean }>()
 function setFieldRef(name: string, el: Element | ComponentPublicInstance | null): void {
   if (el) fieldRefs.set(name, el as unknown as { validate: () => boolean })
@@ -107,10 +107,10 @@ function setFieldRef(name: string, el: Element | ComponentPublicInstance | null)
 }
 
 /**
- * Valida tutti i campi (`required` e `rules`), mostra gli errori subito anche sui campi non toccati
- * e notifica quali campi non sono validi (utile per componenti custom senza UI d'errore).
+ * Validates all the fields (`required` and `rules`), shows the errors right away even on untouched fields
+ * and notifies which fields are invalid (useful for custom components without an error UI).
  *
- * @returns `true` se tutti i campi sono validi
+ * @returns `true` if all the fields are valid
  */
 function validate(): boolean {
   const invalid: string[] = []
@@ -127,7 +127,7 @@ function validate(): boolean {
         message: t('pachiEditDialogFields.invalidFields', { labels: invalid.join(', ') }),
       })
     } catch {
-      // plugin Notify non installato: restano gli errori mostrati nei campi
+      // Notify plugin not installed: the errors shown in the fields remain
     }
   }
   return invalid.length === 0

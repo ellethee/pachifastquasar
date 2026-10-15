@@ -4,8 +4,8 @@
   --pachi-font: 'Geist', 'Inter Tight', system-ui, -apple-system, sans-serif;
   --pachi-mono: 'Geist Mono', 'JetBrains Mono', ui-monospace, monospace;
 
-  // Font titoli/wordmark, distinto dal body: default = stesso di --pachi-font,
-  // override nei progetti derivati per un lettering decorativo diverso.
+  // Titles/wordmark font, distinct from the body: default = same as --pachi-font,
+  // overridden in derived projects for a different decorative lettering.
   --pachi-title-font: var(--pachi-font);
 }
 

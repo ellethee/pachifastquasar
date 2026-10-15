@@ -1,4 +1,4 @@
-// Sezione Sicurezza: card, form, avvisi. Usa solo le variabili --pachi-* (con i default di theme-defaults.scss)
+// Security section: card, form, notices. Uses only the --pachi-* variables (with the defaults from theme-defaults.scss)
 
 .pachi-profile-security {
   display: grid;
@@ -78,7 +78,7 @@
   font-size: 12.5px;
   border: 1px solid transparent;
 
-  // una riga compatta (es. conto alla rovescia) per non spingere i pulsanti sotto il fold
+  // a compact row (e.g. countdown) so the buttons are not pushed below the fold
   &--dense {
     padding: 4px 10px;
     font-size: 12px;
@@ -130,7 +130,7 @@
   height: 200px;
   display: grid;
   place-items: center;
-  background: #fff; // il QR deve restare nero su bianco anche nel tema scuro
+  background: #fff; // the QR must stay black on white even in the dark theme
   border-radius: 8px;
   border: 1px solid var(--pachi-border);
   overflow: hidden;

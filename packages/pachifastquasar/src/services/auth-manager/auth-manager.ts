@@ -15,11 +15,11 @@ import type {
 } from './types/auth-manager'
 
 /**
- * Confronto dei dati utente rilevanti (per decidere se rimontare la UI dopo un refresh).
+ * Comparison of the relevant user data (to decide whether to remount the UI after a refresh).
  *
- * @param a - dati precedenti
- * @param b - dati nuovi
- * @returns true se i campi rilevanti coincidono
+ * @param a - previous data
+ * @param b - new data
+ * @returns true if the relevant fields match
  */
 export function isSameUserInfo(a: IUserInfo | null, b: IUserInfo | null): boolean {
   if (a === b) return true
@@ -40,11 +40,11 @@ export function isSameUserInfo(a: IUserInfo | null, b: IUserInfo | null): boolea
 }
 
 /**
- * Estrae il corpo utile di una risposta di auth: se il backend ha avvolto la risposta nell'envelope
- * (`{ success, message, data }`, es. `/mfa/verify` con il client senza `unwrapEnvelope`) restituisce `data`.
+ * Extracts the useful body of an auth response: if the backend wrapped the response in the envelope
+ * (`{ success, message, data }`, e.g. `/mfa/verify` with the client without `unwrapEnvelope`) returns `data`.
  *
- * @param response - risposta ricevuta dal client
- * @returns il payload senza envelope
+ * @param response - response received from the client
+ * @returns the payload without envelope
  */
 export function unwrapAuthResponse<T>(response: unknown): T {
   if (response !== null && typeof response === 'object') {
@@ -55,9 +55,9 @@ export function unwrapAuthResponse<T>(response: unknown): T {
 }
 
 /**
- * Vero se la risposta di `/auth/token` chiede il secondo fattore (`{ mfa_required: true, mfa_token }`).
+ * True if the `/auth/token` response asks for the second factor (`{ mfa_required: true, mfa_token }`).
  *
- * @param response - payload già privo di envelope
+ * @param response - payload already without envelope
  */
 export function isMfaRequired(response: unknown): response is IMfaRequiredResponse {
   return (
@@ -69,10 +69,10 @@ export function isMfaRequired(response: unknown): response is IMfaRequiredRespon
 }
 
 /**
- * Codice stabile (`detail[0].code`) di un errore HTTP del backend, se presente.
+ * Stable code (`detail[0].code`) of a backend HTTP error, if present.
  *
- * @param error - errore del client (`ResponseError`) o altro
- * @returns il codice (es. `mfa.code_invalid`) oppure `undefined`
+ * @param error - client error (`ResponseError`) or other
+ * @returns the code (e.g. `mfa.code_invalid`) or `undefined`
  */
 export async function getErrorCode(error: unknown): Promise<string | undefined> {
   const reader = (error as { safeResponseData?: () => Promise<unknown> } | null)?.safeResponseData
@@ -82,12 +82,12 @@ export async function getErrorCode(error: unknown): Promise<string | undefined> 
     const detail = body?.detail
     if (Array.isArray(detail)) return (detail[0] as { code?: string } | undefined)?.code
   } catch {
-    /* corpo non leggibile */
+    /* unreadable body */
   }
   return undefined
 }
 
-/** Codici di `/mfa/verify` dopo i quali la sfida in corso non è più utilizzabile (si riparte dal login). */
+/** Codes of `/mfa/verify` after which the ongoing challenge is no longer usable (restart from login). */
 const MFA_DEAD_CODES = new Set(['mfa.token_invalid', 'mfa.challenge_not_found', 'mfa.not_configured'])
 
 export class AuthManager {
@@ -97,31 +97,31 @@ export class AuthManager {
   private store: ReturnType<typeof useAuthStore>
   private _renewTimer: ReturnType<typeof setTimeout> | null = null
   private _sessionRefreshed = false
-  /** Refresh in corso: condiviso da tutti i chiamanti (single-flight). */
+  /** Refresh in progress: shared by all callers (single-flight). */
   private _refreshing: Promise<void> | null = null
-  /** Logout in corso: condiviso da tutti i chiamanti. */
+  /** Logout in progress: shared by all callers. */
   private _loggingOut: Promise<void> | null = null
-  /** Fallimenti consecutivi del refresh schedulato (per il retry prima del logout). */
+  /** Consecutive failures of the scheduled refresh (for the retry before logout). */
   private _renewFailures = 0
-  /** Token della sfida MFA in corso: SOLO in memoria (mai in storage, mai loggato). */
+  /** Token of the ongoing MFA challenge: in memory ONLY (never in storage, never logged). */
   private _mfaToken: string | null = null
 
   private constructor() {
     this.store = useAuthStore()
     this.api = withFiles(getUseAlovaInstance()({ url: '/api/auth' }))
     AuthManager.instance = this
-    // con più schede (localStorage) il logout fatto in un'altra scheda arriva qui come evento `storage`
+    // with multiple tabs (localStorage) a logout done in another tab arrives here as a `storage` event
     if (typeof window !== 'undefined') {
       window.addEventListener('storage', (event) => this._handleStorage(event.key, event.newValue))
     }
   }
 
   /**
-   * Logout di un'altra scheda: se la sessione persistita (chiave `auth`) è stata svuotata, questa scheda esce in locale
-   * (nessuna richiesta: il refresh token è già stato revocato dall'altra scheda).
+   * Logout of another tab: if the persisted session (key `auth`) was cleared, this tab logs out locally
+   * (no request: the refresh token has already been revoked by the other tab).
    *
-   * @param key - chiave modificata (`null` = storage svuotato)
-   * @param newValue - nuovo valore serializzato
+   * @param key - changed key (`null` = storage cleared)
+   * @param newValue - new serialized value
    */
   private _handleStorage(key: string | null, newValue: string | null): void {
     if (key !== null && key !== 'auth') return
@@ -136,16 +136,16 @@ export class AuthManager {
   }
 
   /**
-   * Programma il refresh del token 60s prima della scadenza. Se è già in scadenza (o scaduto, ad es.
-   * dopo un reload) lo esegue subito; dopo un refresh riuscito il ritardo minimo è 5s (evita loop con
-   * token molto brevi). Un fallimento viene ritentato 2 volte (15s) poi esegue il logout.
+   * Schedules the token refresh 60s before expiry. If it is already expiring (or expired, e.g.
+   * after a reload) it runs immediately; after a successful refresh the minimum delay is 5s (avoids loops with
+   * very short tokens). A failure is retried 2 times (15s) then logs out.
    */
   private _scheduleRenew(afterRefresh = false) {
     if (this._renewTimer) clearTimeout(this._renewTimer)
     this._renewTimer = null
     const exp = this.store.expires_at
     if (!exp) return
-    let delay = exp - Date.now() - 60_000 // 60s prima della scadenza
+    let delay = exp - Date.now() - 60_000 // 60s before expiry
     if (delay <= 0) delay = afterRefresh ? 5_000 : 0
     this._renewTimer = setTimeout(() => {
       this._renewTimer = null
@@ -153,10 +153,10 @@ export class AuthManager {
     }, delay)
   }
 
-  /** Retry del refresh schedulato (max 2 volte a 15s) e poi logout. */
+  /** Retry of the scheduled refresh (max 2 times at 15s) and then logout. */
   private _onRenewFailed(error?: unknown) {
     if (!this.refreshToken) return
-    // refresh token rifiutato (revocato, scaduto, già usato): inutile riprovare
+    // refresh token rejected (revoked, expired, already used): pointless to retry
     if ((error as { status?: number } | null)?.status === 401) {
       this._renewFailures = 0
       void this.logout(false)
@@ -210,23 +210,23 @@ export class AuthManager {
     return `${protocol}//${window.location.host}`
   }
 
-  /** Apre la connessione agli eventi; con `force` riapre anche se è già connessa (lo store chiude la precedente). */
+  /** Opens the events connection; with `force` it reopens even if already connected (the store closes the previous one). */
   private _connectEvents(force = false): void {
     if (!this.accessToken) return
     void import('../../stores/pachi-events').then(({ usePachiEventsStore }) => {
       const store = usePachiEventsStore()
       if ((store.connected || store.hasManager()) && !force) return
-      // getter: a ogni riconnessione l'URL usa il token corrente (non quello del primo collegamento)
+      // getter: at every reconnection the URL uses the current token (not the one of the first connection)
       store.connect(this._getWsBaseUrl(), () => this.accessToken)
     })
   }
 
   /**
-   * Richiede il ticket monouso per aprire il WebSocket degli eventi (`POST /api/core/events/ticket`, scade
-   * in ~30s: se ne chiede uno nuovo a ogni (ri)connessione).
+   * Requests the single-use ticket to open the events WebSocket (`POST /api/core/events/ticket`, expires
+   * in ~30s: a new one is requested at every (re)connection).
    *
-   * @returns il ticket, oppure `null` se il backend non lo supporta (404/405: versione precedente, si usa `?token=`)
-   * @throws l'errore della richiesta (es. 401, rete) negli altri casi
+   * @returns the ticket, or `null` if the backend does not support it (404/405: older version, `?token=` is used)
+   * @throws the request error (e.g. 401, network) in the other cases
    */
   public async fetchEventsTicket(): Promise<string | null> {
     const core = getUseAlovaInstance()({ url: '/api/core' }).alova
@@ -243,34 +243,34 @@ export class AuthManager {
     }
   }
 
-  /** Vero se il primo step di login ha chiesto il secondo fattore e la sfida è ancora in corso. */
+  /** True if the first login step asked for the second factor and the challenge is still in progress. */
   public get hasPendingMfa(): boolean {
     return this._mfaToken !== null
   }
 
-  /** Abbandona la sfida MFA in corso (es. "Indietro" nella pagina di login). */
+  /** Abandons the ongoing MFA challenge (e.g. "Back" in the login page). */
   public cancelMfa(): void {
     this._mfaToken = null
   }
 
   /**
-   * Primo step del login (`POST /api/auth/token`). Senza MFA completa il login (token, utente, eventi,
-   * redirect `next`/home) e restituisce `{ mfaRequired: false }`. Se il backend risponde
-   * `{ mfa_required: true, mfa_token }` conserva il `mfa_token` solo in memoria e restituisce
-   * `{ mfaRequired: true }`: l'app deve chiedere il codice e chiamare {@link verifyMfa}.
+   * First login step (`POST /api/auth/token`). Without MFA it completes the login (token, user, events,
+   * `next`/home redirect) and returns `{ mfaRequired: false }`. If the backend answers
+   * `{ mfa_required: true, mfa_token }` it keeps the `mfa_token` in memory only and returns
+   * `{ mfaRequired: true }`: the app must ask for the code and call {@link verifyMfa}.
    *
-   * @param username - nome utente
+   * @param username - username
    * @param password - password
-   * @returns se serve il secondo step
-   * @throws l'errore della richiesta (es. 401 `auth.invalid_credentials`); NON mostra il dialog del client:
-   *   lo gestisce la pagina di login
+   * @returns whether the second step is needed
+   * @throws the request error (e.g. 401 `auth.invalid_credentials`); does NOT show the client dialog:
+   *   the login page handles it
    */
   public async login(username: string, password: string): Promise<LoginResult> {
-    // un logout ancora in corso (disconnessione del WS) deve finire prima del nuovo login
+    // a logout still in progress (WS disconnection) must finish before the new login
     if (this._loggingOut) await this._loggingOut
     this._mfaToken = null
     try {
-      // errori (401 credenziali, 429 con Retry-After) mostrati inline dalla pagina: niente dialog automatico
+      // errors (401 credentials, 429 with Retry-After) shown inline by the page: no automatic dialog
       const raw = await this.api.$form<unknown>(
         '/token',
         { username, password, scope: '', grant_type: 'password' },
@@ -290,14 +290,14 @@ export class AuthManager {
   }
 
   /**
-   * Secondo step del login (`POST /api/mfa/verify`, `{ mfa_token, code }`): il codice è il TOTP/OTP a 6 cifre
-   * o un codice di backup. A buon fine completa il login come {@link login}. Gli errori NON mostrano il
-   * dialog del client (li gestisce la pagina): se la sfida non è più valida (`mfa.token_invalid`,
-   * `mfa.challenge_not_found`, `mfa.not_configured`) o l'account è bloccato (429) il token MFA viene scartato
-   * e `hasPendingMfa` diventa false (si riparte dal primo step); con `mfa.code_invalid` si può riprovare.
+   * Second login step (`POST /api/mfa/verify`, `{ mfa_token, code }`): the code is the 6-digit TOTP/OTP
+   * or a backup code. On success it completes the login like {@link login}. Errors do NOT show the
+   * client dialog (the page handles them): if the challenge is no longer valid (`mfa.token_invalid`,
+   * `mfa.challenge_not_found`, `mfa.not_configured`) or the account is locked (429) the MFA token is discarded
+   * and `hasPendingMfa` becomes false (restart from the first step); with `mfa.code_invalid` it can be retried.
    *
-   * @param code - codice inserito dall'utente
-   * @throws l'errore della richiesta (`ResponseError`) o `Error` se non c'è una sfida in corso
+   * @param code - code entered by the user
+   * @throws the request error (`ResponseError`) or `Error` if there is no challenge in progress
    */
   public async verifyMfa(code: string): Promise<void> {
     const mfaToken = this._mfaToken
@@ -321,7 +321,7 @@ export class AuthManager {
     await this._completeLogin(tokens)
   }
 
-  /** Chiude il login: salva i token, carica l'utente, apre gli eventi, programma il rinnovo e naviga. */
+  /** Completes the login: saves the tokens, loads the user, opens the events, schedules the renewal and navigates. */
   private async _completeLogin(tokens: ITokenResponse): Promise<void> {
     this.store.setAllTokens(tokens)
     this.userInfo = await this.getUserInfo()
@@ -332,12 +332,12 @@ export class AuthManager {
   }
 
   /**
-   * Esce: se la sessione è ancora valida notifica il backend (`POST /api/auth/logout` con
-   * `{ refresh_token }`, che revoca solo questo login; best effort: i JWT restano validi fino alla
-   * scadenza), poi scarta i token, chiude il WebSocket e va al login.
+   * Logs out: if the session is still valid it notifies the backend (`POST /api/auth/logout` with
+   * `{ refresh_token }`, which revokes only this login; best effort: JWTs stay valid until
+   * expiry), then discards the tokens, closes the WebSocket and goes to login.
    *
-   * @param notify - false quando la sessione è già invalida (es. dopo un 401 o un cambio password, che
-   *   revoca già tutto): salta la chiamata al backend
+   * @param notify - false when the session is already invalid (e.g. after a 401 or a password change, which
+   *   already revokes everything): skips the backend call
    */
   public logout(notify = true): Promise<void> {
     this._loggingOut ??= this._doLogout(notify).finally(() => {
@@ -348,7 +348,7 @@ export class AuthManager {
 
   private async _doLogout(notify: boolean): Promise<void> {
     if (notify && this.accessToken) {
-      // con il refresh token si revoca solo questa sessione; un backend precedente ignora il corpo
+      // with the refresh token only this session is revoked; an older backend ignores the body
       const body = this.refreshToken ? { refresh_token: this.refreshToken } : undefined
       await this.api.alova
         .Post('/logout', body, { autoError: false, showOverlay: false })
@@ -361,12 +361,12 @@ export class AuthManager {
       clearTimeout(this._renewTimer)
       this._renewTimer = null
     }
-    // si attende la disconnessione del WebSocket: un login immediato non deve trovare il vecchio manager
+    // wait for the WebSocket disconnection: an immediate login must not find the old manager
     try {
       const { usePachiEventsStore } = await import('../../stores/pachi-events')
       usePachiEventsStore().disconnect()
     } catch {
-      /* il WebSocket è opzionale */
+      /* the WebSocket is optional */
     }
     this.store.clearAllTokens()
     this.store.userInfo = null
@@ -382,9 +382,9 @@ export class AuthManager {
     })
   }
   /**
-   * Info extra dell'utente (engines) da `GET /api/infos/engines` (solo superuser). Se l'endpoint non è
-   * disponibile (403 per utente non superuser, 404 se disabilitato dal backend) restituisce una lista vuota
-   * senza mostrare errori.
+   * Extra user info (engines) from `GET /api/infos/engines` (superuser only). If the endpoint is not
+   * available (403 for a non-superuser user, 404 if disabled by the backend) it returns an empty list
+   * without showing errors.
    */
   public async getExtraInfo(): Promise<{ engines: IEngineInfo[] }> {
     try {
@@ -401,14 +401,14 @@ export class AuthManager {
     return this.store.userInfo
   }
   /**
-   * Imposta i dati utente; `userInfoVersion` (che rimonta la pagina) cambia SOLO se i dati sono
-   * davvero diversi, così un refresh del token non fa perdere lo stato di form e dialog aperti.
+   * Sets the user data; `userInfoVersion` (which remounts the page) changes ONLY if the data is
+   * really different, so a token refresh does not lose the state of open forms and dialogs.
    */
   public set userInfo(value: IUserInfo | null) {
     const changed = !isSameUserInfo(this.store.userInfo, value)
     this.store.userInfo = value
     if (changed) this.store.bumpUserInfoVersion()
-    // i package (es. impostazioni) si agganciano all'evento `pachi:auth-changed`, senza importare la shell
+    // packages (e.g. settings) hook into the `pachi:auth-changed` event, without importing the shell
     notifyPachiAuthChanged(value)
   }
   public get isAuthenticated(): boolean {
@@ -422,7 +422,7 @@ export class AuthManager {
     return this.userInfo?.isStaff ?? false
   }
 
-  /** Pagina dopo il login (senza `?next=`): la home. Le app derivate possono cambiarla. */
+  /** Page after login (without `?next=`): home. Derived apps can change it. */
   public getDefaultLandingPath(): string {
     return '/'
   }
@@ -432,8 +432,8 @@ export class AuthManager {
     return safeNextPath(next, this.getDefaultLandingPath())
   }
   /**
-   * Rinnova l'access token. Single-flight: chiamate concorrenti (401 in parallelo, timer, guard)
-   * condividono la stessa richiesta `POST /refresh-token`.
+   * Renews the access token. Single-flight: concurrent calls (parallel 401s, timer, guard)
+   * share the same `POST /refresh-token` request.
    */
   public requestRefreshToken(): Promise<void> {
     this._refreshing ??= this._doRefresh().finally(() => {
@@ -443,16 +443,16 @@ export class AuthManager {
   }
 
   /**
-   * Con più schede la sessione persistita è condivisa: se un'altra scheda ha già ruotato il refresh token
-   * (monouso) e il suo access token è valido si adotta quello stato senza un nuovo refresh; se il token è
-   * cambiato ma l'access token non è più valido si usa il refresh token più recente.
+   * With multiple tabs the persisted session is shared: if another tab has already rotated the refresh token
+   * (single-use) and its access token is valid that state is adopted without a new refresh; if the token
+   * changed but the access token is no longer valid the most recent refresh token is used.
    *
-   * @returns true se lo stato adottato rende inutile il refresh
+   * @returns true if the adopted state makes the refresh unnecessary
    */
   private _adoptPersistedSession(): boolean {
     const persisted = readPersistedAuth()
     if (!persisted?.refresh_token || persisted.refresh_token === this.store.refresh_token) return false
-    // lo storage può essere indietro rispetto alla memoria (scrittura non ancora fatta): si adotta solo se più recente
+    // storage may lag behind memory (write not done yet): adopt only if more recent
     if ((persisted.expires_at ?? 0) <= (this.store.expires_at ?? 0)) return false
     this.store.refresh_token = persisted.refresh_token
     const exp = persisted.expires_at
@@ -481,11 +481,11 @@ export class AuthManager {
       { refresh_token: this.refreshToken },
       { autoError: false, showOverlay: false }
     )
-    // logout avvenuto mentre il refresh era in volo: non si reinstalla la sessione
+    // logout happened while the refresh was in flight: do not reinstall the session
     if (!this.refreshToken) return
     this.store.access_token = response.access_token
     this.store.token_type = response.token_type
-    // refresh token rotanti: quello usato è ormai speso, va sostituito (assente con rotazione disattivata)
+    // rotating refresh tokens: the one used is now spent and must be replaced (absent with rotation disabled)
     if (response.refresh_token) this.store.refresh_token = response.refresh_token
     this.store.expires_at = decodeJwtExpiry(response.access_token)
     this._renewFailures = 0
@@ -498,17 +498,17 @@ export class AuthManager {
     if (!this.isAuthenticated) return
     const wasSuperuser = this.userInfo?.isSuperuser ?? false
     this.userInfo = await this.getUserInfo()
-    // il backend decide chi riceve gli eventi login/activity all'apertura del WebSocket: se cambia
-    // lo stato di superuser bisogna riconnettersi perché il nuovo stato abbia effetto
+    // the backend decides who receives the login/activity events when the WebSocket opens: if the
+    // superuser state changes a reconnection is needed for the new state to take effect
     if ((this.userInfo?.isSuperuser ?? false) !== wasSuperuser) this._connectEvents(true)
   }
 
   public async tryRestoreSession(): Promise<boolean> {
     if (this.isAuthenticated) {
       this._connectEvents()
-      // dopo un reload lo store è già autenticato: i package che ascoltano l'evento devono saperlo subito
+      // after a reload the store is already authenticated: packages listening to the event must know right away
       notifyPachiAuthChanged(this.userInfo)
-      // dopo un reload lo store persistito è già autenticato: serve riprogrammare il rinnovo del token
+      // after a reload the persisted store is already authenticated: the token renewal must be rescheduled
       if (!this._renewTimer) this._scheduleRenew()
       if (!this._sessionRefreshed) {
         this._sessionRefreshed = true
@@ -527,9 +527,9 @@ export class AuthManager {
     }
   }
   /**
-   * Verifica se l'utente corrente può accedere a una route in base alla sua meta.
-   * I superuser bypassano tutti i controlli.
-   * Ordine: superuser → requireSuperuser → requireStaff → permissions
+   * Checks whether the current user can access a route according to its meta.
+   * Superusers bypass all checks.
+   * Order: superuser → requireSuperuser → requireStaff → permissions
    */
   public canAccess(meta: RouteMeta): boolean {
     if (!this.isAuthenticated) return false
@@ -551,30 +551,30 @@ export class AuthManager {
     }
     return AuthManager.instance
   }
-  /** Access token corrente per l'header Authorization (`null` se non c'è sessione o il singleton non esiste ancora). */
+  /** Current access token for the Authorization header (`null` if there is no session or the singleton does not exist yet). */
   public static getAccessToken(): string | null {
     return AuthManager.instance?.accessToken ?? null
   }
-  /** Tipo di token corrente (`token_type`, di norma `bearer`). */
+  /** Current token type (`token_type`, usually `bearer`). */
   public static getTokenType(): string | null {
     return AuthManager.instance?.tokenType ?? null
   }
   /**
-   * Handler degli errori HTTP dell'auth: su 401 di una richiesta autenticata tenta il refresh del token
-   * (single-flight) e ripete la richiesta una sola volta (`retry()`), altrimenti esegue il logout.
-   * Rilancia l'errore senza messaggio quando l'ha gestito lui.
+   * HTTP error handler of auth: on a 401 of an authenticated request it tries the token refresh
+   * (single-flight) and repeats the request only once (`retry()`), otherwise it logs out.
+   * Rethrows the error without a message when it handled it itself.
    */
   public static handleErrors(): UseAlovaResponseProcessorMap {
     return {
       '401': async ({ method, error, retry, retried }) => {
-        // senza Authorization (es. credenziali errate al login) il 401 è un errore normale: si mostra
+        // without Authorization (e.g. wrong credentials at login) the 401 is a normal error: it is shown
         if (!(method.config.headers as Record<string, unknown>)?.Authorization) return undefined
-        // il fallimento del refresh stesso non va ritentato (evita ricorsione): lo gestisce il chiamante
+        // the refresh failure itself must not be retried (avoids recursion): the caller handles it
         if (method.url.endsWith('/refresh-token') || method.url.endsWith('/logout')) throw error
-        // credenziali/codice errati nel login (anche con un token vecchio nello store): errore normale
+        // wrong credentials/code at login (even with an old token in the store): normal error
         if (method.url.endsWith('/token') || method.url.endsWith('/mfa/verify')) return undefined
         const authManager = AuthManager.getInstance()
-        // già ritentata (secondo 401) o niente refresh token: sessione finita
+        // already retried (second 401) or no refresh token: session over
         if (retried || !authManager.refreshToken) {
           await authManager.logout(false)
           throw error

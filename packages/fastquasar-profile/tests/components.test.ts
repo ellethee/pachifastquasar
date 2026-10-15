@@ -8,33 +8,33 @@ import PachiMfaPanel from '../src/components/PachiMfaPanel.vue'
 import PachiProfileEditForm from '../src/components/PachiProfileEditForm.vue'
 import { mountWithQuasar, teardown } from './helpers/mount'
 
-/** Client HTTP finto: ogni metodo e' un `vi.fn` configurabile. */
+/** Fake HTTP client: each method is a configurable `vi.fn`. */
 interface IMockHttp extends IPachiProfileHttp {
   Get: ReturnType<typeof vi.fn>
   Post: ReturnType<typeof vi.fn>
   Patch: ReturnType<typeof vi.fn>
 }
 
-/** Crea il client finto e lo registra come client del package. */
+/** Creates the fake client and registers it as the package client. */
 function installHttp(): IMockHttp {
   const http = { Get: vi.fn(), Post: vi.fn(), Patch: vi.fn() } as IMockHttp
   setPachiProfileHttp(() => http)
   return http
 }
 
-/** Errore HTTP come lo lancia il client (status, corpo e header). */
+/** HTTP error as thrown by the client (status, body and headers). */
 function httpError(status: number, detail: unknown[] = [], headers: Record<string, string> = {}) {
   return { status, body: { detail }, headers }
 }
 
-/** Trova un pulsante per testo. */
+/** Finds a button by text. */
 function button(w: VueWrapper, text: string) {
   const b = w.findAll('button').find(x => x.text().includes(text))
-  if (!b) throw new Error(`pulsante non trovato: ${text}`)
+  if (!b) throw new Error(`button not found: ${text}`)
   return b
 }
 
-/** Imposta il valore di un input e invia il form che lo contiene. */
+/** Sets an input value and submits the form containing it. */
 async function fillAndSubmit(w: VueWrapper, selector: string, value: string) {
   await w.find(selector).setValue(value)
   await w.find('form').trigger('submit')
@@ -42,7 +42,7 @@ async function fillAndSubmit(w: VueWrapper, selector: string, value: string) {
 }
 
 beforeEach(() => {
-  // flushPromises usa setTimeout/microtask: si falsano solo timer a intervallo e Date
+  // flushPromises uses setTimeout/microtask: only interval timers and Date are faked
   vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval', 'Date'] })
 })
 afterEach(() => {
@@ -51,8 +51,8 @@ afterEach(() => {
   teardown()
 })
 
-describe('PachiMfaPanel (SMS in due passi)', () => {
-  /** Monta il pannello con solo SMS offerto, MFA disattiva. */
+describe('PachiMfaPanel (two-step SMS)', () => {
+  /** Mounts the panel with only SMS offered and MFA disabled. */
   async function mountSms(http: IMockHttp) {
     http.Get.mockResolvedValue({ enabled: false, method: null })
     const w = mountWithQuasar(PachiMfaPanel, { props: { methods: ['sms'] } })
@@ -60,7 +60,7 @@ describe('PachiMfaPanel (SMS in due passi)', () => {
     return w
   }
 
-  it('resta nascosto se /mfa/status non risponde', async () => {
+  it('stays hidden if /mfa/status does not respond', async () => {
     const http = installHttp()
     http.Get.mockRejectedValue(httpError(404))
     const w = mountWithQuasar(PachiMfaPanel)
@@ -68,7 +68,7 @@ describe('PachiMfaPanel (SMS in due passi)', () => {
     expect(w.find('section').exists()).toBe(false)
   })
 
-  it('numero senza + iniziale: errore di validazione e nessuna richiesta', async () => {
+  it('number without leading +: validation error and no request', async () => {
     const http = installHttp()
     const w = await mountSms(http)
     await button(w, 'SMS').trigger('click')
@@ -77,7 +77,7 @@ describe('PachiMfaPanel (SMS in due passi)', () => {
     expect(http.Post).not.toHaveBeenCalled()
   })
 
-  it('invia il numero normalizzato, passa al codice e blocca il reinvio per 30 s', async () => {
+  it('sends the normalized number, moves to the code step and blocks resending for 30 s', async () => {
     const http = installHttp()
     http.Post.mockResolvedValue({ confirm_required: true })
     const w = await mountSms(http)
@@ -88,7 +88,7 @@ describe('PachiMfaPanel (SMS in due passi)', () => {
     const resend = button(w, 'Invia di nuovo il codice')
     expect(resend.attributes('disabled')).toBeDefined()
     expect(resend.text()).toContain('00:30')
-    // rinvio ignorato durante la pausa
+    // resend ignored during the pause
     await resend.trigger('click')
     expect(http.Post).toHaveBeenCalledTimes(1)
     vi.advanceTimersByTime(29_000)
@@ -101,7 +101,7 @@ describe('PachiMfaPanel (SMS in due passi)', () => {
     expect(after.text()).not.toContain('(')
   })
 
-  it('conferma del codice: codice non valido bloccato, valido invia /mfa/sms/confirm e mostra i backup code', async () => {
+  it('code confirmation: invalid code blocked, valid one sends /mfa/sms/confirm and shows the backup codes', async () => {
     const http = installHttp()
     http.Post.mockResolvedValueOnce({ confirm_required: true })
     const w = await mountSms(http)
@@ -119,20 +119,20 @@ describe('PachiMfaPanel (SMS in due passi)', () => {
     expect(w.text()).toContain('BBBB-2222')
   })
 
-  it('429 sull\'invio: pausa con Retry-After sul pulsante di reinvio', async () => {
+  it('429 on send: pause with Retry-After on the resend button', async () => {
     const http = installHttp()
     http.Post.mockRejectedValue(httpError(429, [{ code: 'auth.rate_limited' }], { 'retry-after': '45' }))
     const w = await mountSms(http)
     await button(w, 'SMS').trigger('click')
     await fillAndSubmit(w, 'input[type="tel"]', '+393331234567')
-    // resta sul passo del numero: il submit e' disattivato per la durata di Retry-After
+    // stays on the number step: submit is disabled for the duration of Retry-After
     expect(button(w, 'Invia il codice').attributes('disabled')).toBeDefined()
     vi.advanceTimersByTime(46_000)
     await flushPromises()
     expect(button(w, 'Invia il codice').attributes('disabled')).toBeUndefined()
   })
 
-  it('setup scaduto (noSmsSetup) riporta al passo del numero', async () => {
+  it('expired setup (noSmsSetup) goes back to the number step', async () => {
     const http = installHttp()
     http.Post.mockResolvedValueOnce({ confirm_required: true })
     const w = await mountSms(http)
@@ -148,7 +148,7 @@ describe('PachiMfaPanel (SMS in due passi)', () => {
 describe('PachiProfileEditForm', () => {
   const user = { id: 1, username: 'mario', email: 'm@x.it', firstName: 'Mario', lastName: 'Rossi' }
 
-  it('senza modifiche emette cancel e non chiama il backend', async () => {
+  it('without changes emits cancel and does not call the backend', async () => {
     const http = installHttp()
     const w = mountWithQuasar(PachiProfileEditForm, { props: { user } })
     await w.find('form').trigger('submit')
@@ -157,7 +157,7 @@ describe('PachiProfileEditForm', () => {
     expect(w.emitted('cancel')).toHaveLength(1)
   })
 
-  it('PATCH con i soli campi cambiati ed emette updated con la risposta', async () => {
+  it('PATCH with only the changed fields and emits updated with the response', async () => {
     const http = installHttp()
     http.Patch.mockResolvedValue({ username: 'mario', email: 'm@x.it', first_name: 'Marco', last_name: 'Rossi', id: 1 })
     const w = mountWithQuasar(PachiProfileEditForm, { props: { user } })
@@ -173,7 +173,7 @@ describe('PachiProfileEditForm', () => {
     expect(updated.firstName).toBe('Marco')
   })
 
-  it('cambio email senza password: errore sul campo password e nessuna richiesta', async () => {
+  it('email change without password: error on the password field and no request', async () => {
     const http = installHttp()
     const w = mountWithQuasar(PachiProfileEditForm, { props: { user } })
     await w.find('input[type="email"]').setValue('nuova@x.it')
@@ -184,7 +184,7 @@ describe('PachiProfileEditForm', () => {
     expect(w.text()).toContain('Inserisci la password attuale')
   })
 
-  it('errori del backend assegnati al campo giusto (password errata, email gia\' usata)', async () => {
+  it('backend errors assigned to the right field (wrong password, email already used)', async () => {
     const http = installHttp()
     const w = mountWithQuasar(PachiProfileEditForm, { props: { user } })
     await w.find('input[type="email"]').setValue('nuova@x.it')
@@ -203,7 +203,7 @@ describe('PachiProfileEditForm', () => {
     expect(w.text()).not.toContain('La password attuale non è corretta')
   })
 
-  it('429 con Retry-After: avviso con countdown e salvataggio disattivato', async () => {
+  it('429 with Retry-After: warning with countdown and save disabled', async () => {
     const http = installHttp()
     http.Patch.mockRejectedValueOnce(httpError(429, [], { 'Retry-After': '90' }))
     const w = mountWithQuasar(PachiProfileEditForm, { props: { user } })

@@ -15,14 +15,14 @@ export const usePachiEventsStore = defineStore('pachi-events', () => {
   const recentLogouts = ref<LogoutEventData[]>([])
 
   let _manager: WebSocketManager | null = null
-  /** Handler registrati dall'esterno: vivono nello store e si riapplicano a ogni `connect()`. */
+  /** Handlers registered from outside: they live in the store and are reapplied at every `connect()`. */
   const _externalHandlers = new Map<string, Set<IWebSocketManagerHandler>>()
-  /** Istante dell'ultimo 4401 gestito (per non ciclare refresh/riconnessione se il server rifiuta ancora). */
+  /** Instant of the last handled 4401 (to avoid refresh/reconnect loops if the server still rejects). */
   let _lastUnauthorizedAt = 0
 
   /**
-   * Gestisce una chiusura 4401 (token non valido o scaduto): chiede un refresh del token e riconnette
-   * (l'URL è ricalcolato col token nuovo); se il refresh fallisce esegue il logout.
+   * Handles a 4401 close (invalid or expired token): requests a token refresh and reconnects
+   * (the URL is recomputed with the new token); if the refresh fails it logs out.
    */
   async function _onUnauthorized(
     tokenProvider: () => string | null,
@@ -34,9 +34,9 @@ export const usePachiEventsStore = defineStore('pachi-events', () => {
     const repeated = now - _lastUnauthorizedAt < 10_000
     _lastUnauthorizedAt = now
     try {
-      if (repeated) throw new Error('4401 ripetuto dopo il refresh')
+      if (repeated) throw new Error('4401 repeated after the refresh')
       await auth.requestRefreshToken()
-      // requestRefreshToken riconnette da sé se serve; qui si copre il caso in cui non l'abbia fatto
+      // requestRefreshToken reconnects by itself if needed; here we cover the case where it did not
       if (!hasManager()) connect(wsBaseUrl, tokenProvider)
     } catch {
       await auth.logout(false)
@@ -44,8 +44,8 @@ export const usePachiEventsStore = defineStore('pachi-events', () => {
   }
 
   /**
-   * URL del WebSocket, ricalcolato a ogni (ri)connessione: ticket monouso (`?ticket=`) se il backend lo
-   * supporta, altrimenti `?token=` (backend precedenti). Un 401 sul ticket equivale a una chiusura 4401.
+   * WebSocket URL, recomputed at every (re)connection: single-use ticket (`?ticket=`) if the backend
+   * supports it, otherwise `?token=` (older backends). A 401 on the ticket is equivalent to a 4401 close.
    */
   async function _buildUrl(wsBaseUrl: string, tokenProvider: () => string | null): Promise<string> {
     const base = `${wsBaseUrl}/api/core/events/ws`
@@ -63,10 +63,10 @@ export const usePachiEventsStore = defineStore('pachi-events', () => {
   }
 
   /**
-   * Apre la connessione agli eventi.
+   * Opens the events connection.
    *
-   * @param wsBaseUrl - base `ws(s)://host`
-   * @param token - token o getter del token (consigliato: a ogni riconnessione si usa quello corrente)
+   * @param wsBaseUrl - `ws(s)://host` base
+   * @param token - token or token getter (recommended: at every reconnection the current one is used)
    */
   function connect(wsBaseUrl: string, token: string | (() => string | null)) {
     _manager?.disconnect()
@@ -75,14 +75,14 @@ export const usePachiEventsStore = defineStore('pachi-events', () => {
     _manager = manager
 
     const _connHandler: IWebSocketManagerHandler = {
-      // gli eventi di un manager non più corrente (sostituito da un connect/force) vanno ignorati
+      // events from a manager that is no longer current (replaced by a connect/force) must be ignored
       onOpen: () => {
         if (_manager === manager) connected.value = true
       },
       onClose: code => {
         if (_manager !== manager) return
         connected.value = false
-        // 4403: il backend ha cambiato il ruolo (superuser) dell'utente: ricarica i suoi dati
+        // 4403: the backend changed the user's role (superuser): reload their data
         if (code === 4403) {
           void import('../services/auth-manager')
             .then(({ AuthManager }) => AuthManager.getInstance().refreshUserInfo())
@@ -126,7 +126,7 @@ export const usePachiEventsStore = defineStore('pachi-events', () => {
     manager.connect()
   }
 
-  /** true se esiste già una connessione (anche in corso di apertura o di riconnessione). */
+  /** true if a connection already exists (even while opening or reconnecting). */
   function hasManager(): boolean {
     return _manager?.isActive ?? false
   }

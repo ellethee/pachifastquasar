@@ -18,14 +18,14 @@ import { resolveSecurityOptions } from '../src/helpers/security-options'
 
 const item = (code: string, status: number) => ({ status, items: [{ code }] })
 
-describe('parse delle risposte MFA', () => {
-  it('stato', () => {
+describe('parsing of MFA responses', () => {
+  it('status', () => {
     expect(parseMfaStatus({ enabled: true, method: 'totp' })).toEqual({ enabled: true, method: 'totp' })
     expect(parseMfaStatus({ enabled: false, method: null })).toEqual({ enabled: false, method: null })
     expect(parseMfaStatus({})).toBeNull()
     expect(parseMfaStatus(null)).toBeNull()
   })
-  it('setup TOTP (snake_case e camelCase)', () => {
+  it('TOTP setup (snake_case and camelCase)', () => {
     const snake = { secret: 'ABCD', otpauth_uri: 'otpauth://totp/x?secret=ABCD', backup_codes: ['a', 'b'] }
     expect(parseTotpSetup(snake)).toEqual({ secret: 'ABCD', otpauthUri: snake.otpauth_uri, backupCodes: ['a', 'b'] })
     expect(parseTotpSetup({ secret: 'A', otpauthUri: 'u' })?.backupCodes).toEqual([])
@@ -37,11 +37,11 @@ describe('parse delle risposte MFA', () => {
   })
 })
 
-describe('helper', () => {
-  it('formatSecret raggruppa a 4', () => {
+describe('helpers', () => {
+  it('formatSecret groups by 4', () => {
     expect(formatSecret('ABCDEFGHIJ')).toBe('ABCD EFGH IJ')
   })
-  it('codice TOTP a 6 cifre', () => {
+  it('6-digit TOTP code', () => {
     expect(isValidTotpCode('123456')).toBe(true)
     expect(isValidTotpCode('12345')).toBe(false)
     expect(isValidTotpCode('123 456')).toBe(true)
@@ -51,7 +51,7 @@ describe('helper', () => {
 })
 
 describe('classifyMfaError', () => {
-  it('mappa codici e stati', () => {
+  it('maps codes and statuses', () => {
     expect(classifyMfaError(item('mfa.already_enabled', 409))).toBe('alreadyEnabled')
     expect(classifyMfaError(item('mfa.code_invalid', 401))).toBe('codeInvalid')
     expect(classifyMfaError(item('mfa.totp_invalid', 400))).toBe('codeInvalid')
@@ -63,7 +63,7 @@ describe('classifyMfaError', () => {
 })
 
 describe('QR code', () => {
-  it('genera una matrice quadrata e un path SVG', async () => {
+  it('builds a square matrix and an SVG path', async () => {
     const matrix = await buildQrMatrix('otpauth://totp/Test:user?secret=JBSWY3DPEHPK3PXP&issuer=Test')
     expect(matrix.length).toBeGreaterThanOrEqual(21)
     expect(matrix.every((r) => r.length === matrix.length)).toBe(true)
@@ -74,46 +74,46 @@ describe('QR code', () => {
 })
 
 describe('resolveSecurityOptions', () => {
-  it('default: solo password', () => {
+  it('default: password only', () => {
     expect(resolveSecurityOptions(undefined)).toEqual({ password: true, mfa: false })
     expect(resolveSecurityOptions(true)).toEqual({ password: true, mfa: false })
   })
-  it('false nasconde tutto', () => {
+  it('false hides everything', () => {
     expect(resolveSecurityOptions(false)).toEqual({ password: false, mfa: false })
   })
-  it('oggetto: password attiva salvo false, mfa solo se true', () => {
+  it('object: password on unless false, mfa only if true', () => {
     expect(resolveSecurityOptions({ mfa: true, minPasswordLength: 8 })).toMatchObject({ password: true, mfa: true, minPasswordLength: 8 })
     expect(resolveSecurityOptions({ password: false })).toMatchObject({ password: false, mfa: false })
   })
 })
 
-describe('MFA via email in due passi (pachifast 0.7.1)', () => {
+describe('email MFA in two steps (pachifast 0.7.1)', () => {
   const err = (status: number, code: string) => item(code, status) as never
 
-  it('classifica i nuovi codici di errore', () => {
+  it('classifies the new error codes', () => {
     expect(classifyMfaError(err(400, 'mfa.email_code_invalid'))).toBe('codeInvalid')
     expect(classifyMfaError(err(400, 'mfa.no_email_setup'))).toBe('noEmailSetup')
     expect(classifyMfaError(err(403, 'mfa.disabled'))).toBe('mfaDisabled')
   })
-  it('emailSetupNeedsConfirm riconosce confirm_required (e non il setup vecchio con i backup code)', () => {
+  it('emailSetupNeedsConfirm recognizes confirm_required (and not the old setup with backup codes)', () => {
     expect(emailSetupNeedsConfirm({ ok: true, method: 'email', confirm_required: true })).toBe(true)
     expect(emailSetupNeedsConfirm({ ok: true, method: 'email', backup_codes: ['a'] })).toBe(false)
     expect(emailSetupNeedsConfirm(null)).toBe(false)
   })
 })
 
-describe('MFA via SMS', () => {
-  it('riconosce la conferma richiesta', () => {
+describe('SMS MFA', () => {
+  it('recognizes the required confirmation', () => {
     expect(smsSetupNeedsConfirm({ confirm_required: true })).toBe(true)
     expect(smsSetupNeedsConfirm({ backup_codes: ['a'] })).toBe(false)
     expect(smsSetupNeedsConfirm(null)).toBe(false)
   })
-  it('classifica gli errori SMS', () => {
+  it('classifies SMS errors', () => {
     expect(classifyMfaError(item('mfa.sms_code_invalid', 400))).toBe('codeInvalid')
     expect(classifyMfaError(item('mfa.no_sms_setup', 400))).toBe('noSmsSetup')
     expect(classifyMfaError(item('mfa.disabled', 403))).toBe('mfaDisabled')
   })
-  it('normalizza e valida il numero di telefono', () => {
+  it('normalizes and validates the phone number', () => {
     expect(normalizePhoneNumber('+39 333-123 4567')).toBe('+393331234567')
     expect(isValidPhoneNumber('+39 333 123 4567')).toBe(true)
     expect(isValidPhoneNumber('3331234567')).toBe(false)

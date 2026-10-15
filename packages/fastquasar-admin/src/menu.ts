@@ -2,36 +2,36 @@ import { mdiShieldAccountOutline } from '@quasar/extras/mdi-v7'
 import { ensureMessages } from './helpers/register-messages'
 import { hasAdminModels } from './helpers/models-state'
 
-/** Percorso della pagina Admin (stesso di `src/routes.ts`). */
+/** Path of the Admin page (same as `src/routes.ts`). */
 export const ADMIN_PATH = '/admin'
 
 /**
- * Contesto passato dalla shell `@ilpachi/pachifastquasar` (tipo strutturale locale: il package non importa la shell).
+ * Context passed by the `@ilpachi/pachifastquasar` shell (local structural type: the package does not import the shell).
  */
 export interface IPachiAdminMenuContext {
-  /** Funzione di traduzione di vue-i18n. */
+  /** vue-i18n translation function. */
   t: (key: string) => string
 }
 
-/** Voce di menu compatibile con `IMenuButton` della shell. */
+/** Menu item compatible with the shell `IMenuButton`. */
 export interface IPachiAdminMenuItem {
   label: string
   caption: string
   icon: string
   to: string
   order: number
-  /** Valutata al rendering: vera solo se l'utente vede almeno un modello. */
+  /** Evaluated at render time: true only if the user sees at least one model. */
   visible: () => boolean
 }
 
 /**
- * Factory della voce "Admin" del menu account (contratto `PachiMenuItemFactory` di
- * `@ilpachi/pachifastquasar`, esportata come default del modulo `menu`). La voce è visibile solo se
- * `GET /admin/models` restituisce almeno un modello visibile; assenza di permessi (403), 401 o rete la nascondono
- * in silenzio. Richiede `installPachiAdmin` nel boot per caricare i modelli fuori dalla pagina.
+ * Factory of the "Admin" account menu item (`PachiMenuItemFactory` contract of
+ * `@ilpachi/pachifastquasar`, exported as the default of the `menu` module). The item is visible only if
+ * `GET /admin/models` returns at least one visible model; missing permissions (403), 401 or network errors hide it
+ * silently. Requires `installPachiAdmin` in the boot to load the models outside the page.
  *
- * @param ctx - contesto del menu (`t`)
- * @returns la voce Admin (ordine 30)
+ * @param ctx - menu context (`t`)
+ * @returns the Admin item (order 30)
  */
 export function getMenuItem(ctx: IPachiAdminMenuContext): IPachiAdminMenuItem {
   ensureMessages()

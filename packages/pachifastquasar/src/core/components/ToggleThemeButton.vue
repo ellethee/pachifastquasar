@@ -26,9 +26,9 @@ defineProps<{
 }>()
 
 /**
- * Persistenza minima del tema nel core: chiave localStorage condivisa con
- * `@ilpachi/fastquasar-settings` (valori 'dark' | 'light' | 'auto'), così la sezione
- * "Aspetto" del package e questo bottone restano allineati senza dipendenza.
+ * Minimal theme persistence in the core: localStorage key shared with
+ * `@ilpachi/fastquasar-settings` (values 'dark' | 'light' | 'auto'), so the package's
+ * "Appearance" section and this button stay aligned without a dependency.
  */
 const THEME_KEY = 'pachi-prefs-theme'
 
@@ -47,7 +47,7 @@ const isDark = computed({
   set: (val: boolean) => {
     $q.dark.set(val)
     localStorage.setItem(THEME_KEY, val ? 'dark' : 'light')
-    // evento `pachi:theme-changed`: `@ilpachi/fastquasar-settings` lo salva come impostazione se autenticato
+    // evento `pachi:theme-changed`: `@ilpachi/fastquasar-settings` saves it as a setting if authenticated
     notifyPachiThemeChanged(val ? 'dark' : 'light')
   }
 })

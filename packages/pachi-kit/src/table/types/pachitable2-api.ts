@@ -3,23 +3,23 @@ import type { AlovaExt } from '../helpers/alova-helper'
 import type { IOrderState } from './pachitable2'
 import type { IPaginatedResponse } from './paginated-response'
 
-/** Opzioni per richiesta di `createRecord`/`updateRecord`. */
+/** Per-request options of `createRecord`/`updateRecord`. */
 export interface IPachiTable2RequestOptions {
-  /** `meta` passato alla richiesta alova (es. `{ autoError: false }` per disattivare il messaggio di errore automatico). */
+  /** `meta` passed to the alova request (e.g. `{ autoError: false }` to disable the automatic error message). */
   meta?: Record<string, unknown>
 }
 
-/** Elemento di `bulkUpdate`: l'`id` del record piu' i soli campi da modificare. */
+/** `bulkUpdate` item: the record `id` plus only the fields to change. */
 export type PachiTable2BulkItem<T> = Partial<T> & { id: string | number }
 
-/** Evento di successo di alova emesso da `pt2:loaded` (la risposta paginata e' in `.data`). */
+/** Alova success event emitted by `pt2:loaded` (the paginated response is in `.data`). */
 export interface PachiTable2LoadedEvent<T> {
-  /** Risposta paginata del server. */
+  /** Paginated server response. */
   data: IPaginatedResponse<T>
   [key: string]: unknown
 }
 
-/** Metodi dell'API della tabella (`api` degli slot ed eventi). */
+/** Table API methods (`api` of slots and events). */
 export interface PachiTable2Api<T> {
   reload: () => Promise<void>
   onRequest: (props: { pagination: { page: number; rowsPerPage: number; sortBy: string; descending: boolean } }) => void
@@ -44,7 +44,7 @@ export interface PachiTable2Api<T> {
   Delete: AlovaExt['Delete']
 }
 
-/** Tipo dell'API esposta dal componente (`ref` del componente). */
+/** Type of the API exposed by the component (the component's `ref`). */
 export type PachiTable2Exposed<T> = PachiTable2Api<T> & {
   rows: T[]
   selected: T[]
@@ -53,7 +53,7 @@ export type PachiTable2Exposed<T> = PachiTable2Api<T> & {
   api: PachiTable2Api<T>
 }
 
-/** Props degli slot di QTable inoltrati da `PachiTable2` (riga, colonna, valore...). */
+/** QTable slot props forwarded by `PachiTable2` (row, column, value...). */
 export interface PachiTable2QTableSlotProps<T> {
   row: T
   rowIndex?: number
@@ -63,13 +63,13 @@ export interface PachiTable2QTableSlotProps<T> {
   [key: string]: unknown
 }
 
-/** Argomento degli slot inoltrati da QTable (`body-cell-*`, `header-cell-*`, `body`, ...). */
+/** Argument of the slots forwarded by QTable (`body-cell-*`, `header-cell-*`, `body`, ...). */
 export interface PachiTable2SlotScope<T, P = PachiTable2QTableSlotProps<T>> {
   slotProps: P
   api: PachiTable2Api<T>
 }
 
-/** Argomento dello slot `toolbar-actions`. */
+/** Argument of the `toolbar-actions` slot. */
 export interface PachiTable2ToolbarScope<T> {
   selected: T[]
   filter: string
@@ -78,29 +78,29 @@ export interface PachiTable2ToolbarScope<T> {
   api: PachiTable2Api<T>
 }
 
-/** Argomento dello slot `selection-dialog`. */
+/** Argument of the `selection-dialog` slot. */
 export interface PachiTable2SelectionScope<T> {
   selected: T[]
   rows: T[]
   api: PachiTable2Api<T>
 }
 
-/** Argomento dello slot `error`. */
+/** Argument of the `error` slot. */
 export interface PachiTable2ErrorScope<T> {
   error: unknown
-  /** Ripete il caricamento della lista. */
+  /** Retries loading the list. */
   retry: () => Promise<void>
   api: PachiTable2Api<T>
 }
 
-/** Emits tipizzati di `PachiTable2` (stessi nomi di `pachiTable2Emits`). */
+/** Typed emits of `PachiTable2` (same names as `pachiTable2Emits`). */
 export interface PachiTable2Events<T> {
   'pt2:update:multi-sort': [state: IOrderState[]]
-  /** Evento di successo di alova: la risposta paginata e' in `event.data` (vedi anche `pt2:data`). */
+  /** Alova success event: the paginated response is in `event.data` (see also `pt2:data`). */
   'pt2:loaded': [event: PachiTable2LoadedEvent<T>]
-  /** Risposta paginata pulita `{ items, total, page, pageSize }`. */
+  /** Clean paginated response `{ items, total, page, pageSize }`. */
   'pt2:data': [response: IPaginatedResponse<T>]
-  /** Errore nel caricamento della lista. */
+  /** Error loading the list. */
   'pt2:load-error': [error: unknown]
   'pt2:request': [filter: string]
   'pt2:record-created': [records: T[]]

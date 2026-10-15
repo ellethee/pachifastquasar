@@ -106,23 +106,23 @@ import type { IProfileEditErrors, ProfileFieldError } from '../helpers/profile-u
 import type { IPachiProfileUser } from '../types/profile'
 
 /**
- * Form di modifica del profilo (`PATCH {apiBase}/auth/user`): nome, cognome ed email. Per cambiare l'email serve
- * la password attuale. Invia solo i campi cambiati ed emette `updated` con l'utente restituito dal backend: l'app
- * deve aggiornare la propria copia (es. `authManager.refreshUserInfo()`).
+ * Profile edit form (`PATCH {apiBase}/auth/user`): first name, last name and email. Changing the email requires
+ * the current password. Sends only the changed fields and emits `updated` with the user returned by the backend: the app
+ * must update its own copy (e.g. `authManager.refreshUserInfo()`).
  */
 const props = withDefaults(defineProps<{
-  /** Utente corrente (valori iniziali del form). */
+  /** Current user (initial form values). */
   user: IPachiProfileUser
-  /** Base URL delle API (default `/api`). */
+  /** API base URL (default `/api`). */
   apiBase?: string
 }>(), {
   apiBase: DEFAULT_API_BASE,
 })
 
 const emit = defineEmits<{
-  /** Profilo salvato: `user` è la risposta del backend (o l'utente locale aggiornato se la risposta non è leggibile). */
+  /** Profile saved: `user` is the backend response (or the updated local user if the response is not readable). */
   (e: 'updated', user: IPachiProfileUser): void
-  /** Modifica annullata, o nulla da salvare. */
+  /** Edit cancelled, or nothing to save. */
   (e: 'cancel'): void
 }>()
 
@@ -141,10 +141,10 @@ const validation = computed<IProfileEditErrors>(() =>
 const formError = computed(() => serverErrors.value.form ?? '')
 
 /**
- * Messaggio di errore per un campo: validazione client (dopo il primo invio) o errore del server.
+ * Error message for a field: client validation (after the first submit) or server error.
  *
- * @param field - nome del campo
- * @returns testo, o stringa vuota
+ * @param field - field name
+ * @returns text, or empty string
  */
 function fieldError(field: keyof IProfileEditErrors): string {
   const key: ProfileFieldError | undefined = validation.value[field]
@@ -153,12 +153,12 @@ function fieldError(field: keyof IProfileEditErrors): string {
   return ''
 }
 
-// una modifica ai campi toglie gli errori del server
+// editing the fields clears the server errors
 watch([() => values.firstName, () => values.lastName, () => values.email, currentPassword], () => {
   serverErrors.value = {}
 })
 
-/** Valida e invia il `PATCH`. */
+/** Validates and sends the `PATCH`. */
 async function submit(): Promise<void> {
   if (busy.value || countdown.active.value) return
   submitted.value = true
@@ -179,7 +179,7 @@ async function submit(): Promise<void> {
   try {
     const res = await http.Patch<unknown>('/auth/user', body, FORM_REQUEST)
     currentPassword.value = ''
-    // risposta come `GET /auth/user`; se non leggibile si applicano i valori del form all'utente locale
+    // response shaped like `GET /auth/user`; if not readable, the form values are applied to the local user
     emit('updated', parseProfileUser(res) ?? { ...props.user, ...values, email: values.email.trim() })
   } catch (err) {
     const parsed = await parseApiError(err)

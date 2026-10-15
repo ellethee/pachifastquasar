@@ -1,32 +1,32 @@
 import { parseRetryAfter } from './retry-after'
 
-/** Singolo errore del backend (`detail[]`). */
+/** Single backend error (`detail[]`). */
 export interface IPachiApiErrorItem {
-  /** Codice stabile (es. `auth.password_too_short`), se presente. */
+  /** Stable code (e.g. `auth.password_too_short`), if present. */
   code?: string
-  /** Messaggio del backend (lingua del server). */
+  /** Backend message (server language). */
   msg?: string
-  /** Parametri per l'interpolazione (es. `{ min_length: 12 }`). */
+  /** Interpolation parameters (e.g. `{ min_length: 12 }`). */
   params?: Record<string, unknown>
-  /** Posizione dell'errore (es. `['body', 'password']`). */
+  /** Error location (e.g. `['body', 'password']`). */
   loc?: Array<string | number>
 }
 
-/** Errore HTTP normalizzato. */
+/** Normalized HTTP error. */
 export interface IPachiApiError {
-  /** Codice HTTP (0 se di rete / sconosciuto). */
+  /** HTTP status code (0 for network errors / unknown). */
   status: number
-  /** Voci di `detail` (vuoto se il corpo non è nel formato atteso). */
+  /** `detail` entries (empty if the body is not in the expected format). */
   items: IPachiApiErrorItem[]
-  /** Secondi di attesa dall'header `Retry-After` (solo se presente e valido, tipicamente su 429). */
+  /** Seconds to wait from the `Retry-After` header (only if present and valid, typically on 429). */
   retryAfter?: number
 }
 
 /**
- * Estrae le voci di errore da un corpo `{ detail: [...] }` (o `{ detail: "testo" }`).
+ * Extracts the error entries from a `{ detail: [...] }` body (or `{ detail: "text" }`).
  *
- * @param body - corpo JSON della risposta d'errore
- * @returns le voci riconosciute
+ * @param body - JSON body of the error response
+ * @returns the recognized entries
  */
 export function parseErrorBody(body: unknown): IPachiApiErrorItem[] {
   if (body === null || typeof body !== 'object') return []
@@ -48,12 +48,12 @@ export function parseErrorBody(body: unknown): IPachiApiErrorItem[] {
 }
 
 /**
- * Legge `Retry-After` da un errore del client: `response.headers` (`ResponseError` di `@ilpachi/use-alova`,
- * che conserva la `Response`) oppure `headers` (errore con header diretti). Header Headers/oggetto, nomi senza distinzione
- * di maiuscole.
+ * Reads `Retry-After` from a client error: `response.headers` (`ResponseError` of `@ilpachi/use-alova`,
+ * which keeps the `Response`) or `headers` (error with direct headers). Headers instance or plain object,
+ * case-insensitive names.
  *
- * @param err - valore lanciato dalla richiesta
- * @returns secondi di attesa, o `undefined` se l'header manca, non è valido o non è leggibile
+ * @param err - value thrown by the request
+ * @returns seconds to wait, or `undefined` if the header is missing, invalid or unreadable
  */
 export function readRetryAfter(err: object): number | undefined {
   const rec = err as { response?: { headers?: unknown }, headers?: unknown }
@@ -75,11 +75,11 @@ export function readRetryAfter(err: object): number | undefined {
 }
 
 /**
- * Normalizza un errore lanciato dal client HTTP: `ResponseError` di `@ilpachi/use-alova` (legge il corpo con
- * `safeResponseJson`), errore con `status` numerico e `body` o qualunque altro (status 0).
+ * Normalizes an error thrown by the HTTP client: `ResponseError` of `@ilpachi/use-alova` (reads the body with
+ * `safeResponseJson`), error with numeric `status` and `body`, or anything else (status 0).
  *
- * @param err - valore lanciato dalla richiesta
- * @returns errore normalizzato (mai lancia)
+ * @param err - value thrown by the request
+ * @returns normalized error (never throws)
  */
 export async function parseApiError(err: unknown): Promise<IPachiApiError> {
   if (err === null || typeof err !== 'object') return { status: 0, items: [] }
@@ -102,40 +102,40 @@ export async function parseApiError(err: unknown): Promise<IPachiApiError> {
 }
 
 /**
- * Primo errore con un `code`, se esiste.
+ * First error with a `code`, if any.
  *
- * @param error - errore normalizzato
- * @returns la voce con codice, altrimenti la prima voce, altrimenti `undefined`
+ * @param error - normalized error
+ * @returns the entry with a code, otherwise the first entry, otherwise `undefined`
  */
 export function primaryItem(error: IPachiApiError): IPachiApiErrorItem | undefined {
   return error.items.find((i) => i.code) ?? error.items[0]
 }
 
-/** Funzioni di traduzione necessarie a {@link resolveErrorMessage}. */
+/** Translation functions needed by {@link resolveErrorMessage}. */
 export interface IPachiErrorTranslator {
-  /** `true` se la chiave esiste (almeno in una lingua utile). */
+  /** `true` if the key exists (at least in one useful language). */
   te: (key: string) => boolean
-  /** Traduce la chiave con i parametri. */
+  /** Translates the key with the parameters. */
   t: (key: string, params?: Record<string, unknown>) => string
 }
 
 /**
- * Chiave del messaggio del package per un codice (`auth.password_incorrect` → `pachiProfile.security.codes.auth_password_incorrect`).
+ * Package message key for a code (`auth.password_incorrect` → `pachiProfile.security.codes.auth_password_incorrect`).
  *
- * @param code - codice del backend
- * @returns chiave i18n del package
+ * @param code - backend code
+ * @returns package i18n key
  */
 export function packageCodeKey(code: string): string {
   return `pachiProfile.security.codes.${code.replace(/[^A-Za-z0-9_]/g, '_')}`
 }
 
 /**
- * Messaggio da mostrare per un errore. Ordine: traduzione dell'app `errors.codes.<code>`, traduzione del
- * package per lo stesso codice, `msg` del backend, messaggio per stato (429 «troppi tentativi»), generico.
+ * Message to show for an error. Order: app translation `errors.codes.<code>`, package translation for the
+ * same code, backend `msg`, per-status message (429 "too many attempts"), generic.
  *
- * @param error - errore normalizzato
- * @param tr - funzioni di traduzione
- * @returns testo per l'utente
+ * @param error - normalized error
+ * @param tr - translation functions
+ * @returns text for the user
  */
 export function resolveErrorMessage(error: IPachiApiError, tr: IPachiErrorTranslator): string {
   const item = primaryItem(error)
