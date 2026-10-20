@@ -25,6 +25,8 @@ export const DEFAULT_PACHI_CONFIG: IAppConfig = {
     hoverEffectsEnabled: true
   },
   http: {
-    envelope: true
+    envelope: true,
+    errorDisplay: 'dialog',
+    toast: { position: 'top-right', timeout: 5000 }
   }
 }

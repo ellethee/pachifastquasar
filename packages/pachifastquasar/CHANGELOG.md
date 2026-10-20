@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `http.errorDisplay` (`'dialog'` default | `'toast'`) and `http.toast` (`position`, `timeout`; env `QCLI_HTTP_ERROR_DISPLAY`, `QCLI_HTTP_TOAST_POSITION`, `QCLI_HTTP_TOAST_TIMEOUT`): HTTP errors can be shown as configurable toasts.
+
+### Fixed
+
+- Dashboard: the card grid now has 3 / 2 / 1 columns by width (`minmax(0, 1fr)`); on a phone the cards were squeezed into a third of the width and cut.
+
 ## [0.1.4] - 2026-10-20
 
 ### Added

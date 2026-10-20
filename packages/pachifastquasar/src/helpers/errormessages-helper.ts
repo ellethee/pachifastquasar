@@ -1,5 +1,6 @@
 import type { ResponseError } from '@ilpachi/use-alova'
 import { getPachiI18n, pachiT } from '@ilpachi/pachi-i18n'
+import { getPachiConfig } from '../core/config'
 import { getPachiQuasar } from './quasar-instance'
 
 export interface ErrorResponse {
@@ -39,13 +40,14 @@ export function escapeHtml(text: string): string {
  */
 export const toastMessage = (_err: ResponseError, title: string, html: string) => {
   // the text comes from the server: escape here (the notification interprets HTML)
+  const toast = getPachiConfig().http.toast ?? {}
   getPachiQuasar().notify({
     type: 'negative',
     message: escapeHtml(title),
     caption: escapeHtml(html),
     html: true,
-    timeout: 5000,
-    position: 'top-right'
+    timeout: toast.timeout ?? 5000,
+    position: toast.position ?? 'top-right'
   })
   return Promise.resolve()
 }
@@ -135,5 +137,25 @@ export async function errorMessage(err: ResponseError) {
       ? escapeHtml(pachiT('errors.http.tooManyRequests'))
       : formatDetail(detail)
   const title = pachiT('errors.http.title', { status: err.status, statusText: err.statusText })
-  await boxMessage(err, title, messages)
+  if (getPachiConfig().http.errorDisplay === 'toast') {
+    await toastMessage(err, title, plainDetail(detail, err.status === 429 && !hasDetail))
+  } else {
+    await boxMessage(err, title, messages)
+  }
+}
+
+/**
+ * Plain-text version of the error `detail` for the toasts (no markup: the toast escapes it).
+ *
+ * @param detail - `detail` field of the response (any type)
+ * @param tooManyRequests - 429 without a usable detail
+ * @returns the message as one line of text
+ */
+export function plainDetail(detail: unknown, tooManyRequests = false): string {
+  if (tooManyRequests) return pachiT('errors.http.tooManyRequests')
+  if (Array.isArray(detail) && detail.length > 0) {
+    return (detail as Detail[]).map(item => translateDetail(item)).join(' · ')
+  }
+  if (typeof detail === 'string' && detail.trim()) return detail
+  return pachiT('errors.http.generic')
 }

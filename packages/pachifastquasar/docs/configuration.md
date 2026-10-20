@@ -72,6 +72,9 @@ enables it.
 | Key             | Environment variable | Default | Description                                                                                          |
 | --------------- | -------------------- | ------- | ---------------------------------------------------------------------------------------------------- |
 | `http.envelope` | `QCLI_HTTP_ENVELOPE` | `true`  | the backend wraps responses in `{ success, message, data }`; set `false` for a plain-body backend    |
+| `http.errorDisplay` | `QCLI_HTTP_ERROR_DISPLAY` | `dialog` | how HTTP errors are shown: modal `dialog`, or non-blocking `toast`                                  |
+| `http.toast.position` | `QCLI_HTTP_TOAST_POSITION` | `top-right` | toast position (`top-left`, `top`, `bottom-right`, `bottom`, `center`, ...)                     |
+| `http.toast.timeout` | `QCLI_HTTP_TOAST_TIMEOUT` | `5000` | milliseconds before the toast closes; `0` keeps it until dismissed                                |
 
 See [HTTP client](http-client.md) and [Backend contract](backend-contract.md).
 

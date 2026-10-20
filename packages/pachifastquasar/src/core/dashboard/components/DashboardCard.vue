@@ -128,6 +128,7 @@ onMounted(() => {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  min-width: 0;
   min-height: 230px;
   transition:
     border-color 0.15s,

@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test'
 import type { Page } from '@playwright/test'
-import { LABELS } from './helpers/ui'
+import { USERS } from './helpers/backend'
+import { LABELS, loginUi } from './helpers/ui'
 
 /**
  * Asserts the page has no horizontal scroll and that the logo image is rendered with a real size.
@@ -45,6 +46,28 @@ test.describe('Login layout', () => {
         await page.getByLabel(LABELS.themeToggle).click()
         await expectLoginFits(page)
       })
+    }
+  })
+})
+
+test.describe('Dashboard at 375px', () => {
+  test.use({ viewport: { width: 375, height: 812 }, isMobile: true, hasTouch: true })
+
+  test('cards are fully inside the viewport and the page does not scroll sideways', async ({ page }) => {
+    await loginUi(page, USERS.admin, '/')
+    const cards = page.locator('.pachi-dashboard-card')
+    await expect(cards.first()).toBeVisible()
+    expect(await cards.count()).toBeGreaterThan(1)
+    const { scrollW, clientW } = await page.evaluate(() => ({
+      scrollW: document.documentElement.scrollWidth,
+      clientW: document.documentElement.clientWidth,
+    }))
+    expect(scrollW, 'horizontal scroll').toBeLessThanOrEqual(clientW)
+    for (const box of await cards.evaluateAll((els) => els.map((e) => e.getBoundingClientRect().toJSON()))) {
+      expect(box.x).toBeGreaterThanOrEqual(0)
+      expect(box.x + box.width).toBeLessThanOrEqual(clientW)
+      // one column on a phone: a card squeezed into a third of the width cuts its text
+      expect(box.width).toBeGreaterThanOrEqual(280)
     }
   })
 })

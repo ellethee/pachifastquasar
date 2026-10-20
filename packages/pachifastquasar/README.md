@@ -180,6 +180,9 @@ missing variables leave it untouched. Boolean variables with a `true` default ar
 | `QCLI_APP_HOVER_EFFECTS` (`VITE_APP_HOVER_EFFECTS`)   | `app.hoverEffectsEnabled` | `true`                | `false` disables hover animations                                       |
 | `QCLI_APP_GRAVATAR`             | `app.gravatar`                 | `false`                  | `true`: opt in to Gravatar (sends a SHA-256 hash of the email to a third party); otherwise avatars show initials only |
 | `QCLI_HTTP_ENVELOPE`            | `http.envelope`                | `true`                   | `false` for backends with `PACHIFAST_ENVELOPE_ENABLED=false`             |
+| `QCLI_HTTP_ERROR_DISPLAY`       | `http.errorDisplay`            | `dialog`                 | `toast` shows HTTP errors as non-blocking toasts instead of a dialog     |
+| `QCLI_HTTP_TOAST_POSITION`      | `http.toast.position`          | `top-right`              | toast position (`bottom`, `top-left`, ...)                               |
+| `QCLI_HTTP_TOAST_TIMEOUT`       | `http.toast.timeout`           | `5000`                   | milliseconds; `0` = until dismissed                                      |
 | `QCLI_PROXY_TARGET`             | (preset option `proxyTarget`)  | `http://localhost:8000`  | target of the dev-server `/api` proxy (WebSocket included)               |
 
 Keys without an environment variable (`logo`, `components.layout|loginPage|errorPage`, `menuItems`,

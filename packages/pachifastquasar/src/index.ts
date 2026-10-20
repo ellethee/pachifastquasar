@@ -27,10 +27,12 @@ export type {
   IAuthConfig,
   IHttpConfig,
   IPachiComponents,
+  IPachiToastConfig,
   PachiConfigInput,
   PachiEnv,
   PachiLogo as PachiLogoValue,
-  PachiRefreshMode
+  PachiRefreshMode,
+  PachiToastPosition
 } from './core/config'
 
 // ── Router ───────────────────────────────────────────────────────────────────

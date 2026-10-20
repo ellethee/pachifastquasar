@@ -145,3 +145,20 @@ describe('auth.refreshMode', () => {
     warn.mockRestore()
   })
 })
+
+describe('http error display and toast', () => {
+  it('defaults: dialog, top-right, 5 s', () => {
+    const http = resolvePachiConfig({}).http
+    expect(http.errorDisplay).toBe('dialog')
+    expect(http.toast).toEqual({ position: 'top-right', timeout: 5000 })
+  })
+  it('the env sets display, position and timeout; invalid values are ignored', () => {
+    const cfg = pachiConfigFromEnv({
+      QCLI_HTTP_ERROR_DISPLAY: 'toast',
+      QCLI_HTTP_TOAST_POSITION: 'bottom',
+      QCLI_HTTP_TOAST_TIMEOUT: '0'
+    })
+    expect(cfg.http).toEqual({ errorDisplay: 'toast', toast: { position: 'bottom', timeout: 0 } })
+    expect(pachiConfigFromEnv({ QCLI_HTTP_ERROR_DISPLAY: 'nope', QCLI_HTTP_TOAST_TIMEOUT: 'x' }).http).toBeUndefined()
+  })
+})

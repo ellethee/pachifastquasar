@@ -276,17 +276,36 @@ $height: calc(100vh - 48px - var(--pachi-appbar-height, 52px));
     color: var(--pachi-muted);
   }
 
+  // default columns follow the width (3 / 2 / 1); `dashboardColumns` (--pachi-hub-columns) overrides them.
+  // `minmax(0, 1fr)` lets the cards shrink below their content instead of being cut on small screens
   &__grid {
+    --pachi-hub-default-columns: repeat(3, minmax(0, 1fr));
     display: grid;
-    grid-template-columns: var(--pachi-hub-columns, repeat(3, 1fr));
+    grid-template-columns: var(--pachi-hub-columns, var(--pachi-hub-default-columns));
     gap: 14px;
   }
 
   &__widgets {
     display: grid;
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
     gap: 14px;
     margin-top: 14px;
+  }
+
+  @media (max-width: 1023px) {
+    &__grid {
+      --pachi-hub-default-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 599px) {
+    &__grid {
+      --pachi-hub-default-columns: minmax(0, 1fr);
+    }
+
+    &__widgets {
+      grid-template-columns: minmax(0, 1fr);
+    }
   }
 
   &__widget--full {

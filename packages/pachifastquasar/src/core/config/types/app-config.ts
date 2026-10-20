@@ -65,6 +65,33 @@ export interface IHttpConfig {
    * only `data`. Set to `false` if the backend has `PACHIFAST_ENVELOPE_ENABLED=false` (plain body).
    */
   envelope: boolean
+  /**
+   * How HTTP errors are shown: a modal `dialog` (default) or a non-blocking `toast`
+   * (see {@link IPachiToastConfig}).
+   */
+  errorDisplay?: 'dialog' | 'toast'
+  /** Position and duration of the error toasts (`errorDisplay: 'toast'`). */
+  toast?: IPachiToastConfig
+}
+
+/** Screen corner or edge where the toasts appear. */
+export type PachiToastPosition =
+  | 'top-left'
+  | 'top-right'
+  | 'bottom-left'
+  | 'bottom-right'
+  | 'top'
+  | 'bottom'
+  | 'left'
+  | 'right'
+  | 'center'
+
+/** Error toast settings. */
+export interface IPachiToastConfig {
+  /** Default `'top-right'`. */
+  position?: PachiToastPosition
+  /** Milliseconds before it closes (default `5000`; `0` = stays until dismissed). */
+  timeout?: number
 }
 
 /** App logo: SVG path (e.g. mdi icon), `img:<url>` or a Vue component. */

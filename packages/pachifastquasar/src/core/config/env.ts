@@ -1,5 +1,10 @@
 import { resolveTitleAnimation } from '../dashboard/helpers/title-animation'
-import type { PachiConfigInput, PachiEnv, PachiRefreshMode } from './types/app-config'
+import type {
+  PachiConfigInput,
+  PachiEnv,
+  PachiRefreshMode,
+  PachiToastPosition
+} from './types/app-config'
 
 /** Value of a variable if set and non-empty (the first available among the aliases), otherwise `undefined`. */
 function pick(...values: unknown[]): string | undefined {
@@ -45,7 +50,8 @@ function compact<T extends Record<string, unknown>>(value: T): T {
  * `QCLI_AUTH_MENU_PROFILE|SETTINGS|HOME`,
  * `QCLI_APP_TITLE`, `QCLI_APP_DESCRIPTION`, `QCLI_APP_SHOW_LOGO`, `QCLI_APP_LOGO_SIZE`, `QCLI_APP_LOGO_OVERLAP`, `QCLI_APP_LOCALE`, `QCLI_APP_AUTO_DASHBOARD`,
  * `QCLI_APP_SHOW_LOCALE_SWITCHER`, `QCLI_APP_HIDE_HUB_HEADER`, `QCLI_APP_DASHBOARD_MAX_WIDTH`, `QCLI_APP_DASHBOARD_COLUMNS`, `QCLI_APP_TITLE_ANIMATION`, `QCLI_APP_GRAVATAR`, `QCLI_APP_HOVER_EFFECTS`,
- * `QCLI_HTTP_ENVELOPE` (`false` = the backend does not use the envelope `{ success, message, data }`)
+ * `QCLI_HTTP_ENVELOPE` (`false` = the backend does not use the envelope `{ success, message, data }`),
+ * `QCLI_HTTP_ERROR_DISPLAY` (`dialog`|`toast`), `QCLI_HTTP_TOAST_POSITION` (e.g. `bottom`), `QCLI_HTTP_TOAST_TIMEOUT` (ms, `0` = sticky)
  * (and the equivalents `VITE_AUTH_ENABLED`, `VITE_AUTH_MENU_*`, `VITE_APP_HOVER_EFFECTS`).
  *
  * @param env - typically `import.meta.env`
@@ -54,6 +60,9 @@ function compact<T extends Record<string, unknown>>(value: T): T {
 export function pachiConfigFromEnv(env: PachiEnv): PachiConfigInput {
   const storage = pick(env.QCLI_AUTH_STORAGE)
   const hideHubHeader = pick(env.QCLI_APP_HIDE_HUB_HEADER)
+  const errorDisplay = pick(env.QCLI_HTTP_ERROR_DISPLAY)
+  const toastPosition = pick(env.QCLI_HTTP_TOAST_POSITION)
+  const toastTimeout = Number(pick(env.QCLI_HTTP_TOAST_TIMEOUT) ?? NaN)
   return compact({
     auth: {
       enabled: flag(env.QCLI_AUTH_ENABLED, env.VITE_AUTH_ENABLED),
@@ -83,7 +92,12 @@ export function pachiConfigFromEnv(env: PachiEnv): PachiConfigInput {
       hoverEffectsEnabled: flag(env.QCLI_APP_HOVER_EFFECTS, env.VITE_APP_HOVER_EFFECTS)
     },
     http: {
-      envelope: flag(env.QCLI_HTTP_ENVELOPE)
+      envelope: flag(env.QCLI_HTTP_ENVELOPE),
+      errorDisplay: errorDisplay === 'dialog' || errorDisplay === 'toast' ? errorDisplay : undefined,
+      toast: {
+        position: toastPosition as PachiToastPosition | undefined,
+        timeout: Number.isFinite(toastTimeout) ? toastTimeout : undefined
+      }
     }
   }) as PachiConfigInput
 }
