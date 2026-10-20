@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.4] - 2026-10-20
+
 ### Added
 
 - `auth.refreshMode` (`QCLI_AUTH_REFRESH_MODE`): opt-in `'cookie'` mode where the refresh token is an HttpOnly cookie managed by the pachifast backend (`auth.refresh_mode` `cookie`/`both`). Login and MFA verify use `credentials: 'include'`, `/refresh-token` and `/logout` send the body `{}` and the `X-Pachi-Auth: refresh` header (`PACHI_AUTH_REFRESH_HEADER`), nothing is persisted (access token and user in memory), the guard always tries a silent refresh on load, tabs coordinate with the Web Lock `pachi-auth-refresh` and the BroadcastChannel `pachi-auth` (no tokens on it). The default `'body'` mode is unchanged.
@@ -44,7 +46,8 @@ Initial public release. Vue 3 / Quasar application shell for pachifast backends.
 - HTTP client on `@ilpachi/use-alova`, wired to authentication, spinner and error messages.
 - Runtime configuration through `QCLI_*` environment variables or code, and the Quasar preset `definePachiQuasarConfig`.
 
-[Unreleased]: https://github.com/ellethee/pachifastquasar/compare/pachifastquasar@0.1.3...HEAD
+[Unreleased]: https://github.com/ellethee/pachifastquasar/compare/pachifastquasar@0.1.4...HEAD
+[0.1.4]: https://github.com/ellethee/pachifastquasar/compare/pachifastquasar@0.1.3...pachifastquasar@0.1.4
 [0.1.3]: https://github.com/ellethee/pachifastquasar/compare/pachifastquasar@0.1.2...pachifastquasar@0.1.3
 [0.1.2]: https://github.com/ellethee/pachifastquasar/compare/pachifastquasar@0.1.1...pachifastquasar@0.1.2
 [0.1.1]: https://github.com/ellethee/pachifastquasar/compare/pachifastquasar@0.1.0...pachifastquasar@0.1.1
