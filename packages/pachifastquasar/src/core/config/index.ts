@@ -3,6 +3,7 @@ export { pachiConfigFromEnv } from './env'
 export {
   definePachiConfig,
   getPachiConfig,
+  isCookieRefreshMode,
   mergePachiConfig,
   resolvePachiConfig,
   setPachiConfig

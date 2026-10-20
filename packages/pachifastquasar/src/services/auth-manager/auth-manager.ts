@@ -6,6 +6,14 @@ import type { Router, RouteMeta } from 'vue-router'
 import { safeNextPath } from '../../helpers/next-path'
 import { decodeJwtExpiry } from '../../helpers/jwt-helper'
 import { notifyPachiAuthChanged } from '../../helpers/auth-events'
+import { isCookieRefreshMode } from '../../core/config'
+import {
+  openAuthChannel,
+  PACHI_AUTH_REFRESH_HEADER,
+  PACHI_AUTH_REFRESH_HEADER_VALUE,
+  withRefreshLock
+} from './cookie-session'
+import type { PachiAuthTabMessage } from './cookie-session'
 import type {
   IEngineInfo,
   IMfaRequiredResponse,
@@ -90,6 +98,29 @@ export async function getErrorCode(error: unknown): Promise<string | undefined> 
 /** Codes of `/mfa/verify` after which the ongoing challenge is no longer usable (restart from login). */
 const MFA_DEAD_CODES = new Set(['mfa.token_invalid', 'mfa.challenge_not_found', 'mfa.not_configured'])
 
+/** Cookie mode: a refresh done less than this many ms ago (with a valid access token) is reused. */
+const REFRESH_DEDUPE_MS = 5_000
+/** Cookie mode: wait before retrying a 401 of `/refresh-token` (rotation race with another tab). */
+const REFRESH_RACE_RETRY_MS = 300
+
+/** Request options of `/refresh-token` and `/logout` in cookie mode (cookie sent, CSRF header). */
+function cookieAuthRequest() {
+  return {
+    autoError: false,
+    showOverlay: false,
+    credentials: 'include' as const,
+    headers: {
+      'Content-Type': 'application/json',
+      [PACHI_AUTH_REFRESH_HEADER]: PACHI_AUTH_REFRESH_HEADER_VALUE
+    }
+  }
+}
+
+/** HTTP status of a client error, if any. */
+function statusOf(error: unknown): number | undefined {
+  return (error as { status?: number } | null)?.status
+}
+
 export class AuthManager {
   private static instance: AuthManager
   private static _router: Router | null = null
@@ -105,14 +136,60 @@ export class AuthManager {
   private _renewFailures = 0
   /** Token of the ongoing MFA challenge: in memory ONLY (never in storage, never logged). */
   private _mfaToken: string | null = null
+  /** Cookie mode: a session was established (login or refresh succeeded) and not logged out. */
+  private _sessionActive = false
+  /** Bumped at every logout: a refresh started before it must not reinstall the session. */
+  private _epoch = 0
+  /** Cookie mode: time (epoch ms) of the last successful refresh of this tab. */
+  private _lastRefreshAt = 0
+  /** Cookie mode: channel to the other tabs (`null` without BroadcastChannel). */
+  private _channel: BroadcastChannel | null = null
 
   private constructor() {
     this.store = useAuthStore()
     this.api = withFiles(getUseAlovaInstance()({ url: '/api/auth' }))
     AuthManager.instance = this
-    // with multiple tabs (localStorage) a logout done in another tab arrives here as a `storage` event
     if (typeof window !== 'undefined') {
-      window.addEventListener('storage', (event) => this._handleStorage(event.key, event.newValue))
+      if (isCookieRefreshMode()) {
+        // nothing is persisted: the tabs talk through a BroadcastChannel (no tokens on it)
+        this._channel = openAuthChannel(message => this._handleTabMessage(message))
+      } else {
+        // multiple tabs (localStorage): a logout in another tab arrives as a `storage` event
+        window.addEventListener('storage', event => this._handleStorage(event.key, event.newValue))
+      }
+    }
+  }
+
+  /** True if a refresh can renew the session (body mode: a refresh token is present). */
+  private _canRefresh(): boolean {
+    return isCookieRefreshMode() ? this._sessionActive : !!this.refreshToken
+  }
+
+  /** Sends a message to the other tabs (cookie mode only). */
+  private _broadcast(message: PachiAuthTabMessage): void {
+    try {
+      this._channel?.postMessage(message)
+    } catch {
+      /* channel closed */
+    }
+  }
+
+  /**
+   * Message of another tab (cookie mode): `logout` = local logout without requests, `login` = a
+   * tab without a session tries a silent refresh (the cookie is shared), `refreshed` = informative.
+   */
+  private _handleTabMessage(message: PachiAuthTabMessage): void {
+    if (message.type === 'logout') {
+      if (this.accessToken || this._sessionActive) void this._logout(false, false)
+      return
+    }
+    if (message.type === 'login' && !this.accessToken && !this._loggingOut) {
+      void this.tryRestoreSession().then(ok => {
+        const router = AuthManager._router
+        if (ok && router?.currentRoute.value.meta?.noAuth) {
+          void router.push(this.getPostLoginLandingPath())
+        }
+      })
     }
   }
 
@@ -155,9 +232,11 @@ export class AuthManager {
 
   /** Retry of the scheduled refresh (max 2 times at 15s) and then logout. */
   private _onRenewFailed(error?: unknown) {
-    if (!this.refreshToken) return
-    // refresh token rejected (revoked, expired, already used): pointless to retry
-    if ((error as { status?: number } | null)?.status === 401) {
+    if (!this._canRefresh()) return
+    const status = statusOf(error)
+    // refresh token rejected (revoked, expired, already used; cookie mode: also 403
+    // `auth.csrf_rejected`, a configuration error that a retry cannot fix): pointless to retry
+    if (status === 401 || (status === 403 && isCookieRefreshMode())) {
       this._renewFailures = 0
       void this.logout(false)
       return
@@ -274,7 +353,10 @@ export class AuthManager {
       const raw = await this.api.$form<unknown>(
         '/token',
         { username, password, scope: '', grant_type: 'password' },
-        { meta: { autoError: false } }
+        // cookie mode: the response sets the HttpOnly refresh cookie
+        isCookieRefreshMode()
+          ? { meta: { autoError: false }, credentials: 'include' }
+          : { meta: { autoError: false } }
       )
       const response = unwrapAuthResponse<ITokenResponse | IMfaRequiredResponse>(raw)
       if (isMfaRequired(response)) {
@@ -308,7 +390,9 @@ export class AuthManager {
       const raw = await mfa.Post<unknown>(
         '/verify',
         { mfa_token: mfaToken, code: code.trim() },
-        { autoError: false, showOverlay: false }
+        isCookieRefreshMode()
+          ? { autoError: false, showOverlay: false, credentials: 'include' }
+          : { autoError: false, showOverlay: false }
       )
       tokens = unwrapAuthResponse<ITokenResponse>(raw)
     } catch (error: unknown) {
@@ -324,10 +408,13 @@ export class AuthManager {
   /** Completes the login: saves the tokens, loads the user, opens the events, schedules the renewal and navigates. */
   private async _completeLogin(tokens: ITokenResponse): Promise<void> {
     this.store.setAllTokens(tokens)
+    this._sessionActive = true
+    this._lastRefreshAt = Date.now()
     this.userInfo = await this.getUserInfo()
     this._renewFailures = 0
     this._connectEvents()
     this._scheduleRenew()
+    this._broadcast({ type: 'login' })
     await AuthManager._router?.push(this.getPostLoginLandingPath())
   }
 
@@ -340,20 +427,33 @@ export class AuthManager {
    *   already revokes everything): skips the backend call
    */
   public logout(notify = true): Promise<void> {
-    this._loggingOut ??= this._doLogout(notify).finally(() => {
+    return this._logout(notify, true)
+  }
+
+  /**
+   * @param notify - see {@link logout}
+   * @param broadcast - cookie mode: tell the other tabs (false when the logout comes from them)
+   */
+  private _logout(notify: boolean, broadcast: boolean): Promise<void> {
+    this._loggingOut ??= this._doLogout(notify, broadcast).finally(() => {
       this._loggingOut = null
     })
     return this._loggingOut
   }
 
-  private async _doLogout(notify: boolean): Promise<void> {
+  private async _doLogout(notify: boolean, broadcast: boolean): Promise<void> {
+    this._epoch++
     if (notify && this.accessToken) {
-      // with the refresh token only this session is revoked; an older backend ignores the body
+      // cookie mode: the backend revokes the session of the cookie and clears it (body `{}`);
+      // body mode: with the refresh token only this login is revoked (older backends ignore it)
       const body = this.refreshToken ? { refresh_token: this.refreshToken } : undefined
-      await this.api.alova
-        .Post('/logout', body, { autoError: false, showOverlay: false })
-        .catch(() => undefined)
+      const request = isCookieRefreshMode()
+        ? this.api.alova.Post('/logout', {}, cookieAuthRequest())
+        : this.api.alova.Post('/logout', body, { autoError: false, showOverlay: false })
+      await request.catch(() => undefined)
     }
+    this._sessionActive = false
+    this._lastRefreshAt = 0
     this._sessionRefreshed = false
     this._renewFailures = 0
     this._mfaToken = null
@@ -371,6 +471,7 @@ export class AuthManager {
     this.store.clearAllTokens()
     this.store.userInfo = null
     notifyPachiAuthChanged(null)
+    if (broadcast) this._broadcast({ type: 'logout' })
     await AuthManager._router?.push('/auth/login')
   }
   public static setRouter(router: Router): void {
@@ -465,7 +566,68 @@ export class AuthManager {
     return false
   }
 
+  /**
+   * Cookie mode refresh: `POST /refresh-token` with the HttpOnly cookie, body `{}` and the
+   * `X-Pachi-Auth` header, inside the cross-tab lock (the cookie is single-use: two tabs must not
+   * rotate it together). A refresh of this tab done moments ago is reused.
+   */
+  private async _doCookieRefresh(): Promise<void> {
+    const epoch = this._epoch
+    const response = await withRefreshLock(async () => {
+      const fresh = (this.store.expires_at ?? 0) - Date.now() > 60_000
+      if (this.accessToken && fresh && Date.now() - this._lastRefreshAt < REFRESH_DEDUPE_MS) {
+        return null
+      }
+      return await this._postCookieRefresh()
+    })
+    // nothing to do, or logout happened while the refresh was in flight
+    if (!response || epoch !== this._epoch) return
+    this.store.access_token = response.access_token
+    this.store.token_type = response.token_type
+    this.store.expires_at = decodeJwtExpiry(response.access_token)
+    this._sessionActive = true
+    this._lastRefreshAt = Date.now()
+    this._renewFailures = 0
+    this.userInfo = await this.getUserInfo()
+    this._connectEvents()
+    this._scheduleRenew(true)
+    this._broadcast({ type: 'refreshed', expires_at: this.store.expires_at })
+  }
+
+  /**
+   * The cookie `POST /refresh-token`. A 401 is retried once after a short pause: if another tab
+   * (or browser without Web Locks) rotated the single-use cookie at the same moment, the backend
+   * grace window lets the retry with the new cookie succeed. 403 `auth.csrf_rejected` is a
+   * configuration error: logged, never retried.
+   *
+   * @param retried - true on the second attempt
+   * @returns the new access token
+   */
+  private async _postCookieRefresh(retried = false): Promise<ITokenResponse> {
+    try {
+      const raw = await this.api.alova.Post<unknown>('/refresh-token', {}, cookieAuthRequest())
+      return unwrapAuthResponse<ITokenResponse>(raw)
+    } catch (error: unknown) {
+      const status = statusOf(error)
+      if (status === 403 && (await getErrorCode(error)) === 'auth.csrf_rejected') {
+        console.error(
+          '[pachi] /refresh-token rejected as CSRF (auth.csrf_rejected): the ' +
+            `${PACHI_AUTH_REFRESH_HEADER} header must reach the backend and the request Origin` +
+            ' must match the backend host' +
+            ' (serve the API from the same origin, e.g. through a proxy)'
+        )
+        throw error
+      }
+      if (status === 401 && !retried) {
+        await new Promise(resolve => setTimeout(resolve, REFRESH_RACE_RETRY_MS))
+        return await this._postCookieRefresh(true)
+      }
+      throw error
+    }
+  }
+
   private async _doRefresh(): Promise<void> {
+    if (isCookieRefreshMode()) return await this._doCookieRefresh()
     if (!this.refreshToken) {
       console.warn('No refresh token available')
       await this.logout()
@@ -516,11 +678,13 @@ export class AuthManager {
       }
       return true
     }
-    if (!this.refreshToken) return false
+    // cookie mode: the refresh cookie is invisible to the client, so the refresh is always tried
+    if (!isCookieRefreshMode() && !this.refreshToken) return false
     try {
       await this.requestRefreshToken()
       return this.isAuthenticated
     } catch {
+      this._sessionActive = false
       this.store.clearAllTokens()
       notifyPachiAuthChanged(null)
       return false
@@ -574,8 +738,8 @@ export class AuthManager {
         // wrong credentials/code at login (even with an old token in the store): normal error
         if (method.url.endsWith('/token') || method.url.endsWith('/mfa/verify')) return undefined
         const authManager = AuthManager.getInstance()
-        // already retried (second 401) or no refresh token: session over
-        if (retried || !authManager.refreshToken) {
+        // already retried (second 401) or nothing to refresh with: session over
+        if (retried || !authManager._canRefresh()) {
           await authManager.logout(false)
           throw error
         }

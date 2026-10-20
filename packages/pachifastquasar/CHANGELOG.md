@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `auth.refreshMode` (`QCLI_AUTH_REFRESH_MODE`): opt-in `'cookie'` mode where the refresh token is an HttpOnly cookie managed by the pachifast backend (`auth.refresh_mode` `cookie`/`both`). Login and MFA verify use `credentials: 'include'`, `/refresh-token` and `/logout` send the body `{}` and the `X-Pachi-Auth: refresh` header (`PACHI_AUTH_REFRESH_HEADER`), nothing is persisted (access token and user in memory), the guard always tries a silent refresh on load, tabs coordinate with the Web Lock `pachi-auth-refresh` and the BroadcastChannel `pachi-auth` (no tokens on it). The default `'body'` mode is unchanged.
+
 ## [0.1.3] - 2026-10-14
 
 ### Changed

@@ -42,6 +42,7 @@ enables it.
 | ------------------------- | --------------------------------------------------- | ------- | ------------------------------------------------------------------------------------ |
 | `auth.enabled`            | `QCLI_AUTH_ENABLED` or `VITE_AUTH_ENABLED`          | `true`  | `false`: no login page, no guard, everything is public                               |
 | `auth.storage`            | `QCLI_AUTH_STORAGE` (`local` or `session`)          | `local` | where tokens and user data are persisted; other values are ignored                   |
+| `auth.refreshMode`        | `QCLI_AUTH_REFRESH_MODE` (`body` or `cookie`)       | `body`  | `cookie`: refresh token in an HttpOnly cookie, nothing persisted (see [Security](security.md#refresh-token-in-an-httponly-cookie)); invalid values: `body` + console warning |
 | `auth.menu.showProfile`   | `QCLI_AUTH_MENU_PROFILE` or `VITE_AUTH_MENU_PROFILE` | `true`  | show Profile in the account menu (when a package or the app provides the route)      |
 | `auth.menu.showSettings`  | `QCLI_AUTH_MENU_SETTINGS` or `VITE_AUTH_MENU_SETTINGS` | `true` | show Settings                                                                        |
 | `auth.menu.showHome`      | `QCLI_AUTH_MENU_HOME` or `VITE_AUTH_MENU_HOME`      | `true`  | show Home                                                                            |

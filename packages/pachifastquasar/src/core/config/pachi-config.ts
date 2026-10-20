@@ -28,10 +28,25 @@ function merge<T extends Record<string, unknown>>(base: T, extra: Record<string,
  * @returns complete configuration
  */
 export function resolvePachiConfig(input: PachiConfigInput = {}): IAppConfig {
-  return merge(
+  const config = merge(
     DEFAULT_PACHI_CONFIG as unknown as Record<string, unknown>,
     input as Record<string, unknown>
   ) as unknown as IAppConfig
+  const mode = config.auth.refreshMode
+  if (mode !== 'body' && mode !== 'cookie') {
+    console.warn(`[pachi] invalid auth.refreshMode ${JSON.stringify(mode)}: using 'body'`)
+    config.auth = { ...config.auth, refreshMode: 'body' }
+  }
+  return config
+}
+
+/**
+ * True when the refresh token travels in an HttpOnly cookie (`auth.refreshMode: 'cookie'`).
+ *
+ * @returns whether the current configuration uses the cookie refresh mode
+ */
+export function isCookieRefreshMode(): boolean {
+  return current.auth.refreshMode === 'cookie'
 }
 
 /**

@@ -11,7 +11,8 @@ It contains the access token, the token type, its expiry, the **refresh token** 
 - The storage is `localStorage` by default; `QCLI_AUTH_STORAGE=session` (`auth.storage: 'session'`) uses `sessionStorage`, so the
   session ends with the tab. The choice is read lazily at run time.
 - Both are readable by any script running on the same origin: **an XSS flaw exposes the tokens**. The mitigation is a strict CSP
-  (below), no third-party scripts, and the shortest backend token lifetimes you can accept. HttpOnly cookies are not used.
+  (below), no third-party scripts, and the shortest backend token lifetimes you can accept. To keep the refresh token out of
+  reach of scripts, opt in to the cookie mode (see [Refresh token in an HttpOnly cookie](#refresh-token-in-an-httponly-cookie)).
 - With `localStorage` the session is shared between tabs: a logout in one tab (a `storage` event) logs out the others.
 - The MFA challenge token (between password and code) is kept in memory only and never written to storage or logged.
 - `Authorization` is attached only to requests to the app origin or to relative URLs, never to other hosts; the login `?next=`
@@ -27,6 +28,49 @@ It contains the access token, the token type, its expiry, the **refresh token** 
   logging out.
 - `logout` sends `POST /logout` with the refresh token so the backend revokes that login; it is best effort, and issued JWTs stay valid
   until they expire.
+
+## Refresh token in an HttpOnly cookie
+
+`auth.refreshMode: 'cookie'` (`QCLI_AUTH_REFRESH_MODE=cookie`) is an opt-in alternative to the default `body` mode. It needs a
+pachifast backend with `auth.refresh_mode` set to `cookie` or `both`.
+
+**How it works.** `/token` and `/mfa/verify` are sent with `credentials: 'include'`; the backend answers
+`{ access_token, token_type }` and sets the refresh token as an `HttpOnly` cookie (a `refresh_token` in the JSON, as with
+`both`, is ignored). `POST /refresh-token` and `POST /logout` are sent with the cookie, the body `{}` and the header
+`X-Pachi-Auth: refresh` (exported as `PACHI_AUTH_REFRESH_HEADER`). Nothing is persisted: access token, expiry and user info live
+in memory only, so every page load starts with a silent refresh. The WebSocket keeps using the single-use ticket.
+
+**Threat model.**
+
+- *Protected:* the refresh token, the long-lived secret, can no longer be read by an XSS payload, a malicious dependency or a
+  browser extension reading web storage, and it does not survive in a storage dump after logout.
+- *Not protected:* a script running in the page can still use the in-memory access token and call the API **while the page is
+  open** (as the user). It cannot take the session away, but it can act during it: CSP and dependency hygiene stay mandatory.
+- *CSRF:* a cookie is sent by the browser automatically, so the two cookie endpoints require the custom `X-Pachi-Auth` header (a
+  cross-site form cannot set it; the backend answers `403 auth.csrf_rejected` without it) and, when the request has an `Origin`,
+  it must match the backend host. The shell logs `auth.csrf_rejected` with `console.error` and does not retry it: it means
+  the proxy strips the header or the app and the API are on different origins.
+
+**Deployment requirements.**
+
+- `Secure` cookie: serve over **https**. Browsers accept `Secure` cookies on `http://localhost` only, so local development works
+  with `localhost` (not with a LAN IP over http).
+- `SameSite=Strict` (or `Lax`) and a narrow `Path` (for example `/api/auth`) on the cookie: it then travels only to the auth
+  endpoints and never on cross-site requests. These attributes are set by the backend.
+- Use a **same-origin proxy**: the app and `/api` on the same host (the `definePachiQuasarConfig` dev proxy, or the reverse
+  proxy in production). Then `SameSite=Strict` works, no CORS is involved and the `Origin` check passes. The proxy must forward
+  the `X-Pachi-Auth` header and the `Host` the backend compares `Origin` with.
+- A cross-origin API is not the intended setup: pachifast rejects a cookie request whose `Origin` differs from its own host. A
+  backend that accepts it would need CORS with credentials (`Access-Control-Allow-Credentials: true`, an explicit
+  `Access-Control-Allow-Origin`, never `*`, and `X-Pachi-Auth` in `Access-Control-Allow-Headers`) and a
+  `SameSite=None; Secure` cookie, which leaves the CSRF protection to the header alone.
+
+**Several tabs.** Every refresh runs inside the Web Lock `pachi-auth-refresh` (`navigator.locks`; without it the refresh runs
+directly), so two tabs never rotate the single-use cookie at the same time. A `401` of `/refresh-token` is retried once after
+300 ms (the backend keeps a short grace window for a tab that lost a rotation race) before the session is considered over. The
+tabs talk over the BroadcastChannel `pachi-auth` with messages that never carry a token: `{ type: 'login' }` (tabs without a
+session try a silent refresh), `{ type: 'refreshed', expires_at }` and `{ type: 'logout' }` (the other tabs log out locally,
+without a request). Without BroadcastChannel each tab finds out at its next refresh.
 
 ## Content Security Policy
 

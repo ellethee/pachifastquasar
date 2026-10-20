@@ -161,6 +161,7 @@ missing variables leave it untouched. Boolean variables with a `true` default ar
 | ------------------------------- | ------------------------------ | ------------------------ | ------------------------------------------------------------------------ |
 | `QCLI_AUTH_ENABLED` (`VITE_AUTH_ENABLED`)       | `auth.enabled`           | `true`                   | `false` removes the login page and the navigation guard |
 | `QCLI_AUTH_STORAGE`             | `auth.storage`                 | `local`                  | `session` keeps tokens in `sessionStorage` instead of `localStorage`     |
+| `QCLI_AUTH_REFRESH_MODE`        | `auth.refreshMode`             | `body`                   | `cookie`: refresh token in an HttpOnly cookie, nothing persisted         |
 | `QCLI_AUTH_MENU_PROFILE` (`VITE_AUTH_MENU_PROFILE`)   | `auth.menu.showProfile`  | `true`                   | show the Profile entry in the account menu                              |
 | `QCLI_AUTH_MENU_SETTINGS` (`VITE_AUTH_MENU_SETTINGS`) | `auth.menu.showSettings` | `true`                   | show the Settings entry                                                 |
 | `QCLI_AUTH_MENU_HOME` (`VITE_AUTH_MENU_HOME`)         | `auth.menu.showHome`     | `true`                   | show the Home entry                                                     |

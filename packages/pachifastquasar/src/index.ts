@@ -29,7 +29,8 @@ export type {
   IPachiComponents,
   PachiConfigInput,
   PachiEnv,
-  PachiLogo as PachiLogoValue
+  PachiLogo as PachiLogoValue,
+  PachiRefreshMode
 } from './core/config'
 
 // ── Router ───────────────────────────────────────────────────────────────────
@@ -91,7 +92,12 @@ export { PACHI_TITLE_ANIMATIONS } from './core/dashboard/helpers/title-animation
 export type { PachiTitleAnimation } from './core/dashboard/helpers/title-animation'
 
 // ── Services, stores, helpers ──────────────────────────────────────────────────────
-export { AuthManager, useAuthStore } from './services/auth-manager'
+export {
+  AuthManager,
+  PACHI_AUTH_REFRESH_HEADER,
+  PACHI_AUTH_REFRESH_HEADER_VALUE,
+  useAuthStore
+} from './services/auth-manager'
 export type { IMfaRequiredResponse, IToken, ITokenResponse, LoginResult } from './services/auth-manager'
 export type { IEngineInfo, IUserInfo } from './services/auth-manager/types/auth-manager'
 export { WebSocketManager } from './services/ws-manager'

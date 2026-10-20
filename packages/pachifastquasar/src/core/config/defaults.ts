@@ -5,6 +5,7 @@ export const DEFAULT_PACHI_CONFIG: IAppConfig = {
   auth: {
     enabled: true,
     storage: 'local',
+    refreshMode: 'body',
     menu: { showProfile: true, showSettings: true, showHome: true }
   },
   app: {

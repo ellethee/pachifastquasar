@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import {
   DEFAULT_PACHI_CONFIG,
   getPachiConfig,
@@ -125,5 +125,23 @@ describe('mergePachiConfig / definePachiConfig', () => {
     const copy = structuredClone(base)
     mergePachiConfig(base, { app: { title: 'x' } })
     expect(base).toEqual(copy)
+  })
+})
+
+describe('auth.refreshMode', () => {
+  it("default 'body'; QCLI_AUTH_REFRESH_MODE=cookie selects the cookie mode", () => {
+    expect(resolvePachiConfig().auth.refreshMode).toBe('body')
+    expect(pachiConfigFromEnv({ QCLI_AUTH_REFRESH_MODE: 'cookie' })).toEqual({
+      auth: { refreshMode: 'cookie' }
+    })
+    const cfg = resolvePachiConfig(pachiConfigFromEnv({ QCLI_AUTH_REFRESH_MODE: 'cookie' }))
+    expect(cfg.auth.refreshMode).toBe('cookie')
+  })
+  it("invalid value: falls back to 'body' with a warning", () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined)
+    const cfg = resolvePachiConfig(pachiConfigFromEnv({ QCLI_AUTH_REFRESH_MODE: 'header' }))
+    expect(cfg.auth.refreshMode).toBe('body')
+    expect(warn).toHaveBeenCalledOnce()
+    warn.mockRestore()
   })
 })

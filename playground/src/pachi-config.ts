@@ -14,5 +14,23 @@ const baseConfig: PachiConfigInput = {
   // menuItems: [{ label: 'Guide', to: '/guide', order: 80 }],
 }
 
+/**
+ * Playground only (used by the e2e suite): `localStorage['pachi-playground-refresh-mode'] = 'cookie'`
+ * switches an already built playground to the cookie refresh mode. Apps use
+ * `QCLI_AUTH_REFRESH_MODE=cookie` (or `auth.refreshMode`) instead.
+ */
+function playgroundRefreshMode(): PachiConfigInput {
+  try {
+    const mode = localStorage.getItem('pachi-playground-refresh-mode')
+    return mode === 'cookie' ? { auth: { refreshMode: 'cookie' } } : {}
+  } catch {
+    return {}
+  }
+}
+
 /** Shared by boot and router. */
-export const pachiConfig: PachiConfigInput = definePachiConfig(baseConfig, import.meta.env)
+export const pachiConfig: PachiConfigInput = definePachiConfig(
+  baseConfig,
+  import.meta.env,
+  playgroundRefreshMode()
+)

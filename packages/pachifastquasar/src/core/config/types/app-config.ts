@@ -3,10 +3,20 @@ import type { Component } from 'vue'
 import type { IMenuButton } from '../../components/AccountMenuButton/types/account-menu-button'
 import type { PachiMenuItemFactory } from '../../components/AccountMenuButton/types/menu-item-factory'
 
+/** Transport of the refresh token: JSON body (default) or HttpOnly cookie. */
+export type PachiRefreshMode = 'body' | 'cookie'
+
 export interface IAuthConfig {
   enabled: boolean
   /** Where to persist tokens and user data: `local` (localStorage, default) or `session` (sessionStorage). */
   storage: 'local' | 'session'
+  /**
+   * Where the refresh token lives: `body` (default, sent in the JSON body and persisted with the
+   * other tokens in `storage`) or `cookie` (HttpOnly cookie set by the backend: the client never
+   * sees it and keeps access token and user data in memory only). Also `QCLI_AUTH_REFRESH_MODE`.
+   * Invalid values fall back to `body` with a console warning.
+   */
+  refreshMode?: PachiRefreshMode
   menu: {
     showProfile: boolean
     showSettings: boolean

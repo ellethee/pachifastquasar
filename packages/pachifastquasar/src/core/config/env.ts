@@ -1,5 +1,5 @@
 import { resolveTitleAnimation } from '../dashboard/helpers/title-animation'
-import type { PachiConfigInput, PachiEnv } from './types/app-config'
+import type { PachiConfigInput, PachiEnv, PachiRefreshMode } from './types/app-config'
 
 /** Value of a variable if set and non-empty (the first available among the aliases), otherwise `undefined`. */
 function pick(...values: unknown[]): string | undefined {
@@ -40,7 +40,9 @@ function compact<T extends Record<string, unknown>>(value: T): T {
  * {@link definePachiConfig} it does not overwrite the app's base configuration. Booleans: `false` only if the
  * variable is exactly `'false'` (`QCLI_APP_HIDE_HUB_HEADER`: true only with `'true'`).
  *
- * Variables: `QCLI_AUTH_ENABLED`, `QCLI_AUTH_STORAGE` (`session`|`local`), `QCLI_AUTH_MENU_PROFILE|SETTINGS|HOME`,
+ * Variables: `QCLI_AUTH_ENABLED`, `QCLI_AUTH_STORAGE` (`session`|`local`),
+ * `QCLI_AUTH_REFRESH_MODE` (`body`|`cookie`; other values: `body` + warning),
+ * `QCLI_AUTH_MENU_PROFILE|SETTINGS|HOME`,
  * `QCLI_APP_TITLE`, `QCLI_APP_DESCRIPTION`, `QCLI_APP_SHOW_LOGO`, `QCLI_APP_LOGO_SIZE`, `QCLI_APP_LOGO_OVERLAP`, `QCLI_APP_LOCALE`, `QCLI_APP_AUTO_DASHBOARD`,
  * `QCLI_APP_SHOW_LOCALE_SWITCHER`, `QCLI_APP_HIDE_HUB_HEADER`, `QCLI_APP_DASHBOARD_MAX_WIDTH`, `QCLI_APP_DASHBOARD_COLUMNS`, `QCLI_APP_TITLE_ANIMATION`, `QCLI_APP_GRAVATAR`, `QCLI_APP_HOVER_EFFECTS`,
  * `QCLI_HTTP_ENVELOPE` (`false` = the backend does not use the envelope `{ success, message, data }`)
@@ -56,6 +58,8 @@ export function pachiConfigFromEnv(env: PachiEnv): PachiConfigInput {
     auth: {
       enabled: flag(env.QCLI_AUTH_ENABLED, env.VITE_AUTH_ENABLED),
       storage: storage === 'session' || storage === 'local' ? storage : undefined,
+      // validated (with a warning) by resolvePachiConfig
+      refreshMode: pick(env.QCLI_AUTH_REFRESH_MODE) as PachiRefreshMode | undefined,
       menu: {
         showProfile: flag(env.QCLI_AUTH_MENU_PROFILE, env.VITE_AUTH_MENU_PROFILE),
         showSettings: flag(env.QCLI_AUTH_MENU_SETTINGS, env.VITE_AUTH_MENU_SETTINGS),

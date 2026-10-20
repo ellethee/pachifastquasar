@@ -48,6 +48,11 @@ Access token, token type, refresh token and user data are persisted by the Pinia
     Tokens in web storage are readable by any script running in the page (for example through an XSS flaw).
     Keep the content security policy strict and prefer `session` storage for sensitive deployments.
 
+!!! tip "Refresh token in an HttpOnly cookie"
+    With `auth.refreshMode: 'cookie'` (`QCLI_AUTH_REFRESH_MODE=cookie`) the refresh token is an HttpOnly cookie
+    managed by the backend and **nothing** is persisted: access token, expiry and user info stay in memory.
+    `auth.storage` is then ignored. See [Cookie refresh mode](#cookie-refresh-mode).
+
 ## Silent restore and refresh
 
 - On navigation to a protected route the guard calls `tryRestoreSession()`: an already authenticated store
@@ -72,6 +77,24 @@ Access token, token type, refresh token and user data are persisted by the Pinia
   (see [HTTP client](http-client.md)). A second 401, or a failed refresh, logs the user out.
 - `userInfoVersion` changes only when relevant user data really changed, so a token refresh does not remount
   the page and lose the state of open forms and dialogs.
+
+## Cookie refresh mode
+
+Opt in with `auth.refreshMode: 'cookie'` (default `body`, the behaviour described above); the backend must have
+`auth.refresh_mode` `cookie` or `both`. Differences from the `body` mode:
+
+- `POST /api/auth/token` and `POST /api/mfa/verify` are sent with `credentials: 'include'`; the response sets the
+  cookie and a `refresh_token` in the JSON is ignored (`AuthManager.refreshToken` stays `null`).
+- `POST /api/auth/refresh-token` and `POST /api/auth/logout` carry the cookie, the body `{}` and the header
+  `X-Pachi-Auth: refresh` (`PACHI_AUTH_REFRESH_HEADER` / `PACHI_AUTH_REFRESH_HEADER_VALUE`).
+- On load, the guard always tries one silent refresh (single flight) for a route without `meta.noAuth` when there
+  is no access token in memory: a `401` redirects to `/auth/login?next=...` without an error dialog; on success
+  the user info is loaded and the WebSocket connected.
+- Scheduled renewal, retries and the `401` handler work as in `body` mode, based on an internal "session active"
+  flag instead of the stored refresh token. A `401` of `/refresh-token` is retried once after 300 ms (rotation race
+  between tabs); `403 auth.csrf_rejected` is a configuration error, logged and never retried.
+- Tabs coordinate with the Web Lock `pachi-auth-refresh` and the BroadcastChannel `pachi-auth` instead of the
+  `storage` event (see [Security](security.md#refresh-token-in-an-httponly-cookie)).
 
 ## Logout
 
