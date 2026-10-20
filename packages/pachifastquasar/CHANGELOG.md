@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.5] - 2026-10-20
+
 ### Added
 
 - `http.errorDisplay` (`'dialog'` default | `'toast'`) and `http.toast` (`position`, `timeout`; env `QCLI_HTTP_ERROR_DISPLAY`, `QCLI_HTTP_TOAST_POSITION`, `QCLI_HTTP_TOAST_TIMEOUT`): HTTP errors can be shown as configurable toasts.
@@ -54,7 +56,8 @@ Initial public release. Vue 3 / Quasar application shell for pachifast backends.
 - HTTP client on `@ilpachi/use-alova`, wired to authentication, spinner and error messages.
 - Runtime configuration through `QCLI_*` environment variables or code, and the Quasar preset `definePachiQuasarConfig`.
 
-[Unreleased]: https://github.com/ellethee/pachifastquasar/compare/pachifastquasar@0.1.4...HEAD
+[Unreleased]: https://github.com/ellethee/pachifastquasar/compare/pachifastquasar@0.1.5...HEAD
+[0.1.5]: https://github.com/ellethee/pachifastquasar/compare/pachifastquasar@0.1.4...pachifastquasar@0.1.5
 [0.1.4]: https://github.com/ellethee/pachifastquasar/compare/pachifastquasar@0.1.3...pachifastquasar@0.1.4
 [0.1.3]: https://github.com/ellethee/pachifastquasar/compare/pachifastquasar@0.1.2...pachifastquasar@0.1.3
 [0.1.2]: https://github.com/ellethee/pachifastquasar/compare/pachifastquasar@0.1.1...pachifastquasar@0.1.2
