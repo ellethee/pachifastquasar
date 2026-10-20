@@ -1,6 +1,6 @@
 {
   "name": "@ilpachi/pachifastquasar",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Vue 3 / Quasar application shell for pachifast backends: layout, optional auth, dashboard, i18n, router and HTTP client in a few lines of configuration.",
   "author": {
     "name": "ilPachi",
