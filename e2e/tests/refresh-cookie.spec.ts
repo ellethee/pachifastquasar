@@ -85,6 +85,25 @@ test.describe('Refresh token in an HttpOnly cookie (real backend)', () => {
     expect(refresh.status()).toBe(401)
   })
 
+  test('a refresh repeated with the just-rotated cookie is served again inside the grace window', async ({ page, context }) => {
+    await useCookieMode(context)
+    await loginUi(page, USERS.admin)
+    const old = (await context.cookies()).find(c => c.httpOnly && c.path.startsWith('/api'))
+    expect(old).toBeDefined()
+    const call = () =>
+      fetch(`${BACKEND}/api/auth/refresh-token`, {
+        method: 'POST',
+        headers: { 'X-Pachi-Auth': 'refresh', 'Content-Type': 'application/json', Cookie: `${old!.name}=${old!.value}` },
+        body: '{}',
+      })
+    const first = await call()
+    const repeated = await call()
+    expect(first.status).toBe(200)
+    // pachifast >= 0.17.1: the repeat gets a new cookie instead of a 401 (an interrupted navigation lost the first one)
+    expect(repeated.status).toBe(200)
+    expect(repeated.headers.get('set-cookie')).toContain(old!.name)
+  })
+
   test('the backend rejects a cookie refresh without the CSRF header', async ({ page, context }) => {
     await useCookieMode(context)
     await loginUi(page, USERS.admin)
