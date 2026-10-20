@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.6] - 2026-10-20
+
 ### Fixed
 
 - Dev proxy: the `/api` proxy now rewrites `Origin` to the target (not only `Host`), so the cookie refresh (`auth.csrf_rejected` otherwise) works under `pnpm dev` without `refresh_allowed_origins`.
