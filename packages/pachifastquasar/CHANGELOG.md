@@ -62,7 +62,8 @@ Initial public release. Vue 3 / Quasar application shell for pachifast backends.
 - HTTP client on `@ilpachi/use-alova`, wired to authentication, spinner and error messages.
 - Runtime configuration through `QCLI_*` environment variables or code, and the Quasar preset `definePachiQuasarConfig`.
 
-[Unreleased]: https://github.com/ellethee/pachifastquasar/compare/pachifastquasar@0.1.5...HEAD
+[Unreleased]: https://github.com/ellethee/pachifastquasar/compare/pachifastquasar@0.1.6...HEAD
+[0.1.6]: https://github.com/ellethee/pachifastquasar/compare/pachifastquasar@0.1.5...pachifastquasar@0.1.6
 [0.1.5]: https://github.com/ellethee/pachifastquasar/compare/pachifastquasar@0.1.4...pachifastquasar@0.1.5
 [0.1.4]: https://github.com/ellethee/pachifastquasar/compare/pachifastquasar@0.1.3...pachifastquasar@0.1.4
 [0.1.3]: https://github.com/ellethee/pachifastquasar/compare/pachifastquasar@0.1.2...pachifastquasar@0.1.3
