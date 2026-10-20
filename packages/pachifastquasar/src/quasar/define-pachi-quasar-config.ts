@@ -27,6 +27,15 @@ const SINGLETONS = [
   '@ilpachi/pachi-i18n'
 ]
 
+/** Minimal shape of the `http-proxy` objects used by the dev-proxy `configure` hook. */
+interface ProxyReqLike {
+  getHeader(name: string): unknown
+  setHeader(name: string, value: string): void
+}
+interface ProxyLike {
+  on(event: 'proxyReq', cb: (req: ProxyReqLike) => void): void
+}
+
 /**
  * Base Quasar configuration for an app that uses the Pachi shell (SPA).
  *
@@ -113,7 +122,13 @@ export function createPachiQuasarBase(
           changeOrigin: true,
           secure: false,
           ws: true,
-          rewriteWsOrigin: true
+          rewriteWsOrigin: true,
+          // changeOrigin rewrites Host but not Origin: pachifast (cookie refresh mode) compares them
+          configure: (proxy: ProxyLike) => {
+            proxy.on('proxyReq', (proxyReq: ProxyReqLike) => {
+              if (proxyReq.getHeader('origin')) proxyReq.setHeader('origin', new URL(proxyTarget).origin)
+            })
+          }
         }
       }
     },

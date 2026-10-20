@@ -57,7 +57,7 @@ in memory only, so every page load starts with a silent refresh. The WebSocket k
   with `localhost` (not with a LAN IP over http).
 - `SameSite=Strict` (or `Lax`) and a narrow `Path` (for example `/api/auth`) on the cookie: it then travels only to the auth
   endpoints and never on cross-site requests. These attributes are set by the backend.
-- Use a **same-origin proxy**: the app and `/api` on the same host (the `definePachiQuasarConfig` dev proxy, or the reverse
+- Use a **same-origin proxy**: the app and `/api` on the same host (the `definePachiQuasarConfig` dev proxy, which also rewrites `Origin` to the target, or the reverse
   proxy in production). Then `SameSite=Strict` works, no CORS is involved and the `Origin` check passes. The proxy must forward
   the `X-Pachi-Auth` header and the `Host` the backend compares `Origin` with.
 - A cross-origin API is not the intended setup: pachifast rejects a cookie request whose `Origin` differs from its own host. A
