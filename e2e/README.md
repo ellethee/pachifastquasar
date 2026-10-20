@@ -15,7 +15,7 @@ of `pnpm check` nor of the CI workflow.
 | `a11y.spec.ts` | `@axe-core/playwright` (WCAG 2 A/AA) on login (light and dark) and home: no serious/critical violations; moderate/minor are annotations |
 | `layout.spec.ts` | login in light/dark theme and at 390px: no horizontal scroll, the logo image is loaded and inside the viewport |
 | `kit.spec.ts` | playground page `/kit` using `@ilpachi/pachi-kit` (`ui`: popup edit, duotone icon, confirm dialog; `dialog`: programmatic `PachiDialog`) |
-| `refresh-cookie.spec.ts` | `auth.refreshMode: 'cookie'`: against the real backend (skipped while it sets no refresh cookie, pachifast <= 0.15) and against a backend simulated with `context.route` (reload with silent refresh, anonymous visit to the login, two tabs sharing the cookie, logout in one tab logs out the other); the playground switches mode through `localStorage['pachi-playground-refresh-mode'] = 'cookie'` |
+| `refresh-cookie.spec.ts` | `auth.refreshMode: 'cookie'`: against the real backend (4 tests: reload, two tabs reloading together, logout in one tab, 403 without the CSRF header; skipped unless the backend sets the refresh cookie: `PACHIFAST_REFRESH_MODE=cookie compat/backend.sh all`, pachifast >= 0.17) and against a backend simulated with `context.route` (reload with silent refresh, anonymous visit to the login, two tabs sharing the cookie, logout in one tab logs out the other); the playground switches mode through `localStorage['pachi-playground-refresh-mode'] = 'cookie'` |
 | `mfa.spec.ts` | MFA SMS two-step enrolment: skipped (the compat backend has no SMS channel and the playground enables only the password block) |
 
 Each test builds its own state: the admin test seeds rows with a unique prefix and removes them, the profile tests use
@@ -29,7 +29,7 @@ the `limited` user and restore its name, nothing depends on the order of the spe
 - The compat backend installed (see `compat/README.md`), for example:
 
   ```bash
-  PACHIFAST_VERSION=0.15.0 PACHIFAST_INDEX_URL=<registry simple index> compat/backend.sh setup
+  PACHIFAST_VERSION=0.17.0 PACHIFAST_INDEX_URL=<registry simple index> compat/backend.sh setup
   ```
 
 ## Running

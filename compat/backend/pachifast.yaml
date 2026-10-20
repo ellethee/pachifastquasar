@@ -1,4 +1,7 @@
 # Minimal backend for the frontend packages compatibility smoke (see ../README.md).
-host: 127.0.0.1
-port: 8030
-default_locale: en
+# Sectioned format: needs pachifast >= 0.16.
+server:
+  host: 127.0.0.1
+  port: 8030
+app:
+  default_locale: en

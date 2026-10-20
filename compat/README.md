@@ -38,7 +38,7 @@ of the temporary backend, not a secret; it must match between `backend.sh` and `
 
 ## Status
 
-Tested with pachifast 0.15.0 (internal index `ilpachi`). The known mismatch of 0.6.0 (`_schema`:
+Tested with pachifast 0.17.0 (PyPI; the sectioned `pachifast.yaml` of `backend/` needs >= 0.16). For the cookie refresh mode start the backend with `PACHIFAST_REFRESH_MODE=cookie compat/backend.sh all` (pachifast >= 0.17). The known mismatch of 0.6.0 (`_schema`:
 `fields.<field>.default` equal to `5`, i.e. SQLAlchemy's `DONT_SET`) is fixed: the check also passes with
 `COMPAT_STRICT_DEFAULTS=1`.
 

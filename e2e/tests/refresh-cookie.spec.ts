@@ -28,23 +28,69 @@ async function expectNoClientSecrets(page: Page): Promise<void> {
   expect(seen.auth).toBeNull()
 }
 
+/**
+ * Skips the test unless the compat backend runs in cookie mode (pachifast >= 0.17 with `auth.refresh_mode`
+ * `cookie|both`, i.e. `PACHIFAST_REFRESH_MODE=cookie compat/backend.sh all`).
+ *
+ * @param skip - Playwright `test.skip`
+ */
+async function skipUnlessCookieBackend(skip: (condition: boolean, reason: string) => void): Promise<void> {
+  const probe = await fetch(`${BACKEND}/api/auth/token`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({ username: USERS.admin, password: PASSWORD, grant_type: 'password' }),
+  }).catch(() => null)
+  skip(
+    !probe?.headers.get('set-cookie'),
+    'the compat backend does not set the refresh cookie (needs pachifast >= 0.17 with PACHIFAST_REFRESH_MODE=cookie)',
+  )
+}
+
 test.describe('Refresh token in an HttpOnly cookie (real backend)', () => {
+  test.beforeEach(async () => skipUnlessCookieBackend((c, r) => test.skip(c, r)))
+
   test('reload keeps the session through the cookie', async ({ page, context }) => {
-    // pachifast <= 0.15 has no cookie mode: the token response carries no Set-Cookie
-    const probe = await fetch(`${BACKEND}/api/auth/token`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({ username: USERS.admin, password: PASSWORD, grant_type: 'password' }),
-    }).catch(() => null)
-    test.skip(
-      !probe?.headers.get('set-cookie'),
-      'the compat backend does not set the refresh cookie (needs pachifast with auth.refresh_mode cookie|both)',
-    )
     await useCookieMode(context)
     await loginUi(page, USERS.admin)
     await page.reload()
     await expect(page.getByLabel(LABELS.accountMenu)).toBeVisible()
     await expectNoClientSecrets(page)
+    await logoutUi(page)
+  })
+
+  test('two tabs reloading at the same time both keep the session (rotation race)', async ({ page, context }) => {
+    await useCookieMode(context)
+    await loginUi(page, USERS.admin)
+    const second = await context.newPage()
+    await second.goto('/')
+    await expect(second.getByLabel(LABELS.accountMenu)).toBeVisible()
+    await Promise.all([page.reload(), second.reload()])
+    await expect(page.getByLabel(LABELS.accountMenu)).toBeVisible()
+    await expect(second.getByLabel(LABELS.accountMenu)).toBeVisible()
+    await logoutUi(page)
+  })
+
+  test('logout in one tab logs the other tab out and revokes the cookie', async ({ page, context }) => {
+    await useCookieMode(context)
+    await loginUi(page, USERS.admin)
+    const second = await context.newPage()
+    await second.goto('/')
+    await expect(second.getByLabel(LABELS.accountMenu)).toBeVisible()
+    await logoutUi(page)
+    await expect(second).toHaveURL(/\/auth\/login/)
+    const refresh = await context.request.post(`${BACKEND}/api/auth/refresh-token`, {
+      headers: { 'X-Pachi-Auth': 'refresh' },
+      data: {},
+    })
+    expect(refresh.status()).toBe(401)
+  })
+
+  test('the backend rejects a cookie refresh without the CSRF header', async ({ page, context }) => {
+    await useCookieMode(context)
+    await loginUi(page, USERS.admin)
+    const refresh = await context.request.post(`${BACKEND}/api/auth/refresh-token`, { data: {} })
+    expect(refresh.status()).toBe(403)
+    expect(JSON.stringify(await refresh.json())).toContain('auth.csrf_rejected')
     await logoutUi(page)
   })
 })
