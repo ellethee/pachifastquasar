@@ -74,7 +74,7 @@
   },
   "peerDependencies": {
     "@ilpachi/pachi-i18n": ">=0.1.0 <1.0.0",
-    "@ilpachi/use-alova": "^2.1.1",
+    "@ilpachi/use-alova": "^2.1.2",
     "@quasar/extras": "^2.0.0",
     "alova": "^3.3.0",
     "quasar": "^2.20.0",
@@ -91,7 +91,7 @@
   },
   "devDependencies": {
     "@ilpachi/pachi-i18n": "workspace:^",
-    "@ilpachi/use-alova": "^2.1.1",
+    "@ilpachi/use-alova": "^2.1.2",
     "@quasar/extras": "^2.0.1",
     "@quasar/vite-plugin": "^2.0.2",
     "@types/node": "^22.0.0",
@@ -99,14 +99,14 @@
     "@vue/language-core": "~2.2.12",
     "alova": "^3.3.0",
     "quasar": "^2.35.0",
-    "sass-embedded": "^1.90.0",
+    "sass-embedded": "^1.105.2",
     "typescript": "^7.0.2",
     "vite": "^8.3.4",
     "vite-plugin-css-injected-by-js": "^5.0.2",
     "vite-plugin-dts": "^5.1.2",
-    "vitest": "^5.0.3",
-    "vue": "^3.5.35",
-    "vue-i18n": "^11.4.14",
+    "vitest": "^5.0.5",
+    "vue": "^3.5.44",
+    "vue-i18n": "^11.4.15",
     "vue-tsc": "^3.3.13"
   },
   "repository": {

@@ -38,6 +38,6 @@
   },
   "devDependencies": {
     "@vue/test-utils": "^2.5.1",
-    "happy-dom": "^21.0.1"
+    "happy-dom": "^21.0.3"
   }
 }

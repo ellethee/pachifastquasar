@@ -13,21 +13,21 @@
     "build:dist": "pnpm --filter @ilpachi/pachifastquasar build && PACHI_PLAYGROUND_DIST=true quasar build"
   },
   "dependencies": {
-    "@ilpachi/use-alova": "^2.1.1",
+    "@ilpachi/use-alova": "^2.1.2",
     "@ilpachi/pachi-i18n": "workspace:*",
     "@ilpachi/pachi-kit": "workspace:*",
     "@ilpachi/pachifastquasar": "workspace:*",
     "@quasar/extras": "^2.0.1",
     "alova": "^3.3.0",
-    "pinia": "^4.0.3",
+    "pinia": "^4.1.0",
     "pinia-plugin-persistedstate": "^4.7.1",
     "quasar": "^2.35.0",
-    "vue": "^3.5.35",
-    "vue-i18n": "^11.4.14",
+    "vue": "^3.5.44",
+    "vue-i18n": "^11.4.15",
     "vue-router": "^5.4.0"
   },
   "devDependencies": {
-    "@quasar/app-vite": "^3.10.2",
+    "@quasar/app-vite": "^3.10.3",
     "@quasar/vite-plugin": "^2.0.2",
     "@types/node": "^22.0.0",
     "autoprefixer": "^10.5.0",
