@@ -21,13 +21,13 @@
     "alova": "^3.3.0",
     "pinia": "^4.1.0",
     "pinia-plugin-persistedstate": "^4.7.1",
-    "quasar": "^2.35.2",
-    "vue": "^3.5.44",
-    "vue-i18n": "^11.4.16",
-    "vue-router": "^5.4.0"
+    "quasar": "^2.35.4",
+    "vue": "^3.5.45",
+    "vue-i18n": "^11.4.20",
+    "vue-router": "^5.5.1"
   },
   "devDependencies": {
-    "@quasar/app-vite": "^3.10.3",
+    "@quasar/app-vite": "^3.10.4",
     "@quasar/vite-plugin": "^2.0.2",
     "@types/node": "^22.0.0",
     "autoprefixer": "^10.6.2",
@@ -37,7 +37,7 @@
     "@ilpachi/fastquasar-settings": "workspace:*",
     "@ilpachi/fastquasar-profile": "workspace:*",
     "@ilpachi/fastquasar-admin": "workspace:*",
-    "vite": "^8.3.5"
+    "vite": "^8.3.8"
   },
   "engines": {
     "node": ">=20",
