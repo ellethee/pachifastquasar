@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `edit-dialog`: `PachiDialogEditActions` is exported.
-- `table`: `useToolbar` prop (default `true`) to hide the toolbar (filter box and `toolbar-actions` slot) of `PachiTable2`.
+- `table`: `hideToolbar` prop to hide the toolbar (filter box and `toolbar-actions` slot) of `PachiTable2`.
 - `setPachiFieldsHttp(null)` and `setPachiAlovaFactory(null)` remove the registered client/factory (back to the `@ilpachi/use-alova` one).
 
 ## [0.1.1] - 2026-10-14

@@ -445,7 +445,7 @@ All names below are exported from `@ilpachi/pachi-kit/table` unless stated other
 | `errorBanner` | `boolean` | `false` | Shows a banner with the error message and a "Retry" button when the list request fails (alternative to the `error` slot). |
 | `grid` | `boolean` | `false` | QTable grid mode. |
 | `useSkeleton` | `boolean` | `false` | Shows a skeleton instead of the spinner during slow loads. Read once at setup. |
-| `useToolbar` | `boolean` | `true` | Shows the toolbar (filter box and the `toolbar-actions` slot). `false` hides it. |
+| `hideToolbar` | `boolean` | `false` | Hides the toolbar (filter box and the `toolbar-actions` slot). |
 | `lazyLoadingTimeout` | `number` | `300` | Milliseconds before the spinner / skeleton appears. |
 | `rezDelay` | `number` | `100` | Debounce (ms) of the height computation. |
 | `rezOffset` | `number` | auto | Space (px) reserved below the table. When omitted it is the height of the following siblings plus 8 px. |
