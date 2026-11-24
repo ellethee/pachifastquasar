@@ -183,7 +183,14 @@ defineSlots<{
   [key: string]: ((scope: any) => unknown) | undefined
 }>()
 const props = withDefaults(defineProps<{
-  url: string,
+  /** Base URL of the list/CRUD requests. Optional when `rows` is given. */
+  url?: string,
+  /** Rows in memory: no list request (so no `url`), filter, sort and pagination are local. Presence read once at setup; the array itself is reactive. */
+  rows?: T[],
+  /** External loading state (spinner); with `rows` it is the only one. */
+  loading?: boolean,
+  /** External error (e.g. loading the `rows` failed): shown by the `error` slot / `errorBanner`. */
+  error?: unknown,
   watchingStates?: unknown[],
   extraParams?: Record<string, unknown>,
   grid?: boolean,
@@ -224,6 +231,8 @@ const emit = defineEmits<{
   /** Paginated response `{ items, total, page, pageSize }`. */
   'pt2:data': [response: IPaginatedResponse<T>]
   'pt2:load-error': [error: unknown]
+  /** "Retry" clicked with `rows` (the parent reloads the data). */
+  'pt2:retry': []
   'pt2:request': [filter: string]
   'pt2:record-created': [records: T[]]
   'pt2:record-updated': [records: T[]]
@@ -264,7 +273,10 @@ const {
 } = usePachiTable2<T>(
   // getter: url, columns, rowKey, extraParams, watchingStates, nullsLast and initialSort stay reactive to the props
   () => ({
-    url: props.url,
+    url: props.url ?? '',
+    rows: props.rows,
+    loading: props.loading ?? false,
+    error: props.error,
     watchingStates: props.watchingStates ?? [],
     extraParams: props.extraParams ?? {},
     grid: props.grid ?? false,

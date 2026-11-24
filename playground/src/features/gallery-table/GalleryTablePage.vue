@@ -93,6 +93,34 @@
       />
     </q-card>
 
+    <!-- 3c. Rows in memory: no url, no request -->
+    <q-card flat bordered data-test="gallery-rows">
+      <q-card-section class="row items-center q-gutter-md">
+        <div>
+          <div class="text-h6">3c. Rows in memory</div>
+          <div class="text-caption">
+            <code>:rows</code> without <code>url</code>: local filter, sort and selection.
+            Selected: <b data-test="rows-selected">{{ memSelected.length }}</b>; rows: {{ memRows.length }}.
+          </div>
+        </div>
+        <q-space />
+        <q-toggle v-model="memLoading" label="loading" />
+        <q-btn color="primary" label="Drop 10 rows" @click="memRows = memRows.slice(10)" />
+      </q-card-section>
+      <pachi-table2
+        :rows="memRows"
+        :columns="columns"
+        :loading="memLoading"
+        :initial-sort="[{ column: 'name', direction: 'asc' }]"
+        single-sort
+        hide-pagination
+        :auto-height="false"
+        selection="multiple"
+        dense
+        @update:selected="(v: unknown[]) => (memSelected = v)"
+      />
+    </q-card>
+
     <!-- 4. Skeleton -->
     <q-card flat bordered>
       <q-card-section class="row items-center q-gutter-md">
@@ -233,7 +261,7 @@ import {
 } from '@quasar/extras/mdi-v7'
 import { PachiTable2 } from '@ilpachi/pachi-kit/table'
 import type { IOrderState, IPaginatedResponse, PachiTable2Api, PachiTable2Exposed } from '@ilpachi/pachi-kit/table'
-import { CATEGORIES, FAKE_URLS, installFakeApi, resetFakeStore } from './fake-api'
+import { CATEGORIES, FAKE_URLS, installFakeApi, makeItems, resetFakeStore } from './fake-api'
 import type { FakeItem } from './fake-api'
 
 installFakeApi()
@@ -259,6 +287,9 @@ const columns: QTableColumn<FakeItem>[] = [
 
 /** Bumped by "Reset data" to remount the tables (they reload from the restored store). */
 const resetKey = ref(0)
+const memRows = ref<FakeItem[]>(makeItems(60))
+const memLoading = ref(false)
+const memSelected = ref<unknown[]>([])
 const category = ref<string | null>(null)
 const onlyActive = ref(false)
 const sortState = ref<IOrderState[]>([])

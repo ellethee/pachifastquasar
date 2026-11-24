@@ -431,8 +431,11 @@ All names below are exported from `@ilpachi/pachi-kit/table` unless stated other
 
 | Prop | Type | Default | Description |
 | --- | --- | --- | --- |
-| `url` | `string` | required | Base endpoint of the resource. It is the `baseURL` of every request. Reactive: when it changes the data is reloaded from page 1. |
+| `url` | `string` | required (optional with `rows`) | Base endpoint of the resource. It is the `baseURL` of every request. Reactive: when it changes the data is reloaded from page 1. |
 | `columns` | `QTableColumn[]` | required | Quasar column definitions. `name` is also the sort key sent in `orderBy`, so it must match the backend field. Reactive. |
+| `rows` | `T[]` | – | Data already in memory: no list request is made (so `url` is optional and no alova client is needed), and filter, sort and pagination are local. Whether it is present is read once at setup; the array itself is reactive. `reload()` does nothing; selected rows that disappear from the array are dropped. CRUD calls (`deleteRecord`, ...) still need `url`: with `rows` use `use-col-actions="emit-delete"` and handle `@pt2:delete-item`. |
+| `loading` | `boolean` | `false` | External loading state (spinner). With `rows` it is the only one; with `url` it adds to the request in progress. |
+| `error` | `unknown` | – | External error state (e.g. loading the `rows` failed): shown by the `error` slot / `errorBanner`. With `rows`, "Retry" emits `pt2:retry` instead of reloading. |
 | `rowKey` | `string` | `'id'` | Identifier field. Used in `PUT /{id}`, `DELETE /{id}` and in the `bulk-delete` body. Reactive. |
 | `extraParams` | `Record<string, unknown>` | `{}` | Extra query parameters merged into the list request (they override the standard ones). A change reloads the data. |
 | `watchingStates` | `unknown[]` | `[]` | Values that reload the data when they change. Items are compared shallowly, so a literal array `[a, b]` in a template is fine (refs are already unwrapped in templates; refs and getters are also accepted when you pass them directly). |
@@ -465,6 +468,7 @@ Events are fully typed (`PachiTable2Events<T>`), so `@pt2:*` handlers get the ri
 | --- | --- | --- |
 | `pt2:data` | `IPaginatedResponse<T>` = `{ items, total, page, pageSize }` | A list request succeeds. Prefer this one. |
 | `pt2:loaded` | the alova success event; the paginated response is in `event.data` (`PachiTable2LoadedEvent<T>`) | A list request succeeds. Kept for backward compatibility. |
+| `pt2:retry` | – | "Retry" clicked with `rows` (the parent reloads the data). |
 | `pt2:load-error` | `unknown` (normally an `Error`) | A list request fails. |
 | `pt2:request` | `string` (the current filter) | The user changes page or page size (server-side mode only). |
 | `pt2:update:multi-sort` | `IOrderState[]` | The user changes the sort by clicking a header. |

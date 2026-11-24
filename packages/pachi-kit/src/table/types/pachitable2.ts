@@ -2,7 +2,15 @@ import type { MaybeRef } from 'vue'
 import type { QTableColumn } from 'quasar'
 
 export interface IPachiTable2Props {
-  url: string,
+  /** Base URL of the list/CRUD requests. Optional when `rows` is given. */
+  url?: string,
+  /** Rows in memory: no list request, filter and sort are local (presence read once at setup). */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  rows?: any[] | undefined,
+  /** External loading state (spinner), also combined with the request in progress. */
+  loading?: boolean,
+  /** External error state (shown by the `error` slot / `errorBanner`), e.g. when loading the `rows` failed. */
+  error?: unknown,
   watchingStates?: unknown[],
   extraParams?: MaybeRef<Record<string, unknown>>,
   grid?: boolean,

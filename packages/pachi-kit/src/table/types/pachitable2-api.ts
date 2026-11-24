@@ -102,6 +102,8 @@ export interface PachiTable2Events<T> {
   'pt2:data': [response: IPaginatedResponse<T>]
   /** Error loading the list. */
   'pt2:load-error': [error: unknown]
+  /** "Retry" clicked with `rows`. */
+  'pt2:retry': []
   'pt2:request': [filter: string]
   'pt2:record-created': [records: T[]]
   'pt2:record-updated': [records: T[]]

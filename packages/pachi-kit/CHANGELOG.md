@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `table`: `rows` prop (data in memory: no request, local filter/sort/pagination, `url` optional) and `loading` prop on `PachiTable2`.
 - `table`: `hidePagination`, `autoHeight` (default `true`) and `singleSort` props on `PachiTable2`.
 - `dialog`: `fullScroll` prop on `PachiDialog` (the whole card scrolls instead of only the content).
 - `edit-dialog`: `PachiDialogEditActions` is exported.
