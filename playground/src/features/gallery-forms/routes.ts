@@ -4,7 +4,7 @@ import { mdiFormTextbox } from '@quasar/extras/mdi-v7'
 export default [
   {
     path: '/gallery-forms',
-    meta: { title: 'Gallery: forms', icon: mdiFormTextbox, order: 73 },
+    meta: { title: 'Gallery: forms', icon: mdiFormTextbox, order: 73, pageScroll: true },
     component: () => import('./GalleryFormsPage.vue')
   }
 ]

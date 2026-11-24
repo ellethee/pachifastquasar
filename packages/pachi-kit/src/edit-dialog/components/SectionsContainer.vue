@@ -1,5 +1,5 @@
 <template>
-  <div class="column">
+  <div class="column pachi-dialog-editor-section">
     <template
       v-for="section in orderedSections"
       :key="section.key"
@@ -8,12 +8,14 @@
         :is="section.container.component"
         v-if="section.container"
         v-bind="section.container.props"
+        class="pachi-dialog-editor-section-component"
       >
         <component
           :is="section.component"
           v-bind="{ ...section.props, ...commonProps }"
           :ref="sectionRefSetter(section.key)"
           :initial-value="section.initialValue"
+          class="pachi-dialog-editor-section-inner-component"
         />
       </component>
       <component
@@ -22,6 +24,7 @@
         v-bind="{ ...section.props, ...commonProps }"
         :ref="sectionRefSetter(section.key)"
         :initial-value="section.initialValue"
+        class="pachi-dialog-editor-section-component"
       />
     </template>
   </div>

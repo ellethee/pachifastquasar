@@ -4,7 +4,7 @@ import { mdiViewGalleryOutline } from '@quasar/extras/mdi-v7'
 export default [
   {
     path: '/gallery-shell',
-    meta: { title: 'Gallery: shell', icon: mdiViewGalleryOutline, order: 75 },
+    meta: { title: 'Gallery: shell', icon: mdiViewGalleryOutline, order: 75, pageScroll: true },
     component: () => import('./GalleryShellPage.vue')
   }
 ]

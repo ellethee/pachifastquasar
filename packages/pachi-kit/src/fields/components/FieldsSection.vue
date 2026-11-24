@@ -1,5 +1,5 @@
 <template>
-  <div class="pachi-fields-section column q-gutter-sm">
+  <div class="pachi-fields-section column">
     <div
       v-for="(row, rowIndex) in rows"
       :key="rowIndex"
@@ -14,6 +14,7 @@
         :values="state"
         :readonly="readonly"
         @update:model-value="onFieldInput(fieldDef.field, $event)"
+        class="pachi-dynamic-field"
       />
     </div>
   </div>
@@ -34,6 +35,7 @@
  * overwrite each other when the results are merged. `initialValue` is reactive (even
  * if it arrives after mount) like the `initialValue` option of `useSection`.
  */
+import '../css/FieldsSection.scss'
 import { watch } from 'vue'
 import type { ComponentPublicInstance } from 'vue'
 import { useSection } from '../../edit-dialog'

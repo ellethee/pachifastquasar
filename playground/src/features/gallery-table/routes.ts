@@ -4,7 +4,7 @@ import { mdiTableLarge } from '@quasar/extras/mdi-v7'
 export default [
   {
     path: '/gallery/table',
-    meta: { title: 'Gallery: table', icon: mdiTableLarge, order: 74 },
+    meta: { title: 'Gallery: table', icon: mdiTableLarge, order: 74,pageScroll: true },
     component: () => import('./GalleryTablePage.vue')
   }
 ]
