@@ -10,7 +10,7 @@
   >
     <q-scroll-area class="fit">
       <q-list class="pachi-side-menu__list">
-        <pachi-side-menu-item v-for="item in items" :key="item.to ?? item.label" :item="item" />
+        <pachi-side-menu-item v-for="item in tree" :key="item.to ?? item.label" :item="item" />
       </q-list>
     </q-scroll-area>
   </q-drawer>
@@ -36,6 +36,10 @@ import PachiSideMenuItem from './PachiSideMenuItem.vue'
  * Accessibility: disclosure navigation (links + `aria-expanded` buttons, Tab / Enter / Space, `aria-current="page"`), not an ARIA
  * tree (which would promise arrow-key navigation).
  */
+const props = defineProps<{
+  /** Menu tree to show instead of the one built from the router routes (demos, tests, custom menus). */
+  items?: PachiNavItem[]
+}>()
 const { open } = useSideMenu()
 const { t } = useI18n()
 const router = useRouter()
@@ -43,7 +47,8 @@ const { routeTitle } = useRouteText()
 const authManager = AuthManager.getInstance()
 const { userInfoVersion } = storeToRefs(useAuthStore())
 
-const items = computed<PachiNavItem[]>(() => {
+const tree = computed<PachiNavItem[]>(() => {
+  if (props.items) return props.items
   void userInfoVersion.value // re-evaluate after login/logout
   const config = getPachiConfig()
   const layout = router.options.routes.find(r => r.path === '/') ?? router.options.routes[0]

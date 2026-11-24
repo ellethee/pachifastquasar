@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `PachiSideMenu` accepts an `items` prop (`PachiNavItem[]`) to show a given tree instead of the one built from the router routes.
 - Opt-in themes: `app.themes` (`true` or `{ default }`; env `QCLI_APP_THEMES`, `QCLI_APP_THEME_DEFAULT`) enables the `ThemeManager` (`data-theme` on `<body>`, persisted in `pachi-prefs-theme-id` and the shared `pachi-prefs-theme` mode key) and a palette selector (`PachiThemeSelector`) in the app bar. Six built-in themes (`slate`, `zinc`, `emerald`, `cosmic`, `amber`, `teal`) in the separate `@ilpachi/pachifastquasar/themes.css` (and `scss/themes`), not part of `styles.css`. `registerPachiThemes` adds custom themes. Components read the new `--pachi-card-*`, `--pachi-icon-*`, `--pachi-btn-r`, `--pachi-input-r`, `--pachi-menu-r` tokens with a fallback to the classic look.
 - Side menu: `app.navigation: 'sidebar'` (env `QCLI_APP_NAVIGATION`, default `'dashboard'`, invalid values fall back with a warning) shows a tree menu in a left drawer (`PachiSideMenu`, overlay on small screens, menu button in the app bar) built from the routes with `buildNavTree` (same filters as the dashboard cards) instead of the automatic dashboards. See "Themes and side menu" in the docs.
 

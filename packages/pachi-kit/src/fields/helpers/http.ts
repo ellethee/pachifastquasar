@@ -20,9 +20,9 @@ let cachedHttp: IPachiFieldsHttp | null = null
  * Replaces the HTTP client used by remote selects (e.g. to add authentication headers
  * or app error handling). Call it once at startup.
  *
- * @param http - HTTP client implementing {@link IPachiFieldsHttp}
+ * @param http - HTTP client implementing {@link IPachiFieldsHttp}; `null` removes it (back to the use-alova client)
  */
-export function setPachiFieldsHttp(http: IPachiFieldsHttp): void {
+export function setPachiFieldsHttp(http: IPachiFieldsHttp | null): void {
   fieldsHttp = http
 }
 

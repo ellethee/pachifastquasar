@@ -1,5 +1,6 @@
 import './styles/theme-defaults.scss'
 export { default as PachiEditDialog } from './components/PachiEditDialog.vue'
+export { default as PachiDialogEditActions } from './components/PachiDialogEditActions.vue'
 export type { IContainer, IContainerProps, ContainerType, ISectionExpose, ISectionDefinition, SectionsContainerExpose, ISectionContext, SchedulerState, PermissionsState } from './types/sections'
 export type { IEditDialogData, AwaitableData, IAwaitableDialogEmit } from './types/dialog'
 export { SectionContextKey } from './types/sections'

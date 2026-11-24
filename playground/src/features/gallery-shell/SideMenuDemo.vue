@@ -1,61 +1,36 @@
 <template>
   <q-layout view="hHh LpR lFf" container class="shadow-2 rounded-borders" style="height: 360px">
-    <pachi-side-menu />
+    <pachi-side-menu :items="items" />
     <q-page-container>
-      <q-page padding>Current fake route: <b>{{ current }}</b></q-page>
+      <q-page padding>Fake menu tree passed with the <code>items</code> prop (no router routes).</q-page>
     </q-page-container>
   </q-layout>
 </template>
 
 <script setup lang="ts">
-import { computed, provide } from 'vue'
-import { createMemoryHistory, createRouter, routeLocationKey, routerKey } from 'vue-router'
-import type { RouteRecordRaw } from 'vue-router'
-import { mdiChartBox, mdiCog, mdiFileDocument, mdiHome, mdiAccountGroup } from '@quasar/extras/mdi-v7'
+import { mdiAccountGroup, mdiChartBox, mdiCog, mdiFileDocument, mdiHome } from '@quasar/extras/mdi-v7'
 import { PachiSideMenu, useSideMenu } from '@ilpachi/pachifastquasar'
+import type { PachiNavItem } from '@ilpachi/pachifastquasar'
 
-/**
- * `PachiSideMenu` builds its tree from `router.options.routes`, so the demo gives it a private
- * in-memory router (fake routes, nested groups) instead of the playground router.
- */
-const page = { render: () => null }
-const routes: RouteRecordRaw[] = [
+/** Fake tree: nested groups (3 levels), a `header` node and icons. */
+const items: PachiNavItem[] = [
+  { label: 'Home', icon: mdiHome, to: '/' },
+  { label: 'Data', header: true },
   {
-    path: '/',
-    component: page,
+    label: 'Reports',
+    icon: mdiChartBox,
     children: [
-      { path: 'home', component: page, meta: { title: 'Home', icon: mdiHome } },
+      { label: 'Daily', to: '/gallery-shell?daily' },
       {
-        path: 'reports',
-        component: page,
-        meta: { title: 'Reports', icon: mdiChartBox },
-        children: [
-          { path: 'daily', component: page, meta: { title: 'Daily' } },
-          {
-            path: 'monthly',
-            component: page,
-            meta: { title: 'Monthly', icon: mdiFileDocument },
-            children: [{ path: 'archive', component: page, meta: { title: 'Archive' } }]
-          }
-        ]
-      },
-      { path: 'people', component: page, meta: { title: 'People', icon: mdiAccountGroup } },
-      { path: 'hidden', component: page, meta: { title: 'Hidden', hidden: true } },
-      { path: 'settings', component: page, meta: { title: 'Settings', icon: mdiCog } }
+        label: 'Monthly',
+        icon: mdiFileDocument,
+        children: [{ label: 'Archive', to: '/gallery-shell?archive' }]
+      }
     ]
-  }
+  },
+  { label: 'People', icon: mdiAccountGroup, to: '/gallery-shell?people' },
+  { label: 'Settings', icon: mdiCog, to: '/gallery-shell?settings' }
 ]
 
-const router = createRouter({ history: createMemoryHistory(), routes })
-void router.push('/reports/monthly')
-// `useRoute()` of the items reads `path`: a getter keeps it reactive on the memory router.
-provide(routerKey, router)
-provide(routeLocationKey, {
-  get path() {
-    return router.currentRoute.value.path
-  }
-} as never)
 useSideMenu().open.value = true
-
-const current = computed(() => router.currentRoute.value.path)
 </script>

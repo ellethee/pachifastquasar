@@ -125,7 +125,7 @@ const restoreXhr = installFakeUpload()
 onBeforeUnmount(() => {
   restoreXhr()
   // The setter has no "unset": null restores the default (use-alova) client lookup.
-  setPachiFieldsHttp(null as never)
+  setPachiFieldsHttp(null)
 })
 
 /** Builds the two section definitions (card + expansion) for a record. */

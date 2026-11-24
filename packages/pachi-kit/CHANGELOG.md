@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `edit-dialog`: `PachiDialogEditActions` is exported.
+- `setPachiFieldsHttp(null)` and `setPachiAlovaFactory(null)` remove the registered client/factory (back to the `@ilpachi/use-alova` one).
+
 ## [0.1.1] - 2026-10-14
 
 ### Changed
