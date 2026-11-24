@@ -57,7 +57,9 @@ const en: PachiMessages<typeof it> = {
     overviewDesc: 'Select a section to get started.',
     sectionCode: 'section · {title}',
     sectionSub: '· {count} tools',
-    backToParent: 'Back to parent section'
+    backToParent: 'Back to parent section',
+    sidebarHomeTitle: 'Welcome',
+    sidebarHomeDescription: 'Select an item from the side menu to get started.'
   },
   errors: {
     notFound: {
@@ -81,7 +83,16 @@ const en: PachiMessages<typeof it> = {
     ok: 'OK',
     home: 'Home',
     parentLevel: 'Parent level',
+    navigation: 'Navigation',
+    openMenu: 'Open the menu',
     toggleTheme: 'Toggle dark mode'
+  },
+  themes: {
+    title: 'Appearance',
+    tooltip: 'Themes and colors',
+    dark: 'Dark',
+    light: 'Light',
+    auto: 'Auto'
   }
 }
 

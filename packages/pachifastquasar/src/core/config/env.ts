@@ -2,6 +2,7 @@ import { resolveTitleAnimation } from '../dashboard/helpers/title-animation'
 import type {
   PachiConfigInput,
   PachiEnv,
+  PachiNavigationMode,
   PachiRefreshMode,
   PachiToastPosition
 } from './types/app-config'
@@ -19,6 +20,13 @@ function pick(...values: unknown[]): string | undefined {
 function flag(...values: unknown[]): boolean | undefined {
   const value = pick(...values)
   return value === undefined ? undefined : value !== 'false'
+}
+
+/** `app.themes` from `QCLI_APP_THEMES` / `QCLI_APP_THEME_DEFAULT`: opt-in, a default theme alone enables it unless the flag is `false`. */
+function themesFromEnv(themesFlag: string | undefined, themeDefault: string | undefined) {
+  if (themesFlag === 'false') return false
+  if (themeDefault) return { default: themeDefault }
+  return themesFlag === undefined ? undefined : themesFlag === 'true'
 }
 
 /** Removes `undefined` keys (recursively) and objects left empty. */
@@ -49,6 +57,7 @@ function compact<T extends Record<string, unknown>>(value: T): T {
  * `QCLI_AUTH_REFRESH_MODE` (`body`|`cookie`; other values: `body` + warning),
  * `QCLI_AUTH_MENU_PROFILE|SETTINGS|HOME`,
  * `QCLI_APP_TITLE`, `QCLI_APP_DESCRIPTION`, `QCLI_APP_SHOW_LOGO`, `QCLI_APP_LOGO_SIZE`, `QCLI_APP_LOGO_OVERLAP`, `QCLI_APP_LOCALE`, `QCLI_APP_AUTO_DASHBOARD`,
+ * `QCLI_APP_NAVIGATION` (`dashboard`|`sidebar`; other values: `dashboard` + warning), `QCLI_APP_THEMES` (`true` enables the opt-in themes), `QCLI_APP_THEME_DEFAULT` (theme id; also enables them),
  * `QCLI_APP_SHOW_LOCALE_SWITCHER`, `QCLI_APP_HIDE_HUB_HEADER`, `QCLI_APP_DASHBOARD_MAX_WIDTH`, `QCLI_APP_DASHBOARD_COLUMNS`, `QCLI_APP_TITLE_ANIMATION`, `QCLI_APP_GRAVATAR`, `QCLI_APP_HOVER_EFFECTS`,
  * `QCLI_HTTP_ENVELOPE` (`false` = the backend does not use the envelope `{ success, message, data }`),
  * `QCLI_HTTP_ERROR_DISPLAY` (`dialog`|`toast`), `QCLI_HTTP_TOAST_POSITION` (e.g. `bottom`), `QCLI_HTTP_TOAST_TIMEOUT` (ms, `0` = sticky)
@@ -62,6 +71,8 @@ export function pachiConfigFromEnv(env: PachiEnv): PachiConfigInput {
   const hideHubHeader = pick(env.QCLI_APP_HIDE_HUB_HEADER)
   const errorDisplay = pick(env.QCLI_HTTP_ERROR_DISPLAY)
   const toastPosition = pick(env.QCLI_HTTP_TOAST_POSITION)
+  const themesFlag = pick(env.QCLI_APP_THEMES)
+  const themeDefault = pick(env.QCLI_APP_THEME_DEFAULT)
   const toastTimeout = Number(pick(env.QCLI_HTTP_TOAST_TIMEOUT) ?? NaN)
   return compact({
     auth: {
@@ -89,7 +100,10 @@ export function pachiConfigFromEnv(env: PachiEnv): PachiConfigInput {
       dashboardColumns: pick(env.QCLI_APP_DASHBOARD_COLUMNS),
       titleAnimation: resolveTitleAnimation(pick(env.QCLI_APP_TITLE_ANIMATION)),
       gravatar: flag(env.QCLI_APP_GRAVATAR),
-      hoverEffectsEnabled: flag(env.QCLI_APP_HOVER_EFFECTS, env.VITE_APP_HOVER_EFFECTS)
+      hoverEffectsEnabled: flag(env.QCLI_APP_HOVER_EFFECTS, env.VITE_APP_HOVER_EFFECTS),
+      // validated (with a warning) by resolvePachiConfig
+      navigation: pick(env.QCLI_APP_NAVIGATION) as PachiNavigationMode | undefined,
+      themes: themesFromEnv(themesFlag, themeDefault)
     },
     http: {
       envelope: flag(env.QCLI_HTTP_ENVELOPE),

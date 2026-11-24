@@ -6,6 +6,7 @@ export {
   isCookieRefreshMode,
   mergePachiConfig,
   resolvePachiConfig,
+  resolveThemesConfig,
   setPachiConfig
 } from './pachi-config'
 export type * from './types/app-config'

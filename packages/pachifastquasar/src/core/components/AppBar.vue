@@ -1,5 +1,16 @@
 <template>
-  <q-toolbar class="q-px-md pachi-app-bar">
+  <q-toolbar class="q-px-md pachi-app-bar" :class="{ 'pachi-app-bar--sidebar': isSidebar }">
+    <!-- Side menu toggle (app.navigation: 'sidebar') -->
+    <q-btn
+      v-if="isSidebar"
+      flat
+      round
+      dense
+      :icon="mdiMenu"
+      :aria-label="t('common.openMenu')"
+      class="q-mr-sm pachi-app-action-btn"
+      @click="toggleSideMenu"
+    />
     <!-- Logo + wordmark -->
     <div
       v-if="appConfig.app.showAppLogo"
@@ -17,8 +28,8 @@
       <span class="pachi-app-logo__wordmark">{{ appConfig.app.title }}</span>
     </div>
 
-    <!-- Breadcrumb (desktop) -->
-    <div class="q-ml-lg gt-xs pachi-breadcrumb-wrap">
+    <!-- Breadcrumb (desktop; sidebar: also on xs, reduced to the last crumb by the CSS) -->
+    <div class="q-ml-lg pachi-breadcrumb-wrap" :class="{ 'gt-xs': !isSidebar }">
       <q-breadcrumbs gutter="xs" class="pachi-breadcrumbs-bar">
         <q-breadcrumbs-el
           v-for="(b, i) in crumbs"
@@ -56,7 +67,7 @@
         dense
         :icon="mdiHome"
         :aria-label="t('common.home')"
-        class="pachi-app-action-btn"
+        class="pachi-app-action-btn pachi-app-bar__nav-btn"
         @click="goHome"
       >
         <q-tooltip>{{ t('common.goHome') }}</q-tooltip>
@@ -70,13 +81,14 @@
         dense
         :icon="mdiArrowUp"
         :aria-label="t('common.parentLevel')"
-        class="q-ml-xs pachi-app-action-btn"
+        class="q-ml-xs pachi-app-action-btn pachi-app-bar__nav-btn"
         @click="goParent"
       >
         <q-tooltip v-if="parentLabel" key="tooltipParent">
           {{ t('common.backTo', { label: parentLabel }) }}
         </q-tooltip>
       </q-btn>
+      <pachi-theme-selector v-if="themesEnabled" key="theme-palette" />
       <toggle-theme-button key="theme" />
       <pachi-locale-switcher v-if="showLocaleSwitcher" key="locale" class="q-mr-xs" />
     </transition-group>
@@ -86,17 +98,22 @@
   </q-toolbar>
 </template>
 <script setup lang="ts">
-import { mdiArrowUp, mdiHome } from '@quasar/extras/mdi-v7'
+import { mdiArrowUp, mdiHome, mdiMenu } from '@quasar/extras/mdi-v7'
 import { useAppBar } from '../composables/use-app-bar'
 import AccountMenuButton from './AccountMenuButton/AccountMenuButtonNew.vue'
 import ToggleThemeButton from './ToggleThemeButton.vue'
+import PachiThemeSelector from './PachiThemeSelector.vue'
+import { useSideMenu } from '../composables/use-side-menu'
 import PachiLogo from './PachiLogo.vue'
-import { getPachiConfig } from '../config'
+import { getPachiConfig, resolveThemesConfig } from '../config'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { PachiLocaleSwitcher, useLocale } from '@ilpachi/pachi-i18n'
 
 const appConfig = getPachiConfig()
+const isSidebar = appConfig.app.navigation === 'sidebar'
+const themesEnabled = resolveThemesConfig(appConfig).enabled
+const { toggle: toggleSideMenu } = useSideMenu()
 
 const {
   title,
@@ -187,6 +204,45 @@ const showLocaleSwitcher = computed(
 
   .q-breadcrumbs__el:last-child {
     color: var(--pachi-ink-2);
+  }
+}
+
+// ── Sidebar mode on xs: only the essentials fit (hamburger, logo, last crumb, theme/language, account) ─
+@media (max-width: 599px) {
+  .pachi-app-bar--sidebar {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+
+    .pachi-app-logo {
+      gap: 0;
+    }
+
+    // the breadcrumb takes the free space
+    > .q-space {
+      display: none;
+    }
+
+    .pachi-app-logo__wordmark,
+    .pachi-title-pill,
+    .pachi-app-bar__nav-btn {
+      display: none;
+    }
+
+    .pachi-breadcrumb-wrap {
+      flex: 1 1 0;
+      margin-left: 8px !important; // beats q-ml-lg
+      max-width: none;
+    }
+
+    .pachi-breadcrumbs-bar .q-breadcrumbs__el {
+      max-width: 100%;
+      flex-wrap: nowrap;
+    }
+
+    // last crumb only
+    .pachi-breadcrumbs-bar > div > div:not(.q-breadcrumbs--last) {
+      display: none;
+    }
   }
 }
 

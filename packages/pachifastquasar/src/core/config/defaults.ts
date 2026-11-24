@@ -22,7 +22,9 @@ export const DEFAULT_PACHI_CONFIG: IAppConfig = {
     dashboardColumns: undefined,
     titleAnimation: undefined,
     gravatar: false,
-    hoverEffectsEnabled: true
+    hoverEffectsEnabled: true,
+    navigation: 'dashboard',
+    themes: false
   },
   http: {
     envelope: true,

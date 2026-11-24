@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // @ts-check
 /**
- * Compiles the shell global styles into `dist/styles.css` and copies the Sass sources into `dist/scss/`
+ * Compiles the shell global styles into `dist/styles.css` (and the opt-in `dist/themes.css`) and copies the Sass sources into `dist/scss/`
  * (for the Quasar Sass variables and the configurable tokens: see README, Styles section).
  * Runs after `vite build` (which empties `dist/`).
  */
@@ -22,6 +22,9 @@ async function main() {
     silenceDeprecations: ['import']
   })
   await writeFile(path.join(DIST, 'styles.css'), result.css)
+  // opt-in themes (`app.themes`): separate stylesheet, never part of styles.css
+  const themes = await sass.compileAsync(path.join(SCSS_DIR, 'themes.scss'), { style: 'compressed' })
+  await writeFile(path.join(DIST, 'themes.css'), themes.css)
   await cp(SCSS_DIR, path.join(DIST, 'scss'), { recursive: true })
   console.log(`styles.css (${result.css.length} bytes) and scss/ written to dist/`)
 }

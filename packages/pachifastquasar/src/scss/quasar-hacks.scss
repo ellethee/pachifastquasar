@@ -118,7 +118,7 @@ body.pachi-hover-fx-disabled {
 
 // ── Inputs ───────────────────────────────────────────────────────────────────
 .q-field--outlined .q-field__control {
-  border-radius: 7px;
+  border-radius: var(--pachi-input-r, 7px);
 
   &::before {
     border-color: var(--pachi-border);
@@ -131,7 +131,7 @@ body.pachi-hover-fx-disabled {
 
 // Override of the "rounded" prop: always uses 7px instead of pill corners
 .q-field--outlined.q-field--rounded .q-field__control {
-  border-radius: 7px !important;
+  border-radius: var(--pachi-input-r, 7px) !important;
 }
 
 .q-field--focused.q-field--outlined .q-field__control::before {
@@ -261,7 +261,7 @@ input.q-field__native {
 
 // ── Buttons ──────────────────────────────────────────────────────────────────
 .q-btn {
-  border-radius: 7px;
+  border-radius: var(--pachi-btn-r, 7px);
 
   &.q-btn--round {
     border-radius: 50%;
@@ -281,7 +281,7 @@ input.q-field__native {
 
 // ── Select / Menu ─────────────────────────────────────────────────────────────
 .q-menu {
-  border-radius: 8px;
+  border-radius: var(--pachi-menu-r, 8px);
   border: 1px solid var(--pachi-border);
   background: var(--pachi-surface-2);
 }

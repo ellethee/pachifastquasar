@@ -45,6 +45,7 @@
       "default": "./dist/quasar.js"
     },
     "./styles.css": "./dist/styles.css",
+    "./themes.css": "./dist/themes.css",
     "./scss/*": {
       "sass": "./dist/scss/*.scss",
       "default": "./dist/scss/*"

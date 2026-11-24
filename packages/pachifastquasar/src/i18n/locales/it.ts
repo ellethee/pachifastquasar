@@ -65,7 +65,9 @@ export default {
     overviewDesc: 'Seleziona una sezione per iniziare.',
     sectionCode: 'sezione · {title}',
     sectionSub: '· {count} strumenti',
-    backToParent: 'Torna a sezione superiore'
+    backToParent: 'Torna a sezione superiore',
+    sidebarHomeTitle: 'Benvenuto',
+    sidebarHomeDescription: 'Seleziona una voce dal menu laterale per iniziare.'
   },
   errors: {
     notFound: {
@@ -89,6 +91,15 @@ export default {
     ok: 'OK',
     home: 'Home',
     parentLevel: 'Livello superiore',
+    navigation: 'Navigazione',
+    openMenu: 'Apri il menu',
     toggleTheme: 'Cambia tema chiaro/scuro'
+  },
+  themes: {
+    title: 'Aspetto',
+    tooltip: 'Temi e colori',
+    dark: 'Scuro',
+    light: 'Chiaro',
+    auto: 'Automatico'
   }
 }

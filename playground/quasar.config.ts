@@ -10,6 +10,8 @@ const srcOf = (pkg: string, entry = 'index'): string =>
   fileURLToPath(new URL(`../packages/${pkg}/src/${entry}.ts`, import.meta.url))
 
 export default definePachiQuasarConfig({
+  // opt-in themes: they only take effect with `app.themes` (data-theme on <body>)
+  css: ['~@ilpachi/pachifastquasar/themes.css'],
   build: {
     extendViteConf(viteConf) {
       if (useDist) return

@@ -37,7 +37,30 @@ export function resolvePachiConfig(input: PachiConfigInput = {}): IAppConfig {
     console.warn(`[pachi] invalid auth.refreshMode ${JSON.stringify(mode)}: using 'body'`)
     config.auth = { ...config.auth, refreshMode: 'body' }
   }
+  const navigation = config.app.navigation
+  if (navigation !== 'dashboard' && navigation !== 'sidebar') {
+    console.warn(`[pachi] invalid app.navigation ${JSON.stringify(navigation)}: using 'dashboard'`)
+    config.app = { ...config.app, navigation: 'dashboard' }
+  }
+  const themes = config.app.themes
+  if (typeof themes !== 'boolean' && !isPlainObject(themes)) {
+    console.warn(`[pachi] invalid app.themes ${JSON.stringify(themes)}: themes disabled`)
+    config.app = { ...config.app, themes: false }
+  }
   return config
+}
+
+/**
+ * Opt-in themes of a configuration: enabled flag and default theme id.
+ *
+ * @param config - resolved configuration
+ * @returns `{ enabled, default }` (`default` only if configured)
+ */
+export function resolveThemesConfig(config: IAppConfig): { enabled: boolean; default?: string } {
+  const themes = config.app.themes
+  if (!themes) return { enabled: false }
+  if (themes === true) return { enabled: true }
+  return themes.default ? { enabled: true, default: themes.default } : { enabled: true }
 }
 
 /**

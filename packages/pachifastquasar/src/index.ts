@@ -19,6 +19,7 @@ export {
   mergePachiConfig,
   pachiConfigFromEnv,
   resolvePachiConfig,
+  resolveThemesConfig,
   setPachiConfig
 } from './core/config'
 export type {
@@ -27,9 +28,11 @@ export type {
   IAuthConfig,
   IHttpConfig,
   IPachiComponents,
+  IPachiThemesConfig,
   IPachiToastConfig,
   PachiConfigInput,
   PachiEnv,
+  PachiNavigationMode,
   PachiLogo as PachiLogoValue,
   PachiRefreshMode,
   PachiToastPosition
@@ -60,8 +63,11 @@ export {
   collectPackageMenus,
   createDefaultButtons,
   getPachiMenuFactories,
-  registerPachiMenus
+  registerPachiMenus,
+  buildNavTree,
+  isNavItemActive
 } from './core/menu'
+export type { BuildNavTreeOptions, PachiNavItem } from './core/menu'
 export type {
   PachiMenuItem,
   PachiMenuItemContext,
@@ -88,6 +94,9 @@ export { default as PachiScrollArea } from './core/components/PachiScrollArea.vu
 export { default as PachiEmptyState } from './core/components/PachiEmptyState.vue'
 export { default as PachiErrorState } from './core/components/PachiErrorState.vue'
 export { default as ToggleThemeButton } from './core/components/ToggleThemeButton.vue'
+export { default as PachiThemeSelector } from './core/components/PachiThemeSelector.vue'
+export { default as PachiSideMenu } from './core/components/PachiSideMenu.vue'
+export { useSideMenu } from './core/composables/use-side-menu'
 export { useAppBar } from './core/composables/use-app-bar'
 export type { IDashboardCard, IDashboardCardStat, IDashboardWidget } from './core/dashboard/types/dashboard'
 export { PACHI_TITLE_ANIMATIONS } from './core/dashboard/helpers/title-animation'
@@ -102,6 +111,22 @@ export {
 } from './services/auth-manager'
 export type { IMfaRequiredResponse, IToken, ITokenResponse, LoginResult } from './services/auth-manager'
 export type { IEngineInfo, IUserInfo } from './services/auth-manager/types/auth-manager'
+export {
+  PACHI_BUILTIN_THEMES,
+  PACHI_THEME_ID_KEY,
+  PACHI_THEME_MODE_KEY,
+  ThemeManager,
+  getPachiThemes,
+  registerPachiThemes
+} from './services/theme-manager'
+export type {
+  ColorMode,
+  PachiBuiltinThemeId,
+  ThemeColors,
+  ThemeDefinition,
+  ThemeId,
+  ThemePreview
+} from './services/theme-manager'
 export { WebSocketManager } from './services/ws-manager'
 export type {
   IWebSocketManagerHandler,

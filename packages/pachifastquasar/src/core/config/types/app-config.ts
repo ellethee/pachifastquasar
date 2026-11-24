@@ -3,6 +3,15 @@ import type { Component } from 'vue'
 import type { IMenuButton } from '../../components/AccountMenuButton/types/account-menu-button'
 import type { PachiMenuItemFactory } from '../../components/AccountMenuButton/types/menu-item-factory'
 
+/** Navigation style: automatic card dashboards (default) or a tree side menu built from the routes. */
+export type PachiNavigationMode = 'dashboard' | 'sidebar'
+
+/** Options of the opt-in themes (`app.themes`). */
+export interface IPachiThemesConfig {
+  /** Theme used until the user chooses one (default `slate`; also `QCLI_APP_THEME_DEFAULT`). */
+  default?: string
+}
+
 /** Transport of the refresh token: JSON body (default) or HttpOnly cookie. */
 export type PachiRefreshMode = 'body' | 'cookie'
 
@@ -56,6 +65,18 @@ export interface IAppSettings {
   /** Use Gravatar for avatars (default false, opt-in: sends the SHA-256 hash of the email to third parties); false = initials only, no external request. */
   gravatar?: boolean
   hoverEffectsEnabled?: boolean
+  /**
+   * Navigation style: `'dashboard'` (default: routes with children show a card dashboard) or `'sidebar'`
+   * (a tree side menu built from the routes; no automatic dashboard). Also `QCLI_APP_NAVIGATION`.
+   * Invalid values fall back to `'dashboard'` with a console warning.
+   */
+  navigation?: PachiNavigationMode
+  /**
+   * Opt-in themes (default `false`): `true` or `{ default }` enables the `ThemeManager` (`data-theme` on `<body>`,
+   * palette selector in the bar). The app must also import `@ilpachi/pachifastquasar/themes.css`.
+   * Also `QCLI_APP_THEMES` (`true`/`false`) and `QCLI_APP_THEME_DEFAULT`.
+   */
+  themes?: boolean | IPachiThemesConfig
 }
 
 /** HTTP client settings (`@ilpachi/use-alova`). */

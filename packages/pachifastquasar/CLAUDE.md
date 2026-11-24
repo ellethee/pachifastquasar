@@ -61,6 +61,10 @@ The layout is one viewport tall and does not scroll. Opt-in scroll: `meta.pageSc
 
 `src/scss/` → `dist/styles.css` (compiled by `scripts/build-styles.mjs`) + `dist/scss/*` (sources). `quasar-variables.scss` (Quasar Sass palette, `!default` values: the app defines the overrides and then does `@import '@ilpachi/pachifastquasar/scss/quasar-variables'` in its own `src/css/quasar.variables.scss`), `tokens.scss` (`--pachi-*` tokens, `$dark-page/$light-page/$light-color` configurable with `@use ... with`), `app.scss` (+ blueprint/bento/quasar-hacks/...), `fonts.scss`. The styles of the `.vue` components are injected into the JS by the `vite-plugin-css-injected-by-js` plugin.
 
+### Opt-in themes and side menu
+
+`app.themes` (`QCLI_APP_THEMES`, `QCLI_APP_THEME_DEFAULT`) enables the `ThemeManager` (`src/services/theme-manager/`, initialized by `createPachiApp`; `registerPachiThemes` for custom ones) and `PachiThemeSelector` in the `AppBar`; the CSS is the separate `src/scss/themes.scss` → `dist/themes.css` (`body[data-theme]` overriding `--pachi-*`), never part of `styles.css`. `app.navigation: 'sidebar'` (`QCLI_APP_NAVIGATION`) makes `MainLayout` render `PachiSideMenu` (a `q-drawer` tree built by the pure `buildNavTree` in `src/core/menu/nav-tree.ts`) instead of the automatic dashboards. Docs: `docs/themes-and-navigation.md`.
+
 ### Services (`src/services/*/`)
 
 Common pattern: folder with `index.ts` (barrel), `<name>-manager.ts` (class/logic), `<name>-store.ts` (Pinia state), `types/` (`.ts` files, not `.d.ts`: they must reach `dist`). Present: `auth-manager` (singleton `AuthManager.getInstance()`: token/refresh with auto-renew 60s before expiry, auth header for Alova, lazy WebSocket with single-use ticket), `ws-manager`. The HTTP client (`createUseAlova`, `getUseAlovaInstance`, `ResponseError`, `STOP_PROCESSOR`) lives in `@ilpachi/use-alova` (`withFiles` from `@ilpachi/use-alova/files`): import from there. The `settings-manager` lives in `@ilpachi/fastquasar-settings`.
