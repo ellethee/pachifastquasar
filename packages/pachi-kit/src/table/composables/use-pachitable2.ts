@@ -38,7 +38,7 @@ type EmitFn = (event: string, ...args: unknown[]) => void
  * are re-read on every change: a change of `url` or `watchingStates` reloads the data from the first page,
  * a change of `columns` rebuilds the columns, a change of `initialSort` resets the sorting.
  * `useColActions`, `canEdit` and `canDelete` are reactive (the actions column appears/disappears);
- * `localPagination`, `useSkeleton`, `rezDelay`, `rezOffset`, `lazyLoadingTimeout`
+ * `localPagination`, `hidePagination`, `useSkeleton`, `rezDelay`, `rezOffset`, `lazyLoadingTimeout`
  * are read at the time of use and do not trigger any reload.
  *
  * @param options - options (object, ref or getter)
@@ -107,7 +107,11 @@ export function usePachiTable2<T>(options: MaybeRefOrGetter<IPachiTable2Props>, 
 
   function sortByColumn(col: QTableColumn) {
     const currentState = sortState.value.find(s => s.column === col.name)
-    if (!currentState) {
+    if (opts.value.singleSort) {
+      // one criterion at a time: asc -> desc -> none, replacing the others
+      const next = !currentState ? 'asc' : currentState.direction === 'asc' ? 'desc' : null
+      sortState.value = next ? [{ column: col.name, direction: next }] : []
+    } else if (!currentState) {
       sortState.value.push({ column: col.name, direction: 'asc' })
     } else if (currentState.direction === 'asc') {
       currentState.direction = 'desc'
@@ -195,7 +199,7 @@ export function usePachiTable2<T>(options: MaybeRefOrGetter<IPachiTable2Props>, 
 
   const pagination = ref<{ page: number; rowsPerPage: number; rowsNumber?: number }>(
     localPagination
-      ? { page: 1, rowsPerPage: 50 }
+      ? { page: 1, rowsPerPage: opts.value.hidePagination ? 0 : 50 }
       : { page: page.value, rowsPerPage: pageSize.value, rowsNumber: total.value ?? 0 }
   )
   const lazyLoading = ref(false)
@@ -354,7 +358,7 @@ export function usePachiTable2<T>(options: MaybeRefOrGetter<IPachiTable2Props>, 
 
   function doResize() {
     const el = container.value
-    if (!el) return
+    if (!el || opts.value.autoHeight === false) return
     clearTimeout(resizeTimer)
     resizeTimer = setTimeout(() => {
       const top = el.getBoundingClientRect().top

@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `table`: `hidePagination`, `autoHeight` (default `true`) and `singleSort` props on `PachiTable2`.
 - `dialog`: `fullScroll` prop on `PachiDialog` (the whole card scrolls instead of only the content).
 - `edit-dialog`: `PachiDialogEditActions` is exported.
 - `table`: `hideToolbar` prop to hide the toolbar (filter box and `toolbar-actions` slot) of `PachiTable2`.

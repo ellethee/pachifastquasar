@@ -49,6 +49,7 @@
       :grid="grid"
       v-bind="$attrs"
       :rows-per-page-options="[0]"
+      :hide-bottom="props.hidePagination"
       :class="tableClasses"
       @request="onRequest"
     >
@@ -181,7 +182,7 @@ defineSlots<{
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: ((scope: any) => unknown) | undefined
 }>()
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   url: string,
   watchingStates?: unknown[],
   extraParams?: Record<string, unknown>,
@@ -207,7 +208,13 @@ const props = defineProps<{
   nullsLast?: boolean | string[],
   /** Hide the toolbar (filter box and `toolbar-actions` slot). Default `false`. */
   hideToolbar?: boolean,
-}>()
+  /** Hide the pagination bar (with `localPagination` all rows are shown). Default `false`. Read once at setup. */
+  hidePagination?: boolean,
+  /** Compute the container height from the viewport (`false`: the layout decides, e.g. inside dialogs/tabs). Default `true`. */
+  autoHeight?: boolean,
+  /** Clicking a header sorts by that column only instead of adding a sort criterion. Default `false`. */
+  singleSort?: boolean,
+}>(), { autoHeight: true })
 const { t } = usePachiI18n(messages)
 const emit = defineEmits<{
   /** Updated multi-sort state. */
@@ -273,6 +280,9 @@ const {
     initialSort: props.initialSort ?? props.initalSort ?? [],
     localPagination: props.localPagination ?? false,
     nullsLast: props.nullsLast ?? false,
+    hidePagination: props.hidePagination ?? false,
+    autoHeight: props.autoHeight,
+    singleSort: props.singleSort ?? false,
   }),
   emit as (event: string, ...args: unknown[]) => void,
 )

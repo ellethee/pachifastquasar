@@ -71,6 +71,28 @@
       />
     </q-card>
 
+    <!-- 3b. List inside a dialog/tab: no pagination bar, no auto height, single-column sort -->
+    <q-card flat bordered data-test="gallery-compact">
+      <q-card-section>
+        <div class="text-h6">3b. Compact list</div>
+        <div class="text-caption">
+          <code>local-pagination hide-pagination :auto-height="false" single-sort</code>, sorted by name:
+          clicking another header replaces the criterion.
+        </div>
+      </q-card-section>
+      <pachi-table2
+        :url="FAKE_URLS.items"
+        :columns="columns"
+        :initial-sort="[{ column: 'name', direction: 'asc' }]"
+        local-pagination
+        hide-pagination
+        :auto-height="false"
+        single-sort
+        hide-toolbar
+        dense
+      />
+    </q-card>
+
     <!-- 4. Skeleton -->
     <q-card flat bordered>
       <q-card-section class="row items-center q-gutter-md">

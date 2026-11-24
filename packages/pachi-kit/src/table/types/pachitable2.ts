@@ -25,7 +25,13 @@ export interface IPachiTable2Props {
   columns?: QTableColumn[],
   useSkeleton?: boolean,
   localPagination?: boolean,
-  nullsLast?: boolean | string[]
+  nullsLast?: boolean | string[],
+  /** Hides the pagination bar; with `localPagination` all rows are shown (read once at setup). */
+  hidePagination?: boolean,
+  /** Computes the container height from the viewport (default `true`); `false` leaves the height to the layout. */
+  autoHeight?: boolean,
+  /** Header click sorts by that column only (instead of adding a criterion). */
+  singleSort?: boolean
 }
 
 export interface IOrderState {
