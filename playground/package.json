@@ -7,7 +7,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "pnpm --filter @ilpachi/pachifastquasar build:node && quasar dev",
+    "dev": "pnpm --filter @ilpachi/pachifastquasar build:node && QCLI_AUTH_ENABLED=${QCLI_AUTH_ENABLED:-false} quasar dev",
     "build": "quasar build",
     "typecheck": "pnpm --filter @ilpachi/pachifastquasar build:node && quasar prepare && vue-tsc --noEmit",
     "build:dist": "pnpm --filter @ilpachi/pachifastquasar build && PACHI_PLAYGROUND_DIST=true quasar build"
