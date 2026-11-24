@@ -1,6 +1,6 @@
 <template>
   <div ref="container" class="pachi-table2--container q-pt-sm">
-    <q-toolbar>
+    <q-toolbar v-if="props.useToolbar">
       <q-toolbar-title>
         <q-input
           v-model="filter"
@@ -181,7 +181,7 @@ defineSlots<{
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: ((scope: any) => unknown) | undefined
 }>()
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   url: string,
   watchingStates?: unknown[],
   extraParams?: Record<string, unknown>,
@@ -205,7 +205,9 @@ const props = defineProps<{
   initalSort?: IOrderState[],
   localPagination?: boolean,
   nullsLast?: boolean | string[],
-}>()
+  /** Show the toolbar (filter box and `toolbar-actions` slot). Default `true`. */
+  useToolbar?: boolean,
+}>(), { useToolbar: true })
 const { t } = usePachiI18n(messages)
 const emit = defineEmits<{
   /** Updated multi-sort state. */
