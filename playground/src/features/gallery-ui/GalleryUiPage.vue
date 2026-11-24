@@ -84,6 +84,7 @@
         <q-btn color="primary" no-caps label="Custom actions + slots" @click="custom?.show()" />
         <q-btn color="primary" no-caps label="Disabled buttons" @click="disabled?.show()" />
         <q-btn color="primary" no-caps label="Long body (max-height)" @click="long?.show()" />
+        <q-btn color="primary" no-caps label="Long body (full-scroll)" @click="longFull?.show()" />
         <q-btn color="primary" no-caps label="Rich text (editor helpers)" @click="editorDlg?.show()" />
       </div>
 
@@ -130,6 +131,10 @@
 
       <pachi-dialog ref="long" title="Long body" max-height="60vh" width="420px">
         <p v-for="n in 30" :key="n">Row {{ n }}: scrollable content.</p>
+      </pachi-dialog>
+
+      <pachi-dialog ref="longFull" title="Long body (full-scroll)" max-height="60vh" width="420px" full-scroll>
+        <p v-for="n in 30" :key="n">Row {{ n }}: the whole card scrolls.</p>
       </pachi-dialog>
 
       <pachi-dialog ref="editorDlg" title="Rich text" :icon="mdiFormatText" width="640px" max-width="95vw">
@@ -229,6 +234,7 @@ const edit = useTemplateRef<Dlg>('edit')
 const custom = useTemplateRef<Dlg>('custom')
 const disabled = useTemplateRef<Dlg>('disabled')
 const long = useTemplateRef<Dlg>('long')
+const longFull = useTemplateRef<Dlg>('longFull')
 const editorDlg = useTemplateRef<Dlg>('editorDlg')
 const lastEvent = ref('')
 const initialCustomer = 'Acme Inc.'

@@ -80,6 +80,7 @@ import type { IPachiDialogProps } from '@ilpachi/pachi-kit/dialog'
 | `cardClass` | `string \| null` | `null` | Extra class added to the `q-card`. |
 | `actionClasses` | `string[]` | `[]` | Classes of the `q-card-actions` bar. |
 | `confirmDisabled` | `boolean` | `false` | Disables (does not hide) the confirm button. |
+| `fullScroll` | `boolean` | `false` | By default only `.pachi-dialog-content` scrolls when the body is taller than the dialog (toolbar and actions stay visible). With `true` the whole card scrolls. |
 | `showActionLabels` | `boolean` | `false` | Shows the text label next to the icon of the action buttons (confirm/close, or restore/save/close with `useEditActions`). Default: icon only with a tooltip. The actions are right-aligned either way. |
 | `cancelDisabled` | `boolean` | `false` | Disables (does not hide) the close button of the default actions. |
 | `useEditActions` | `boolean` | `false` | Uses restore / save / close instead of confirm / close. See [Edit mode](#edit-mode-and-unsaved-changes). |

@@ -7,8 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `dialog`: with a long body only `.pachi-dialog-content` scrolls; toolbar and actions stay in place (previously the whole card scrolled).
+
 ### Added
 
+- `dialog`: `fullScroll` prop on `PachiDialog` (the whole card scrolls instead of only the content).
 - `edit-dialog`: `PachiDialogEditActions` is exported.
 - `table`: `hideToolbar` prop to hide the toolbar (filter box and `toolbar-actions` slot) of `PachiTable2`.
 - `setPachiFieldsHttp(null)` and `setPachiAlovaFactory(null)` remove the registered client/factory (back to the `@ilpachi/use-alova` one).

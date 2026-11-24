@@ -8,7 +8,7 @@
     @shake="onUserDismissAttempt"
   >
     <q-card
-      :class="{ 'q-dialog-plugin': true , 'pachi-dialog': true, 'pachi-rounded': rounded, 'pachi-shaped': shaped, ...(cardClass ? { [cardClass]: true } : {}) }"
+      :class="{ 'q-dialog-plugin': true , 'pachi-dialog': true, 'pachi-rounded': rounded, 'pachi-shaped': shaped, 'pachi-full-scroll': fullScroll, ...(cardClass ? { [cardClass]: true } : {}) }"
       :style="{ top, left, bottom, right, width, height, minWidth, minHeight, maxWidth, maxHeight }"
     >
       <q-toolbar :class="titleClass" dense>
@@ -126,6 +126,7 @@ const {
   cancelDisabled = false,
   showActionLabels = false,
   cardClass = null,
+  fullScroll = false,
   useEditActions = false,
   hasChanges = false,
   avoidHideWithChanges = true,
