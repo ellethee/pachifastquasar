@@ -1,5 +1,5 @@
 <template>
-  <div ref="container" class="pachi-table2--container q-pt-sm">
+  <div ref="container" :class="{ 'pachi-table2--container q-pt-sm': true, 'with-toolbar': !props.hideToolbar }">
     <q-toolbar v-if="!props.hideToolbar">
       <q-toolbar-title>
         <q-input
@@ -290,6 +290,7 @@ defineExpose({ ...api, api, rows, selected, filter, loading, error: loadError })
 .pachi-table-2 {
   border-radius: var(--pachi-card-r);
 
+
   &.pachi-items-container {
     overflow-y: auto !important;
   }
@@ -350,10 +351,22 @@ defineExpose({ ...api, api, rows, selected, filter, loading, error: loadError })
 
 // ── Filter toolbar ────────────────────────────────────────────────────────
 .pachi-table2--container>.q-toolbar {
-  padding: 0 8px;
-  min-height: 48px;
-  border-bottom: 1px solid var(--pachi-border);
-  background: var(--pachi-surface);
+  // padding: 0 8px;
+  // min-height: 48px;
+  // border-bottom: 1px solid var(--pachi-border);
+  // background: var(--pachi-surface);
+
+	padding: 0 8px 0 0;
+	min-height: 48px;
+	background: var(--pachi-surface);
+	border: 1px solid var(--pachi-border);
+	border-bottom: none;
+	background-color: var(--pachi-surface-2) !important;
+	border-top-left-radius: var(--pachi-card-r);
+	border-top-right-radius: var(--pachi-card-r);
+  label {
+    margin-left: 8px;
+  }
 }
 
 .pachi-table2--error {
@@ -416,7 +429,11 @@ defineExpose({ ...api, api, rows, selected, filter, loading, error: loadError })
   letter-spacing: -0.011em;
   overflow: hidden;
   border: 1px solid var(--pachi-border);
-
+  .with-toolbar & {
+    border-top-left-radius: 0 !important;
+    border-top-right-radius: 0 !important;
+    border-top: none !important;
+  }
   thead tr th {
     font-weight: 600;
     text-transform: uppercase;
