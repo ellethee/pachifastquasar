@@ -40,6 +40,6 @@ Initial public release. Consolidates the former pachi-ui, pachi-dialog, pachi-ed
 - Optional peer dependencies `@ilpachi/use-alova` and `alova` (needed only by `fields` and `table`).
 
 [Unreleased]: https://github.com/ellethee/pachifastquasar/compare/pachi-kit@0.2.0...HEAD
-[0.2.0]: https://github.com/ellethee/pachifastquasar/compare/pachi-kit@0.1.1...HEAD
+[0.2.0]: https://github.com/ellethee/pachifastquasar/compare/pachi-kit@0.1.1...pachi-kit@0.2.0
 [0.1.1]: https://github.com/ellethee/pachifastquasar/compare/pachi-kit@0.1.0...pachi-kit@0.1.1
 [0.1.0]: https://github.com/ellethee/pachifastquasar/releases/tag/pachi-kit@0.1.0
