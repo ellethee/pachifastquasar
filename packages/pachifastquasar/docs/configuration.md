@@ -66,6 +66,8 @@ enables it.
 | `app.titleAnimation`      | `QCLI_APP_TITLE_ANIMATION`                          | `rubber-band`            | hover animation of the dashboard card titles: `rubber-band`, `pulse`, `shake`, `wobble`, `tada`, `bounce` or `none`; per route: `meta.titleAnimation` |
 | `app.gravatar`            | `QCLI_APP_GRAVATAR`                                 | `false`                  | `true`: opt in to Gravatar (it receives a SHA-256 hash of the email); otherwise avatars show initials, no external request |
 | `app.hoverEffectsEnabled` | `QCLI_APP_HOVER_EFFECTS` or `VITE_APP_HOVER_EFFECTS` | `true`                  | `false` adds the `pachi-hover-fx-disabled` class to `body` and disables hover animations  |
+| `app.navigation`          | `QCLI_APP_NAVIGATION`                               | `dashboard`              | `dashboard` (automatic card dashboards) or `sidebar` (tree side menu, no dashboards); see [Themes and side menu](themes-and-navigation.md) |
+| `app.themes`              | `QCLI_APP_THEMES`, `QCLI_APP_THEME_DEFAULT`         | `false`                  | `true` or `{ default }` enables the opt-in themes (also import `themes.css`); `QCLI_APP_THEME_DEFAULT=<id>` alone enables them too |
 
 ### `http`
 

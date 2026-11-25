@@ -8,6 +8,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-25
+
+### Added
+
+- `PachiSideMenu` accepts an `items` prop (`PachiNavItem[]`) to show a given tree instead of the one built from the router routes.
+- Opt-in themes: `app.themes` (`true` or `{ default }`; env `QCLI_APP_THEMES`, `QCLI_APP_THEME_DEFAULT`) enables the `ThemeManager` (`data-theme` on `<body>`, persisted in `pachi-prefs-theme-id` and the shared `pachi-prefs-theme` mode key) and a palette selector (`PachiThemeSelector`) in the app bar. Six built-in themes (`slate`, `zinc`, `emerald`, `cosmic`, `amber`, `teal`) in the separate `@ilpachi/pachifastquasar/themes.css` (and `scss/themes`), not part of `styles.css`. `registerPachiThemes` adds custom themes. Components read the new `--pachi-card-*`, `--pachi-icon-*`, `--pachi-btn-r`, `--pachi-input-r`, `--pachi-menu-r` tokens with a fallback to the classic look.
+- Side menu: `app.navigation: 'sidebar'` (env `QCLI_APP_NAVIGATION`, default `'dashboard'`, invalid values fall back with a warning) shows a tree menu in a left drawer (`PachiSideMenu`, overlay on small screens, menu button in the app bar) built from the routes with `buildNavTree` (same filters as the dashboard cards) instead of the automatic dashboards. See "Themes and side menu" in the docs.
+
+### Fixed
+
+- Sidebar mode layout: the app bar is a `q-header` (the drawer and its overlay start below it, the menu button stays above the overlay; the header `z-index` is derived from Quasar's `$z-fixed-drawer` + 1 instead of a literal) and the page `min-height`/`--pachi-page-height` account for it.
+- Sidebar mode, small screens (xs): adaptive app bar (menu button, logo, last breadcrumb, theme/language and account; wordmark, title pill and home/up buttons are hidden).
+- Themes in `auto` mode: the Quasar brand colors now follow the OS light/dark scheme when it changes at runtime (they were applied only at start and on explicit changes).
+- Side menu accessibility: removed the `tree`/`treeitem` roles (arrow-key navigation was not implemented); it is a disclosure navigation (links and `aria-expanded` buttons, Tab/Enter/Space), with `aria-current="page"` on the current link and a visible `:focus-visible` ring.
+
 ## [0.1.6] - 2026-10-20
 
 ### Fixed
@@ -62,7 +77,8 @@ Initial public release. Vue 3 / Quasar application shell for pachifast backends.
 - HTTP client on `@ilpachi/use-alova`, wired to authentication, spinner and error messages.
 - Runtime configuration through `QCLI_*` environment variables or code, and the Quasar preset `definePachiQuasarConfig`.
 
-[Unreleased]: https://github.com/ellethee/pachifastquasar/compare/pachifastquasar@0.1.6...HEAD
+[Unreleased]: https://github.com/ellethee/pachifastquasar/compare/pachifastquasar@0.2.0...HEAD
+[0.2.0]: https://github.com/ellethee/pachifastquasar/compare/pachifastquasar@0.1.6...pachifastquasar@0.2.0
 [0.1.6]: https://github.com/ellethee/pachifastquasar/compare/pachifastquasar@0.1.5...pachifastquasar@0.1.6
 [0.1.5]: https://github.com/ellethee/pachifastquasar/compare/pachifastquasar@0.1.4...pachifastquasar@0.1.5
 [0.1.4]: https://github.com/ellethee/pachifastquasar/compare/pachifastquasar@0.1.3...pachifastquasar@0.1.4

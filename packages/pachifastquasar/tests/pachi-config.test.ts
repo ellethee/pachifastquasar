@@ -6,6 +6,7 @@ import {
   mergePachiConfig,
   pachiConfigFromEnv,
   resolvePachiConfig,
+  resolveThemesConfig,
   setPachiConfig
 } from 'src/core/config'
 
@@ -160,5 +161,42 @@ describe('http error display and toast', () => {
     })
     expect(cfg.http).toEqual({ errorDisplay: 'toast', toast: { position: 'bottom', timeout: 0 } })
     expect(pachiConfigFromEnv({ QCLI_HTTP_ERROR_DISPLAY: 'nope', QCLI_HTTP_TOAST_TIMEOUT: 'x' }).http).toBeUndefined()
+  })
+})
+
+describe('app.navigation and app.themes', () => {
+  it('defaults: dashboard navigation, themes disabled', () => {
+    const cfg = resolvePachiConfig()
+    expect(cfg.app.navigation).toBe('dashboard')
+    expect(cfg.app.themes).toBe(false)
+    expect(resolveThemesConfig(cfg)).toEqual({ enabled: false })
+  })
+  it('accepts sidebar and the themes forms', () => {
+    expect(resolvePachiConfig({ app: { navigation: 'sidebar' } }).app.navigation).toBe('sidebar')
+    expect(resolveThemesConfig(resolvePachiConfig({ app: { themes: true } }))).toEqual({ enabled: true })
+    expect(resolveThemesConfig(resolvePachiConfig({ app: { themes: { default: 'teal' } } }))).toEqual({
+      enabled: true,
+      default: 'teal'
+    })
+  })
+  it('invalid values fall back with a warning', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+    const cfg = resolvePachiConfig({ app: { navigation: 'tabs' as never, themes: 'yes' as never } })
+    expect(cfg.app.navigation).toBe('dashboard')
+    expect(cfg.app.themes).toBe(false)
+    expect(warn).toHaveBeenCalledTimes(2)
+    warn.mockRestore()
+  })
+  it('env: QCLI_APP_NAVIGATION, QCLI_APP_THEMES, QCLI_APP_THEME_DEFAULT', () => {
+    expect(pachiConfigFromEnv({ QCLI_APP_NAVIGATION: 'sidebar' }).app?.navigation).toBe('sidebar')
+    expect(pachiConfigFromEnv({}).app?.navigation).toBeUndefined()
+    expect(pachiConfigFromEnv({ QCLI_APP_THEMES: 'true' }).app?.themes).toBe(true)
+    expect(pachiConfigFromEnv({ QCLI_APP_THEMES: 'false' }).app?.themes).toBe(false)
+    expect(pachiConfigFromEnv({ QCLI_APP_THEMES: 'nope' }).app?.themes).toBe(false)
+    expect(pachiConfigFromEnv({}).app?.themes).toBeUndefined()
+    expect(pachiConfigFromEnv({ QCLI_APP_THEME_DEFAULT: 'cosmic' }).app?.themes).toEqual({ default: 'cosmic' })
+    expect(
+      pachiConfigFromEnv({ QCLI_APP_THEMES: 'false', QCLI_APP_THEME_DEFAULT: 'cosmic' }).app?.themes
+    ).toBe(false)
   })
 })

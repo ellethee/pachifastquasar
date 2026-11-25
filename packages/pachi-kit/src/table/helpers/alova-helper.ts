@@ -25,9 +25,9 @@ let cache: { useAlova: unknown, url: string, alova: AlovaExt } | null = null
  * Replaces the automatic resolution of the alova instance with a custom factory.
  * Call it once at app startup. It takes precedence over everything else.
  *
- * @param factory - factory returning an alova instance
+ * @param factory - factory returning an alova instance; `null` removes it (back to the use-alova instance)
  */
-export function setPachiAlovaFactory(factory: PachiAlovaFactory): void {
+export function setPachiAlovaFactory(factory: PachiAlovaFactory | null): void {
   customFactory = factory
 }
 

@@ -20,6 +20,7 @@ export const pachiTable2Emits = [
   'pt2:loaded',
   'pt2:data',
   'pt2:load-error',
+  'pt2:retry',
   'pt2:request',
   'pt2:record-created',
   'pt2:record-updated',
@@ -38,7 +39,7 @@ type EmitFn = (event: string, ...args: unknown[]) => void
  * are re-read on every change: a change of `url` or `watchingStates` reloads the data from the first page,
  * a change of `columns` rebuilds the columns, a change of `initialSort` resets the sorting.
  * `useColActions`, `canEdit` and `canDelete` are reactive (the actions column appears/disappears);
- * `localPagination`, `useSkeleton`, `rezDelay`, `rezOffset`, `lazyLoadingTimeout`
+ * `localPagination`, `hidePagination`, `useSkeleton`, `rezDelay`, `rezOffset`, `lazyLoadingTimeout`
  * are read at the time of use and do not trigger any reload.
  *
  * @param options - options (object, ref or getter)
@@ -52,17 +53,20 @@ export function usePachiTable2<T>(options: MaybeRefOrGetter<IPachiTable2Props>, 
   const opts = computed(() => toValue(options))
   const _emit: EmitFn = emit ?? (() => { })
   const rowKey = () => opts.value.rowKey ?? 'id'
-  const localPagination = opts.value.localPagination ?? false
+  // `rows` given: data in memory, no list request (read once at setup); filter and sort are local
+  const hasRows = opts.value.rows !== undefined
+  const localPagination = hasRows || (opts.value.localPagination ?? false)
   const useSkeleton = opts.value.useSkeleton ?? false
   const filter = ref<string>('')
 
   // The alova instance depends on the url: it is recreated only when the url changes.
   let alovaUrl = opts.value.url
-  let alovaInstance = createPachiAlova({ url: alovaUrl })
+  // created on first use: a table with `rows` needs no alova client at all
+  let alovaInstance: AlovaExt | undefined
   function currentAlova(): AlovaExt {
-    if (opts.value.url !== alovaUrl) {
+    if (!alovaInstance || opts.value.url !== alovaUrl) {
       alovaUrl = opts.value.url
-      alovaInstance = createPachiAlova({ url: alovaUrl })
+      alovaInstance = createPachiAlova(alovaUrl === undefined ? {} : { url: alovaUrl })
     }
     return alovaInstance
   }
@@ -107,7 +111,11 @@ export function usePachiTable2<T>(options: MaybeRefOrGetter<IPachiTable2Props>, 
 
   function sortByColumn(col: QTableColumn) {
     const currentState = sortState.value.find(s => s.column === col.name)
-    if (!currentState) {
+    if (opts.value.singleSort) {
+      // one criterion at a time: asc -> desc -> none, replacing the others
+      const next = !currentState ? 'asc' : currentState.direction === 'asc' ? 'desc' : null
+      sortState.value = next ? [{ column: col.name, direction: next }] : []
+    } else if (!currentState) {
       sortState.value.push({ column: col.name, direction: 'asc' })
     } else if (currentState.direction === 'asc') {
       currentState.direction = 'desc'
@@ -174,28 +182,30 @@ export function usePachiTable2<T>(options: MaybeRefOrGetter<IPachiTable2Props>, 
       initialData: { items: [], total: 0 },
       total: (res: IPaginatedResponse<T>) => res.total,
       data: (res: IPaginatedResponse<T>) => res.items,
+      immediate: !hasRows,
       initialPage: 1,
       initialPageSize: localPagination ? 0 : 50,
       preloadNextPage: false,
       preloadPreviousPage: false,
       watchingStates: [
         ...(localPagination ? [] : [orderBy, filter]),
-        extraParamsComputed,
-        stableWatched,
+        ...(hasRows ? [] : [extraParamsComputed, stableWatched]),
       ] as WatchSource[],
       debounce: 300,
     },
   )
-  const { page, pageSize, data: rawRows, total, loading } = paginationHook
+  const { page, pageSize, data: rawRows, total } = paginationHook
+  // external `loading` prop (also useful with `rows`) or the request in progress
+  const loading = computed(() => !!opts.value.loading || (!hasRows && paginationHook.loading.value))
 
   // In local mode rows are sorted client-side; in remote mode the server sorts them.
   const rows = computed<T[]>(() =>
-    localPagination ? sortItems(rawRows.value as T[]) : (rawRows.value as T[])
+    hasRows ? sortItems(opts.value.rows ?? []) : localPagination ? sortItems(rawRows.value as T[]) : (rawRows.value as T[])
   )
 
   const pagination = ref<{ page: number; rowsPerPage: number; rowsNumber?: number }>(
     localPagination
-      ? { page: 1, rowsPerPage: 50 }
+      ? { page: 1, rowsPerPage: opts.value.hidePagination ? 0 : 50 }
       : { page: page.value, rowsPerPage: pageSize.value, rowsNumber: total.value ?? 0 }
   )
   const lazyLoading = ref(false)
@@ -221,17 +231,19 @@ export function usePachiTable2<T>(options: MaybeRefOrGetter<IPachiTable2Props>, 
     watch(pageSize, (val) => { pagination.value.rowsPerPage = val })
   }
 
-  const loadError = shallowRef<unknown>(null)
+  const requestError = shallowRef<unknown>(null)
+  // external `error` prop (e.g. the parent failed to fetch the `rows`) takes precedence over the request error
+  const loadError = computed<unknown>(() => opts.value.error ?? requestError.value)
   paginationHook.onSuccess((r) => {
-    loadError.value = null
+    requestError.value = null
     _emit('pt2:loaded', r)
     _emit('pt2:data', (r as unknown as { data: IPaginatedResponse<T> }).data)
   })
   paginationHook.onError((e) => {
-    loadError.value = e.error
+    requestError.value = e.error
     _emit('pt2:load-error', e.error)
   })
-  watch(loading, (val) => { if (val) loadError.value = null })
+  watch(loading, (val) => { if (val) requestError.value = null })
 
   function onRequest(props: { pagination: { page: number; rowsPerPage: number; sortBy: string; descending: boolean } }) {
     if (localPagination) return
@@ -239,7 +251,18 @@ export function usePachiTable2<T>(options: MaybeRefOrGetter<IPachiTable2Props>, 
     pageSize.value = props.pagination.rowsPerPage
     _emit('pt2:request', filter.value)
   }
+  /** Reloads the list; with `rows` there is nothing to reload (the parent owns the data). */
+  async function reloadList() { if (!hasRows) await paginationHook.reload() }
   const keyOf = (item: T) => String(item[rowKey() as keyof T])
+  // with `rows` the parent replaces the data: selected rows that no longer exist are dropped
+  if (hasRows) {
+    watch(rows, (next) => {
+      if (selected.value.length === 0) return
+      const keys = new Set(next.map(keyOf))
+      const kept = selected.value.filter(r => keys.has(keyOf(r)))
+      if (kept.length !== selected.value.length) selected.value = kept
+    })
+  }
 
   /** After a deletion: if the current page becomes empty go back to the previous one (the page change reloads), otherwise reload. */
   async function reloadAfterDelete(removed: number) {
@@ -248,7 +271,7 @@ export function usePachiTable2<T>(options: MaybeRefOrGetter<IPachiTable2Props>, 
       page.value -= 1
       return
     }
-    await paginationHook.reload()
+    await reloadList()
   }
 
   /** Shows an error to the user (Notify) without making the caller fail. */
@@ -269,7 +292,7 @@ export function usePachiTable2<T>(options: MaybeRefOrGetter<IPachiTable2Props>, 
       const reasons = results.filter((r): r is PromiseRejectedResult => r.status === 'rejected').map(r => r.reason)
       // the rows already processed no longer exist (or have changed): only the failed ones stay selected
       selected.value = items.filter((_, i) => results[i]?.status === 'rejected')
-      await paginationHook.reload()
+      await reloadList()
       if (done.length > 0) _emit(doneEvent, done)
       throw new Error(t('pachiTable2.multipleFailed', { ok: done.length, total: items.length }), { cause: reasons })
     }
@@ -278,13 +301,13 @@ export function usePachiTable2<T>(options: MaybeRefOrGetter<IPachiTable2Props>, 
 
   async function createRecord(item: Partial<T>, options?: IPachiTable2RequestOptions): Promise<T> {
     const result = await currentAlova().Post<T>('/', item as RequestBody, { cacheFor: null, ...(options?.meta ? { meta: options.meta } : {}) })
-    await paginationHook.reload()
+    await reloadList()
     _emit('pt2:record-created', [result])
     return result
   }
   async function updateRecord(item: T, options?: IPachiTable2RequestOptions): Promise<T> {
     const result = await currentAlova().Put<T>(`/${encodeKey(keyOf(item))}`, item as RequestBody, { cacheFor: null, ...(options?.meta ? { meta: options.meta } : {}) })
-    await paginationHook.reload()
+    await reloadList()
     _emit('pt2:record-updated', [result])
     return result
   }
@@ -303,7 +326,7 @@ export function usePachiTable2<T>(options: MaybeRefOrGetter<IPachiTable2Props>, 
   }
   async function multipleUpdate(items: T[]) {
     const done = await runMultiple(items, 'pt2:record-updated', item => currentAlova().Put(`/${encodeKey(keyOf(item))}`, item as RequestBody, { cacheFor: null }))
-    await paginationHook.reload()
+    await reloadList()
     _emit('pt2:record-updated', done)
   }
   async function multipleDelete(items: T[]) {
@@ -313,7 +336,7 @@ export function usePachiTable2<T>(options: MaybeRefOrGetter<IPachiTable2Props>, 
   }
   async function bulkUpdate(items: Array<PachiTable2BulkItem<T>>) {
     await currentAlova().Post('/bulk-update', { items }, { cacheFor: null })
-    await paginationHook.reload()
+    await reloadList()
     _emit('pt2:record-updated', items as unknown as T[])
   }
   async function bulkDelete(items: T[]) {
@@ -354,7 +377,7 @@ export function usePachiTable2<T>(options: MaybeRefOrGetter<IPachiTable2Props>, 
 
   function doResize() {
     const el = container.value
-    if (!el) return
+    if (!el || opts.value.autoHeight === false) return
     clearTimeout(resizeTimer)
     resizeTimer = setTimeout(() => {
       const top = el.getBoundingClientRect().top
@@ -390,14 +413,18 @@ export function usePachiTable2<T>(options: MaybeRefOrGetter<IPachiTable2Props>, 
     resizeObserver?.disconnect()
   })
   onUpdated(() => doResize())
-  async function retryLoad() { await paginationHook.reload() }
+  /** Retry: reloads the list; with `rows` the parent owns the data, so `pt2:retry` is emitted. */
+  async function retryLoad() {
+    if (hasRows) _emit('pt2:retry')
+    else await reloadList()
+  }
   async function reload() {
-    await paginationHook.reload()
+    await reloadList()
   }
   /** Partial update (`PATCH /<key>`): sends only the passed fields (the key stays in the URL). */
   async function patchRecord(item: T, options?: IPachiTable2RequestOptions): Promise<T> {
     const result = await currentAlova().Patch<T>(`/${encodeKey(keyOf(item))}`, item as RequestBody, { cacheFor: null, ...(options?.meta ? { meta: options.meta } : {}) })
-    await paginationHook.reload()
+    await reloadList()
     _emit('pt2:record-updated', [result])
     return result
   }

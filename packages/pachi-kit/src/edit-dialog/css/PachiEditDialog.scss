@@ -3,15 +3,23 @@
   display: flex !important;
   flex-direction: column !important;
 
-  &.pachi-rounded { border-radius: var(--pachi-card-r); }
+  &.pachi-rounded {
+    border-radius: var(--pachi-card-r);
+  }
+
   &.pachi-shaped {
     border-top-left-radius: var(--pachi-card-r);
     border-bottom-right-radius: var(--pachi-card-r);
   }
 
   &.pachi-blueprint-card {
-    .body--dark & { background-color: var(--q-dark) !important; }
-    .body--light & { background-color: var(--pachi-body-bg, #f0f4f8) !important; }
+    .body--dark & {
+      background-color: var(--q-dark) !important;
+    }
+
+    .body--light & {
+      background-color: var(--pachi-body-bg, #f0f4f8) !important;
+    }
   }
 
   // ── Split body ──────────────────────────────────────────────────────────────
@@ -26,6 +34,7 @@
     flex: 1;
     min-width: 0;
     overflow-y: auto;
+    margin: 16px 6px 16px 6px;
   }
 
   .pachi-dialog-side-panel {
@@ -62,4 +71,30 @@
     color: var(--pachi-accent);
     margin-right: auto;
   }
+}
+
+.pachi-dialog-editor-section-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.pachi-dialog-editor-section {
+  display: flex;
+  flex-direction: column;
+
+  .q-expansion-item__content {
+    &.relative-position {
+      margin-left: 22px;
+    }
+  }
+}
+
+.pachi-dialog-editor-section-component {
+  display: flex;
+  flex-direction: column;
+}
+
+.pachi-dialog-editor-section-inner-component {
+  display: flex;
+  flex-direction: column;
 }

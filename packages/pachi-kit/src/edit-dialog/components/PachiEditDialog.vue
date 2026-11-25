@@ -65,6 +65,7 @@
             ref="sectionsContainer"
             :sections="mainSections"
             :common-props="commonProps"
+            class="pachi-dialog-editor-section-container"
           />
         </div>
         <div

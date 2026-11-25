@@ -1,6 +1,6 @@
 <template>
-  <div ref="container" class="pachi-table2--container q-pt-sm">
-    <q-toolbar>
+  <div ref="container" :class="{ 'pachi-table2--container q-pt-sm': true, 'with-toolbar': !props.hideToolbar }">
+    <q-toolbar v-if="!props.hideToolbar">
       <q-toolbar-title>
         <q-input
           v-model="filter"
@@ -49,6 +49,7 @@
       :grid="grid"
       v-bind="$attrs"
       :rows-per-page-options="[0]"
+      :hide-pagination="props.hidePagination"
       :class="tableClasses"
       @request="onRequest"
     >
@@ -59,7 +60,8 @@
           :sort-by-column="sortByColumn"
         />
       </template>
-      <template #bottom="scope">
+      <!-- without our `bottom` slot QTable keeps the "no data" message and, with hide-pagination, shows no pager -->
+      <template v-if="!props.hidePagination" #bottom="scope">
         <pachi-table2-pagination
           :pagination="scope.pagination"
           :pages-number="scope.pagesNumber"
@@ -181,8 +183,15 @@ defineSlots<{
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: ((scope: any) => unknown) | undefined
 }>()
-const props = defineProps<{
-  url: string,
+const props = withDefaults(defineProps<{
+  /** Base URL of the list/CRUD requests. Optional when `rows` is given. */
+  url?: string,
+  /** Rows in memory: no list request (so no `url`), filter, sort and pagination are local. Presence read once at setup; the array itself is reactive. */
+  rows?: T[],
+  /** External loading state (spinner); with `rows` it is the only one. */
+  loading?: boolean,
+  /** External error (e.g. loading the `rows` failed): shown by the `error` slot / `errorBanner`. */
+  error?: unknown,
   watchingStates?: unknown[],
   extraParams?: Record<string, unknown>,
   grid?: boolean,
@@ -205,7 +214,15 @@ const props = defineProps<{
   initalSort?: IOrderState[],
   localPagination?: boolean,
   nullsLast?: boolean | string[],
-}>()
+  /** Hide the toolbar (filter box and `toolbar-actions` slot). Default `false`. */
+  hideToolbar?: boolean,
+  /** Hide the pagination bar (with `localPagination` all rows are shown). Default `false`. Read once at setup. */
+  hidePagination?: boolean,
+  /** Compute the container height from the viewport (`false`: the layout decides, e.g. inside dialogs/tabs). Default `true`. */
+  autoHeight?: boolean,
+  /** Clicking a header sorts by that column only instead of adding a sort criterion. Default `false`. */
+  singleSort?: boolean,
+}>(), { autoHeight: true })
 const { t } = usePachiI18n(messages)
 const emit = defineEmits<{
   /** Updated multi-sort state. */
@@ -215,6 +232,8 @@ const emit = defineEmits<{
   /** Paginated response `{ items, total, page, pageSize }`. */
   'pt2:data': [response: IPaginatedResponse<T>]
   'pt2:load-error': [error: unknown]
+  /** "Retry" clicked with `rows` (the parent reloads the data). */
+  'pt2:retry': []
   'pt2:request': [filter: string]
   'pt2:record-created': [records: T[]]
   'pt2:record-updated': [records: T[]]
@@ -255,7 +274,10 @@ const {
 } = usePachiTable2<T>(
   // getter: url, columns, rowKey, extraParams, watchingStates, nullsLast and initialSort stay reactive to the props
   () => ({
-    url: props.url,
+    url: props.url ?? '',
+    rows: props.rows,
+    loading: props.loading ?? false,
+    error: props.error,
     watchingStates: props.watchingStates ?? [],
     extraParams: props.extraParams ?? {},
     grid: props.grid ?? false,
@@ -271,6 +293,9 @@ const {
     initialSort: props.initialSort ?? props.initalSort ?? [],
     localPagination: props.localPagination ?? false,
     nullsLast: props.nullsLast ?? false,
+    hidePagination: props.hidePagination ?? false,
+    autoHeight: props.autoHeight,
+    singleSort: props.singleSort ?? false,
   }),
   emit as (event: string, ...args: unknown[]) => void,
 )
@@ -287,6 +312,7 @@ defineExpose({ ...api, api, rows, selected, filter, loading, error: loadError })
 <style lang="scss">
 .pachi-table-2 {
   border-radius: var(--pachi-card-r);
+
 
   &.pachi-items-container {
     overflow-y: auto !important;
@@ -348,10 +374,22 @@ defineExpose({ ...api, api, rows, selected, filter, loading, error: loadError })
 
 // ── Filter toolbar ────────────────────────────────────────────────────────
 .pachi-table2--container>.q-toolbar {
-  padding: 0 8px;
-  min-height: 48px;
-  border-bottom: 1px solid var(--pachi-border);
-  background: var(--pachi-surface);
+  // padding: 0 8px;
+  // min-height: 48px;
+  // border-bottom: 1px solid var(--pachi-border);
+  // background: var(--pachi-surface);
+
+	padding: 0 8px 0 0;
+	min-height: 48px;
+	background: var(--pachi-surface);
+	border: 1px solid var(--pachi-border);
+	border-bottom: none;
+	background-color: var(--pachi-surface-2) !important;
+	border-top-left-radius: var(--pachi-card-r);
+	border-top-right-radius: var(--pachi-card-r);
+  label {
+    margin-left: 8px;
+  }
 }
 
 .pachi-table2--error {
@@ -414,7 +452,11 @@ defineExpose({ ...api, api, rows, selected, filter, loading, error: loadError })
   letter-spacing: -0.011em;
   overflow: hidden;
   border: 1px solid var(--pachi-border);
-
+  .with-toolbar & {
+    border-top-left-radius: 0 !important;
+    border-top-right-radius: 0 !important;
+    border-top: none !important;
+  }
   thead tr th {
     font-weight: 600;
     text-transform: uppercase;

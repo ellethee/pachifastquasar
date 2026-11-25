@@ -177,6 +177,9 @@ missing variables leave it untouched. Boolean variables with a `true` default ar
 | `QCLI_APP_DASHBOARD_MAX_WIDTH`  | `app.dashboardMaxWidth`        | `1080px`                 | max width of the dashboard (per route: `meta.dashboardMaxWidth`) |
 | `QCLI_APP_DASHBOARD_COLUMNS`    | `app.dashboardColumns`         | 3 columns                | columns of the card grid, number or CSS `grid-template-columns` (per route: `meta.dashboardColumns`) |
 | `QCLI_APP_TITLE_ANIMATION`      | `app.titleAnimation`           | `rubber-band`            | hover animation of the dashboard card titles (`rubber-band`, `pulse`, `shake`, `wobble`, `tada`, `bounce`, `none`; per route: `meta.titleAnimation`) |
+| `QCLI_APP_NAVIGATION`           | `app.navigation`               | `dashboard`              | `sidebar`: tree side menu built from the routes instead of the automatic dashboards |
+| `QCLI_APP_THEMES`               | `app.themes`                   | `false`                  | `true`: opt-in themes (also import `@ilpachi/pachifastquasar/themes.css`) |
+| `QCLI_APP_THEME_DEFAULT`        | `app.themes.default`           | `slate`                  | theme used until the user picks one (also enables the themes)            |
 | `QCLI_APP_HOVER_EFFECTS` (`VITE_APP_HOVER_EFFECTS`)   | `app.hoverEffectsEnabled` | `true`                | `false` disables hover animations                                       |
 | `QCLI_APP_GRAVATAR`             | `app.gravatar`                 | `false`                  | `true`: opt in to Gravatar (sends a SHA-256 hash of the email to a third party); otherwise avatars show initials only |
 | `QCLI_HTTP_ENVELOPE`            | `http.envelope`                | `true`                   | `false` for backends with `PACHIFAST_ENVELOPE_ENABLED=false`             |

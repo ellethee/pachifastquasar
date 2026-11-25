@@ -5,6 +5,7 @@
 | Output                                | Source (`src/scss/`)          | Content                                                                  |
 | ------------------------------------- | ----------------------------- | ------------------------------------------------------------------------ |
 | `@ilpachi/pachifastquasar/styles.css` | `index.scss` (fonts + `app`)  | fonts, `--pachi-*` tokens (light and dark), card styles, Quasar tweaks   |
+| `@ilpachi/pachifastquasar/themes.css` | `themes.scss`                 | opt-in themes (`body[data-theme]`), see [Themes and side menu](themes-and-navigation.md) |
 | `@ilpachi/pachifastquasar/scss/*`     | all Sass sources              | `quasar-variables`, `tokens`, `app`, `fonts`, ...                        |
 
 `definePachiQuasarConfig` loads `styles.css` after Quasar's own CSS and before the application's. The styles of

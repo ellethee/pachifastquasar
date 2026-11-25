@@ -4,6 +4,19 @@ This file contains the styles for the PachiDialog component.
 */
 .pachi-dialog {
   position: absolute;
+  display: flex;
+  flex-direction: column;
+
+  // only the content scrolls: toolbar and actions stay visible
+  &:not(.pachi-full-scroll) {
+    overflow: hidden;
+
+    .pachi-dialog-content {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-y: auto;
+    }
+  }
 
   .q-card__actions {
     padding-right: 16px;

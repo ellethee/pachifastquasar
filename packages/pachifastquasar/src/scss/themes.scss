@@ -1,0 +1,924 @@
+// ==============================================================================
+// OPT-IN THEMES (`@ilpachi/pachifastquasar/themes.css`, not part of `styles.css`)
+// ==============================================================================
+// Each theme overrides the `--pachi-*` tokens of the shell (palette, card geometry, shapes) with
+// `body.body--dark|light[data-theme='<id>']`: without the stylesheet or without the attribute
+// (`app.themes`, set by the ThemeManager) nothing changes. Ids: slate, zinc, emerald, cosmic, amber, teal.
+// Tokens that only exist here (`--pachi-card-*`, `--pachi-icon-*`, `--pachi-btn-r`, ...) are read by
+// the shell components with a fallback to the classic look.
+// ==============================================================================
+
+// ------------------------------------------------------------------------------
+// 1. NEXT SLATE (modern enterprise) — Default
+// ------------------------------------------------------------------------------
+body.body--dark[data-theme='slate'] {
+  // Comfortable deep slate navy (lighter than pitch black, highly breathable)
+  --pachi-bg: #0f172a;
+  --pachi-surface: #1e293b;
+  --pachi-surface-2: #334155;
+  --pachi-surface-3: #475569;
+
+  --pachi-border: #334155;
+  --pachi-border-hi: #475569;
+
+  --pachi-ink: #f8fafc;
+  --pachi-ink-2: #e2e8f0;
+  --pachi-muted: #94a3b8;
+  --pachi-faint: #64748b;
+
+  --pachi-accent: #3b82f6;
+  --pachi-accent-soft: rgba(59, 130, 246, 0.14);
+  --pachi-accent-mid: rgba(59, 130, 246, 0.25);
+  --pachi-accent-ink: #93c5fd;
+  --pachi-accent-deep: #1d4ed8;
+
+  --pachi-blue: #3b82f6;
+  --pachi-blue-soft: rgba(59, 130, 246, 0.14);
+  --pachi-amber: #f59e0b;
+  --pachi-amber-soft: rgba(245, 158, 11, 0.14);
+  --pachi-red: #ef4444;
+  --pachi-red-soft: rgba(239, 68, 68, 0.14);
+  --pachi-green: #10b981;
+
+  // Shapes & Geometry
+  --pachi-card-r: 10px;
+  --pachi-btn-r: 8px;
+  --pachi-input-r: 8px;
+  --pachi-menu-r: 8px;
+
+  // Card Elevation & Behavior
+  --pachi-card-bg: var(--pachi-surface);
+  --pachi-card-border: 1px solid var(--pachi-border);
+  --pachi-card-border-top: 1px solid var(--pachi-border);
+  --pachi-card-border-hover: var(--pachi-accent);
+  --pachi-card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -2px rgba(0, 0, 0, 0.15);
+  --pachi-card-shadow-hover: 0 14px 24px -4px rgba(0, 0, 0, 0.35), 0 4px 8px -2px rgba(0, 0, 0, 0.2);
+  --pachi-card-transform-hover: translateY(-3px);
+
+  // Card Elements
+  --pachi-icon-r: 10px;
+  --pachi-icon-bg: var(--pachi-accent-soft);
+  --pachi-icon-border: 1px solid var(--pachi-accent-mid);
+  --pachi-icon-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --pachi-card-code-size: 11px;
+  --pachi-card-code-color: var(--pachi-muted);
+  --pachi-card-code-bg: var(--pachi-surface-2);
+  --pachi-card-code-border: 1px solid var(--pachi-border);
+  --pachi-card-code-r: 5px;
+  --pachi-card-code-pad: 2px 7px;
+  --pachi-card-code-weight: 600;
+  --pachi-card-footer-bg: transparent;
+  --pachi-card-footer-border: 1px solid var(--pachi-border);
+
+  // Background (clean, NO blueprint grid or crosshairs)
+  --pachi-app-grid-bg: none;
+  --pachi-app-crosshair-bg: none;
+  --pachi-app-blueprint-card-bg: transparent;
+  --pachi-card-grid-display: none;
+  --pachi-card-glow-display: none;
+  --pachi-card-glow-color: var(--pachi-accent-soft);
+
+  --pachi-body-bg: #0f172a;
+  --pachi-body-color: #f8fafc;
+  --pachi-app-card-bg: var(--pachi-surface);
+  --pachi-app-card-border: var(--pachi-border);
+  --pachi-app-card-border-hover: var(--pachi-accent);
+}
+
+body.body--light[data-theme='slate'] {
+  --pachi-bg: #f8fafc;
+  --pachi-surface: #ffffff;
+  --pachi-surface-2: #f1f5f9;
+  --pachi-surface-3: #e2e8f0;
+
+  --pachi-border: #e2e8f0;
+  --pachi-border-hi: #cbd5e1;
+
+  --pachi-ink: #0f172a;
+  --pachi-ink-2: #334155;
+  --pachi-muted: #64748b;
+  --pachi-faint: #94a3b8;
+
+  --pachi-accent: #2563eb;
+  --pachi-accent-soft: rgba(37, 99, 235, 0.1);
+  --pachi-accent-mid: rgba(37, 99, 235, 0.2);
+  --pachi-accent-ink: #1d4ed8;
+  --pachi-accent-deep: #1e40af;
+
+  --pachi-blue: #2563eb;
+  --pachi-blue-soft: rgba(37, 99, 235, 0.1);
+  --pachi-amber: #d97706;
+  --pachi-amber-soft: rgba(217, 119, 6, 0.1);
+  --pachi-red: #dc2626;
+  --pachi-red-soft: rgba(220, 38, 38, 0.1);
+  --pachi-green: #059669;
+
+  // Shapes & Geometry
+  --pachi-card-r: 10px;
+  --pachi-btn-r: 8px;
+  --pachi-input-r: 8px;
+  --pachi-menu-r: 8px;
+
+  // Card Elevation & Behavior
+  --pachi-card-bg: #ffffff;
+  --pachi-card-border: 1px solid var(--pachi-border);
+  --pachi-card-border-top: 1px solid var(--pachi-border);
+  --pachi-card-border-hover: var(--pachi-accent);
+  --pachi-card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.08), 0 1px 2px -1px rgba(0, 0, 0, 0.08);
+  --pachi-card-shadow-hover: 0 10px 15px -3px rgba(15, 23, 42, 0.1), 0 4px 6px -2px rgba(15, 23, 42, 0.05);
+  --pachi-card-transform-hover: translateY(-3px);
+
+  // Card Elements
+  --pachi-icon-r: 10px;
+  --pachi-icon-bg: var(--pachi-accent-soft);
+  --pachi-icon-border: 1px solid var(--pachi-accent-mid);
+  --pachi-icon-shadow: 0 1px 2px rgba(37, 99, 235, 0.1);
+  --pachi-card-code-size: 11px;
+  --pachi-card-code-color: var(--pachi-muted);
+  --pachi-card-code-bg: var(--pachi-surface-2);
+  --pachi-card-code-border: 1px solid var(--pachi-border);
+  --pachi-card-code-r: 5px;
+  --pachi-card-code-pad: 2px 7px;
+  --pachi-card-code-weight: 600;
+  --pachi-card-footer-bg: transparent;
+  --pachi-card-footer-border: 1px solid var(--pachi-border);
+
+  // Background
+  --pachi-app-grid-bg: none;
+  --pachi-app-crosshair-bg: none;
+  --pachi-app-blueprint-card-bg: transparent;
+  --pachi-card-grid-display: none;
+  --pachi-card-glow-display: none;
+  --pachi-card-glow-color: var(--pachi-accent-soft);
+
+  --pachi-body-bg: #f8fafc;
+  --pachi-body-color: #0f172a;
+  --pachi-app-card-bg: #ffffff;
+  --pachi-app-card-border: var(--pachi-border);
+  --pachi-app-card-border-hover: var(--pachi-accent);
+}
+
+// ------------------------------------------------------------------------------
+// 2. ZINC OBSIDIAN (Monochrome & Vercel Minimalist)
+// ------------------------------------------------------------------------------
+body.body--dark[data-theme='zinc'] {
+  // Balanced dark charcoal (no pitch void)
+  --pachi-bg: #121215;
+  --pachi-surface: #18181b;
+  --pachi-surface-2: #27272a;
+  --pachi-surface-3: #3f3f46;
+
+  --pachi-border: #27272a;
+  --pachi-border-hi: #3f3f46;
+
+  --pachi-ink: #fafafa;
+  --pachi-ink-2: #d4d4d8;
+  --pachi-muted: #a1a1aa;
+  --pachi-faint: #71717a;
+
+  --pachi-accent: #e4e4e7;
+  --pachi-accent-soft: rgba(244, 244, 245, 0.12);
+  --pachi-accent-mid: rgba(244, 244, 245, 0.22);
+  --pachi-accent-ink: #ffffff;
+  --pachi-accent-deep: #71717a;
+
+  --pachi-blue: #60a5fa;
+  --pachi-blue-soft: rgba(96, 165, 250, 0.14);
+  --pachi-amber: #eab308;
+  --pachi-amber-soft: rgba(234, 179, 8, 0.14);
+  --pachi-red: #ef4444;
+  --pachi-red-soft: rgba(239, 68, 68, 0.14);
+  --pachi-green: #22c55e;
+
+  // Shapes & Geometry (Sharp, architectural)
+  --pachi-card-r: 6px;
+  --pachi-btn-r: 5px;
+  --pachi-input-r: 5px;
+  --pachi-menu-r: 5px;
+
+  // Card Elevation & Behavior (Pure flat)
+  --pachi-card-bg: var(--pachi-surface);
+  --pachi-card-border: 1px solid var(--pachi-border);
+  --pachi-card-border-top: 1px solid var(--pachi-border);
+  --pachi-card-border-hover: var(--pachi-ink-2);
+  --pachi-card-shadow: none;
+  --pachi-card-shadow-hover: none;
+  --pachi-card-transform-hover: none;
+
+  // Card Elements
+  --pachi-icon-r: 4px;
+  --pachi-icon-bg: var(--pachi-surface-2);
+  --pachi-icon-border: 1px solid var(--pachi-border);
+  --pachi-icon-shadow: none;
+  --pachi-card-code-size: 11px;
+  --pachi-card-code-color: var(--pachi-muted);
+  --pachi-card-code-bg: transparent;
+  --pachi-card-code-border: none;
+  --pachi-card-code-r: 0;
+  --pachi-card-code-pad: 0;
+  --pachi-card-code-weight: 500;
+  --pachi-card-footer-bg: transparent;
+  --pachi-card-footer-border: 1px solid var(--pachi-border);
+
+  // Background (zero decorative grids)
+  --pachi-app-grid-bg: none;
+  --pachi-app-crosshair-bg: none;
+  --pachi-app-blueprint-card-bg: transparent;
+  --pachi-card-grid-display: none;
+  --pachi-card-glow-display: none;
+  --pachi-card-glow-color: var(--pachi-accent-soft);
+
+  --pachi-body-bg: #121215;
+  --pachi-body-color: #fafafa;
+  --pachi-app-card-bg: var(--pachi-surface);
+  --pachi-app-card-border: var(--pachi-border);
+  --pachi-app-card-border-hover: var(--pachi-ink-2);
+}
+
+body.body--light[data-theme='zinc'] {
+  --pachi-bg: #fafafa;
+  --pachi-surface: #ffffff;
+  --pachi-surface-2: #f4f4f5;
+  --pachi-surface-3: #e4e4e7;
+
+  --pachi-border: #e4e4e7;
+  --pachi-border-hi: #d4d4d8;
+
+  --pachi-ink: #09090b;
+  --pachi-ink-2: #27272a;
+  --pachi-muted: #71717a;
+  --pachi-faint: #a1a1aa;
+
+  --pachi-accent: #18181b;
+  --pachi-accent-soft: rgba(24, 24, 27, 0.08);
+  --pachi-accent-mid: rgba(24, 24, 27, 0.16);
+  --pachi-accent-ink: #09090b;
+  --pachi-accent-deep: #09090b;
+
+  --pachi-blue: #2563eb;
+  --pachi-blue-soft: rgba(37, 99, 235, 0.1);
+  --pachi-amber: #ca8a04;
+  --pachi-amber-soft: rgba(202, 138, 4, 0.1);
+  --pachi-red: #dc2626;
+  --pachi-red-soft: rgba(220, 38, 38, 0.1);
+  --pachi-green: #16a34a;
+
+  // Shapes & Geometry
+  --pachi-card-r: 6px;
+  --pachi-btn-r: 5px;
+  --pachi-input-r: 5px;
+  --pachi-menu-r: 5px;
+
+  // Card Elevation & Behavior
+  --pachi-card-bg: #ffffff;
+  --pachi-card-border: 1px solid var(--pachi-border);
+  --pachi-card-border-top: 1px solid var(--pachi-border);
+  --pachi-card-border-hover: var(--pachi-accent);
+  --pachi-card-shadow: none;
+  --pachi-card-shadow-hover: none;
+  --pachi-card-transform-hover: none;
+
+  // Card Elements
+  --pachi-icon-r: 4px;
+  --pachi-icon-bg: var(--pachi-surface-2);
+  --pachi-icon-border: 1px solid var(--pachi-border);
+  --pachi-icon-shadow: none;
+  --pachi-card-code-size: 11px;
+  --pachi-card-code-color: var(--pachi-muted);
+  --pachi-card-code-bg: transparent;
+  --pachi-card-code-border: none;
+  --pachi-card-code-r: 0;
+  --pachi-card-code-pad: 0;
+  --pachi-card-code-weight: 500;
+  --pachi-card-footer-bg: transparent;
+  --pachi-card-footer-border: 1px solid var(--pachi-border);
+
+  // Background
+  --pachi-app-grid-bg: none;
+  --pachi-app-crosshair-bg: none;
+  --pachi-app-blueprint-card-bg: transparent;
+  --pachi-card-grid-display: none;
+  --pachi-card-glow-display: none;
+  --pachi-card-glow-color: var(--pachi-accent-soft);
+
+  --pachi-body-bg: #fafafa;
+  --pachi-body-color: #09090b;
+  --pachi-app-card-bg: #ffffff;
+  --pachi-app-card-border: var(--pachi-border);
+  --pachi-app-card-border-hover: var(--pachi-accent);
+}
+
+// ------------------------------------------------------------------------------
+// 3. SUPABASE EMERALD (FinTech & Ops Forest)
+// ------------------------------------------------------------------------------
+body.body--dark[data-theme='emerald'] {
+  // Soft forest slate (relaxing, distinct surfaces)
+  --pachi-bg: #0d1712;
+  --pachi-surface: #14231b;
+  --pachi-surface-2: #1c3327;
+  --pachi-surface-3: #244434;
+
+  --pachi-border: #223e30;
+  --pachi-border-hi: #2e5441;
+
+  --pachi-ink: #f0fdf4;
+  --pachi-ink-2: #bbf7d0;
+  --pachi-muted: #86efac;
+  --pachi-faint: #4ade80;
+
+  --pachi-accent: #10b981;
+  --pachi-accent-soft: rgba(16, 185, 129, 0.14);
+  --pachi-accent-mid: rgba(16, 185, 129, 0.25);
+  --pachi-accent-ink: #6ee7b7;
+  --pachi-accent-deep: #047857;
+
+  --pachi-blue: #38bdf8;
+  --pachi-blue-soft: rgba(56, 189, 248, 0.14);
+  --pachi-amber: #fbbf24;
+  --pachi-amber-soft: rgba(251, 191, 36, 0.14);
+  --pachi-red: #f87171;
+  --pachi-red-soft: rgba(248, 113, 113, 0.14);
+  --pachi-green: #10b981;
+
+  // Shapes & Geometry
+  --pachi-card-r: 12px;
+  --pachi-btn-r: 9px;
+  --pachi-input-r: 9px;
+  --pachi-menu-r: 10px;
+
+  // Card Elevation & Behavior (Supabase Top-Accent Line)
+  --pachi-card-bg: var(--pachi-surface);
+  --pachi-card-border: 1px solid var(--pachi-border);
+  --pachi-card-border-top: 2.5px solid var(--pachi-accent);
+  --pachi-card-border-hover: var(--pachi-accent);
+  --pachi-card-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  --pachi-card-shadow-hover: 0 14px 28px -4px rgba(16, 185, 129, 0.2);
+  --pachi-card-transform-hover: translateY(-2px);
+
+  // Card Elements
+  --pachi-icon-r: 10px;
+  --pachi-icon-bg: var(--pachi-accent-soft);
+  --pachi-icon-border: 1px solid var(--pachi-accent-mid);
+  --pachi-icon-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
+  --pachi-card-code-size: 11px;
+  --pachi-card-code-color: var(--pachi-accent-ink);
+  --pachi-card-code-bg: var(--pachi-accent-soft);
+  --pachi-card-code-border: 1px solid var(--pachi-accent-mid);
+  --pachi-card-code-r: 12px;
+  --pachi-card-code-pad: 2px 8px;
+  --pachi-card-code-weight: 600;
+  --pachi-card-footer-bg: transparent;
+  --pachi-card-footer-border: 1px solid var(--pachi-border);
+
+  // Background
+  --pachi-app-grid-bg: none;
+  --pachi-app-crosshair-bg: none;
+  --pachi-app-blueprint-card-bg: transparent;
+  --pachi-card-grid-display: none;
+  --pachi-card-glow-display: none;
+  --pachi-card-glow-color: var(--pachi-accent-soft);
+
+  --pachi-body-bg: #0d1712;
+  --pachi-body-color: #f0fdf4;
+  --pachi-app-card-bg: var(--pachi-surface);
+  --pachi-app-card-border: var(--pachi-border);
+  --pachi-app-card-border-hover: var(--pachi-accent);
+}
+
+body.body--light[data-theme='emerald'] {
+  --pachi-bg: #f6faf7;
+  --pachi-surface: #ffffff;
+  --pachi-surface-2: #edf7f0;
+  --pachi-surface-3: #d1fae5;
+
+  --pachi-border: #d1e7dd;
+  --pachi-border-hi: #a7f3d0;
+
+  --pachi-ink: #064e3b;
+  --pachi-ink-2: #065f46;
+  --pachi-muted: #374151;
+  --pachi-faint: #6b7280;
+
+  --pachi-accent: #059669;
+  --pachi-accent-soft: rgba(5, 150, 105, 0.1);
+  --pachi-accent-mid: rgba(5, 150, 105, 0.2);
+  --pachi-accent-ink: #047857;
+  --pachi-accent-deep: #065f46;
+
+  --pachi-blue: #0284c7;
+  --pachi-blue-soft: rgba(2, 132, 199, 0.1);
+  --pachi-amber: #d97706;
+  --pachi-amber-soft: rgba(217, 119, 6, 0.1);
+  --pachi-red: #dc2626;
+  --pachi-red-soft: rgba(220, 38, 38, 0.1);
+  --pachi-green: #059669;
+
+  // Shapes & Geometry
+  --pachi-card-r: 12px;
+  --pachi-btn-r: 9px;
+  --pachi-input-r: 9px;
+  --pachi-menu-r: 10px;
+
+  // Card Elevation & Behavior
+  --pachi-card-bg: #ffffff;
+  --pachi-card-border: 1px solid var(--pachi-border);
+  --pachi-card-border-top: 2.5px solid var(--pachi-accent);
+  --pachi-card-border-hover: var(--pachi-accent);
+  --pachi-card-shadow: 0 2px 8px rgba(6, 78, 59, 0.06);
+  --pachi-card-shadow-hover: 0 10px 20px -3px rgba(5, 150, 105, 0.12);
+  --pachi-card-transform-hover: translateY(-2px);
+
+  // Card Elements
+  --pachi-icon-r: 10px;
+  --pachi-icon-bg: var(--pachi-accent-soft);
+  --pachi-icon-border: 1px solid var(--pachi-accent-mid);
+  --pachi-icon-shadow: 0 1px 3px rgba(5, 150, 105, 0.1);
+  --pachi-card-code-size: 11px;
+  --pachi-card-code-color: var(--pachi-accent-ink);
+  --pachi-card-code-bg: var(--pachi-accent-soft);
+  --pachi-card-code-border: 1px solid var(--pachi-accent-mid);
+  --pachi-card-code-r: 12px;
+  --pachi-card-code-pad: 2px 8px;
+  --pachi-card-code-weight: 600;
+  --pachi-card-footer-bg: transparent;
+  --pachi-card-footer-border: 1px solid var(--pachi-border);
+
+  // Background
+  --pachi-app-grid-bg: none;
+  --pachi-app-crosshair-bg: none;
+  --pachi-app-blueprint-card-bg: transparent;
+  --pachi-card-grid-display: none;
+  --pachi-card-glow-display: none;
+  --pachi-card-glow-color: var(--pachi-accent-soft);
+
+  --pachi-body-bg: #f6faf7;
+  --pachi-body-color: #064e3b;
+  --pachi-app-card-bg: #ffffff;
+  --pachi-app-card-border: var(--pachi-border);
+  --pachi-app-card-border-hover: var(--pachi-accent);
+}
+
+// ------------------------------------------------------------------------------
+// 4. LINEAR COSMIC (Modern DevTools Indigo)
+// ------------------------------------------------------------------------------
+body.body--dark[data-theme='cosmic'] {
+  // Midnight indigo (deep, smooth, high-end)
+  --pachi-bg: #10121d;
+  --pachi-surface: #181b2c;
+  --pachi-surface-2: #21253c;
+  --pachi-surface-3: #2d3251;
+
+  --pachi-border: #292d49;
+  --pachi-border-hi: #393e65;
+
+  --pachi-ink: #f3f4f6;
+  --pachi-ink-2: #d1d5db;
+  --pachi-muted: #9ca3af;
+  --pachi-faint: #6b7280;
+
+  --pachi-accent: #818cf8;
+  --pachi-accent-soft: rgba(129, 140, 248, 0.14);
+  --pachi-accent-mid: rgba(129, 140, 248, 0.25);
+  --pachi-accent-ink: #c7d2fe;
+  --pachi-accent-deep: #4f46e5;
+
+  --pachi-blue: #818cf8;
+  --pachi-blue-soft: rgba(129, 140, 248, 0.14);
+  --pachi-amber: #fbbf24;
+  --pachi-amber-soft: rgba(251, 191, 36, 0.14);
+  --pachi-red: #f87171;
+  --pachi-red-soft: rgba(248, 113, 113, 0.14);
+  --pachi-green: #34d399;
+
+  // Shapes & Geometry (Futuristic, rounded)
+  --pachi-card-r: 16px;
+  --pachi-btn-r: 12px;
+  --pachi-input-r: 12px;
+  --pachi-menu-r: 12px;
+
+  // Card Elevation & Behavior (Glassmorphism highlight)
+  --pachi-card-bg: var(--pachi-surface);
+  --pachi-card-border: 1px solid var(--pachi-border);
+  --pachi-card-border-top: 1px solid rgba(255, 255, 255, 0.12);
+  --pachi-card-border-hover: var(--pachi-accent);
+  --pachi-card-shadow: 0 4px 16px rgba(0, 0, 0, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+  --pachi-card-shadow-hover: 0 16px 32px -4px rgba(129, 140, 248, 0.25), 0 0 16px rgba(129, 140, 248, 0.12);
+  --pachi-card-transform-hover: translateY(-4px);
+
+  // Card Elements
+  --pachi-icon-r: 14px;
+  --pachi-icon-bg: linear-gradient(135deg, var(--pachi-accent-mid), var(--pachi-accent-soft));
+  --pachi-icon-border: 1px solid var(--pachi-accent-mid);
+  --pachi-icon-shadow: 0 4px 12px rgba(129, 140, 248, 0.2);
+  --pachi-card-code-size: 11px;
+  --pachi-card-code-color: var(--pachi-accent-ink);
+  --pachi-card-code-bg: var(--pachi-accent-soft);
+  --pachi-card-code-border: 1px solid var(--pachi-accent-mid);
+  --pachi-card-code-r: 20px;
+  --pachi-card-code-pad: 3px 9px;
+  --pachi-card-code-weight: 600;
+  --pachi-card-footer-bg: transparent;
+  --pachi-card-footer-border: 1px solid var(--pachi-border);
+
+  // Background
+  --pachi-app-grid-bg: none;
+  --pachi-app-crosshair-bg: none;
+  --pachi-app-blueprint-card-bg: transparent;
+  --pachi-card-grid-display: none;
+  --pachi-card-glow-display: block;
+  --pachi-card-glow-color: var(--pachi-accent-soft);
+
+  --pachi-body-bg: #10121d;
+  --pachi-body-color: #f3f4f6;
+  --pachi-app-card-bg: var(--pachi-surface);
+  --pachi-app-card-border: var(--pachi-border);
+  --pachi-app-card-border-hover: var(--pachi-accent);
+}
+
+body.body--light[data-theme='cosmic'] {
+  --pachi-bg: #f7f8fc;
+  --pachi-surface: #ffffff;
+  --pachi-surface-2: #eef0f8;
+  --pachi-surface-3: #e0e3f2;
+
+  --pachi-border: #dfe2f0;
+  --pachi-border-hi: #c7cbe3;
+
+  --pachi-ink: #111827;
+  --pachi-ink-2: #3730a3;
+  --pachi-muted: #6b7280;
+  --pachi-faint: #9ca3af;
+
+  --pachi-accent: #4f46e5;
+  --pachi-accent-soft: rgba(79, 70, 229, 0.1);
+  --pachi-accent-mid: rgba(79, 70, 229, 0.2);
+  --pachi-accent-ink: #3730a3;
+  --pachi-accent-deep: #312e81;
+
+  --pachi-blue: #4f46e5;
+  --pachi-blue-soft: rgba(79, 70, 229, 0.1);
+  --pachi-amber: #d97706;
+  --pachi-amber-soft: rgba(217, 119, 6, 0.1);
+  --pachi-red: #dc2626;
+  --pachi-red-soft: rgba(220, 38, 38, 0.1);
+  --pachi-green: #059669;
+
+  // Shapes & Geometry
+  --pachi-card-r: 16px;
+  --pachi-btn-r: 12px;
+  --pachi-input-r: 12px;
+  --pachi-menu-r: 12px;
+
+  // Card Elevation & Behavior
+  --pachi-card-bg: #ffffff;
+  --pachi-card-border: 1px solid var(--pachi-border);
+  --pachi-card-border-top: 1px solid var(--pachi-border);
+  --pachi-card-border-hover: var(--pachi-accent);
+  --pachi-card-shadow: 0 4px 16px rgba(79, 70, 229, 0.06), inset 0 1px 0 #ffffff;
+  --pachi-card-shadow-hover: 0 14px 28px -4px rgba(79, 70, 229, 0.15);
+  --pachi-card-transform-hover: translateY(-4px);
+
+  // Card Elements
+  --pachi-icon-r: 14px;
+  --pachi-icon-bg: var(--pachi-accent-soft);
+  --pachi-icon-border: 1px solid var(--pachi-accent-mid);
+  --pachi-icon-shadow: 0 2px 6px rgba(79, 70, 229, 0.1);
+  --pachi-card-code-size: 11px;
+  --pachi-card-code-color: var(--pachi-accent-ink);
+  --pachi-card-code-bg: var(--pachi-accent-soft);
+  --pachi-card-code-border: 1px solid var(--pachi-accent-mid);
+  --pachi-card-code-r: 20px;
+  --pachi-card-code-pad: 3px 9px;
+  --pachi-card-code-weight: 600;
+  --pachi-card-footer-bg: transparent;
+  --pachi-card-footer-border: 1px solid var(--pachi-border);
+
+  // Background
+  --pachi-app-grid-bg: none;
+  --pachi-app-crosshair-bg: none;
+  --pachi-app-blueprint-card-bg: transparent;
+  --pachi-card-grid-display: none;
+  --pachi-card-glow-display: none;
+  --pachi-card-glow-color: var(--pachi-accent-soft);
+
+  --pachi-body-bg: #f7f8fc;
+  --pachi-body-color: #111827;
+  --pachi-app-card-bg: #ffffff;
+  --pachi-app-card-border: var(--pachi-border);
+  --pachi-app-card-border-hover: var(--pachi-accent);
+}
+
+// ------------------------------------------------------------------------------
+// 5. WARM STONE (Executive Comfort & Amber)
+// ------------------------------------------------------------------------------
+body.body--dark[data-theme='amber'] {
+  // Cozy stone-900 (warm charcoal, zero glare)
+  --pachi-bg: #1c1917;
+  --pachi-surface: #292524;
+  --pachi-surface-2: #383431;
+  --pachi-surface-3: #4a4541;
+
+  --pachi-border: #383431;
+  --pachi-border-hi: #524c47;
+
+  --pachi-ink: #f5f5f4;
+  --pachi-ink-2: #d6d3d1;
+  --pachi-muted: #a8a29e;
+  --pachi-faint: #78716c;
+
+  --pachi-accent: #f59e0b;
+  --pachi-accent-soft: rgba(245, 158, 11, 0.14);
+  --pachi-accent-mid: rgba(245, 158, 11, 0.25);
+  --pachi-accent-ink: #fde68a;
+  --pachi-accent-deep: #b45309;
+
+  --pachi-blue: #60a5fa;
+  --pachi-blue-soft: rgba(96, 165, 250, 0.14);
+  --pachi-amber: #f59e0b;
+  --pachi-amber-soft: rgba(245, 158, 11, 0.14);
+  --pachi-red: #f87171;
+  --pachi-red-soft: rgba(248, 113, 113, 0.14);
+  --pachi-green: #34d399;
+
+  // Shapes & Geometry (Classic comfort)
+  --pachi-card-r: 8px;
+  --pachi-btn-r: 7px;
+  --pachi-input-r: 7px;
+  --pachi-menu-r: 8px;
+
+  // Card Elevation & Behavior
+  --pachi-card-bg: var(--pachi-surface);
+  --pachi-card-border: 1px solid var(--pachi-border);
+  --pachi-card-border-top: 1px solid var(--pachi-border);
+  --pachi-card-border-hover: var(--pachi-accent);
+  --pachi-card-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  --pachi-card-shadow-hover: 0 8px 18px rgba(245, 158, 11, 0.15);
+  --pachi-card-transform-hover: translateY(-1px);
+
+  // Card Elements
+  --pachi-icon-r: 8px;
+  --pachi-icon-bg: var(--pachi-surface-2);
+  --pachi-icon-border: 1px solid var(--pachi-border);
+  --pachi-icon-shadow: none;
+  --pachi-card-code-size: 11px;
+  --pachi-card-code-color: var(--pachi-muted);
+  --pachi-card-code-bg: transparent;
+  --pachi-card-code-border: none;
+  --pachi-card-code-r: 0;
+  --pachi-card-code-pad: 0;
+  --pachi-card-code-weight: 500;
+  --pachi-card-footer-bg: transparent;
+  --pachi-card-footer-border: 1px solid var(--pachi-border);
+
+  // Background
+  --pachi-app-grid-bg: none;
+  --pachi-app-crosshair-bg: none;
+  --pachi-app-blueprint-card-bg: transparent;
+  --pachi-card-grid-display: none;
+  --pachi-card-glow-display: none;
+  --pachi-card-glow-color: var(--pachi-accent-soft);
+
+  --pachi-body-bg: #1c1917;
+  --pachi-body-color: #f5f5f4;
+  --pachi-app-card-bg: var(--pachi-surface);
+  --pachi-app-card-border: var(--pachi-border);
+  --pachi-app-card-border-hover: var(--pachi-accent);
+}
+
+body.body--light[data-theme='amber'] {
+  --pachi-bg: #faf8f5;
+  --pachi-surface: #ffffff;
+  --pachi-surface-2: #f3efea;
+  --pachi-surface-3: #e7e2da;
+
+  --pachi-border: #e6e0d6;
+  --pachi-border-hi: #d4ccc0;
+
+  --pachi-ink: #1c1917;
+  --pachi-ink-2: #44403c;
+  --pachi-muted: #78716c;
+  --pachi-faint: #a8a29e;
+
+  --pachi-accent: #d97706;
+  --pachi-accent-soft: rgba(217, 119, 6, 0.1);
+  --pachi-accent-mid: rgba(217, 119, 6, 0.2);
+  --pachi-accent-ink: #92400e;
+  --pachi-accent-deep: #78350f;
+
+  --pachi-blue: #2563eb;
+  --pachi-blue-soft: rgba(37, 99, 235, 0.1);
+  --pachi-amber: #d97706;
+  --pachi-amber-soft: rgba(217, 119, 6, 0.1);
+  --pachi-red: #dc2626;
+  --pachi-red-soft: rgba(220, 38, 38, 0.1);
+  --pachi-green: #059669;
+
+  // Shapes & Geometry
+  --pachi-card-r: 8px;
+  --pachi-btn-r: 7px;
+  --pachi-input-r: 7px;
+  --pachi-menu-r: 8px;
+
+  // Card Elevation & Behavior
+  --pachi-card-bg: #ffffff;
+  --pachi-card-border: 1px solid var(--pachi-border);
+  --pachi-card-border-top: 1px solid var(--pachi-border);
+  --pachi-card-border-hover: var(--pachi-accent);
+  --pachi-card-shadow: 0 1px 3px rgba(28, 25, 23, 0.05);
+  --pachi-card-shadow-hover: 0 6px 14px rgba(217, 119, 6, 0.1);
+  --pachi-card-transform-hover: translateY(-1px);
+
+  // Card Elements
+  --pachi-icon-r: 8px;
+  --pachi-icon-bg: var(--pachi-surface-2);
+  --pachi-icon-border: 1px solid var(--pachi-border);
+  --pachi-icon-shadow: none;
+  --pachi-card-code-size: 11px;
+  --pachi-card-code-color: var(--pachi-muted);
+  --pachi-card-code-bg: transparent;
+  --pachi-card-code-border: none;
+  --pachi-card-code-r: 0;
+  --pachi-card-code-pad: 0;
+  --pachi-card-code-weight: 500;
+  --pachi-card-footer-bg: transparent;
+  --pachi-card-footer-border: 1px solid var(--pachi-border);
+
+  // Background
+  --pachi-app-grid-bg: none;
+  --pachi-app-crosshair-bg: none;
+  --pachi-app-blueprint-card-bg: transparent;
+  --pachi-card-grid-display: none;
+  --pachi-card-glow-display: none;
+  --pachi-card-glow-color: var(--pachi-accent-soft);
+
+  --pachi-body-bg: #faf8f5;
+  --pachi-body-color: #1c1917;
+  --pachi-app-card-bg: #ffffff;
+  --pachi-app-card-border: var(--pachi-border);
+  --pachi-app-card-border-hover: var(--pachi-accent);
+}
+
+// ------------------------------------------------------------------------------
+// 6. EOS TEAL (Classic Cockpit & Technical Blueprint)
+// ------------------------------------------------------------------------------
+body.body--dark[data-theme='teal'] {
+  --pachi-bg: #0a0d12;
+  --pachi-surface: #10141b;
+  --pachi-surface-2: #161b23;
+  --pachi-surface-3: #1c2230;
+
+  --pachi-border: #1f2530;
+  --pachi-border-hi: #2a3140;
+
+  --pachi-ink: #e6eaf2;
+  --pachi-ink-2: #b7becc;
+  --pachi-muted: #7b8494;
+  --pachi-faint: #525b6b;
+
+  --pachi-accent: #2dd4bf;
+  --pachi-accent-soft: rgba(45, 212, 191, 0.12);
+  --pachi-accent-mid: rgba(45, 212, 191, 0.22);
+  --pachi-accent-ink: #5eead4;
+  --pachi-accent-deep: #0f766e;
+
+  --pachi-blue: #60a5fa;
+  --pachi-blue-soft: rgba(96, 165, 250, 0.14);
+  --pachi-amber: #fbbf24;
+  --pachi-amber-soft: rgba(251, 191, 36, 0.14);
+  --pachi-red: #f87171;
+  --pachi-red-soft: rgba(248, 113, 113, 0.14);
+  --pachi-green: #34d399;
+
+  // Shapes & Geometry
+  --pachi-card-r: 12px;
+  --pachi-btn-r: 7px;
+  --pachi-input-r: 7px;
+  --pachi-menu-r: 8px;
+
+  // Card Elevation & Behavior (Original cockpit look)
+  --pachi-card-bg: var(--pachi-surface);
+  --pachi-card-border: 1px solid var(--pachi-border);
+  --pachi-card-border-top: 1px solid var(--pachi-border);
+  --pachi-card-border-hover: var(--pachi-border-hi);
+  --pachi-card-shadow: none;
+  --pachi-card-shadow-hover: none;
+  --pachi-card-transform-hover: none;
+
+  // Card Elements
+  --pachi-icon-r: 11px;
+  --pachi-icon-bg: linear-gradient(135deg, rgba(45, 212, 191, 0.2), rgba(45, 212, 191, 0.07));
+  --pachi-icon-border: 1px solid rgba(45, 212, 191, 0.27);
+  --pachi-icon-shadow: none;
+  --pachi-card-code-size: 10px;
+  --pachi-card-code-color: var(--pachi-faint);
+  --pachi-card-code-bg: transparent;
+  --pachi-card-code-border: none;
+  --pachi-card-code-r: 0;
+  --pachi-card-code-pad: 0;
+  --pachi-card-code-weight: 500;
+  --pachi-card-footer-bg: var(--pachi-surface-2);
+  --pachi-card-footer-border: 1px solid var(--pachi-border);
+
+  // Technical blueprint grid + crosshairs enabled
+  --pachi-app-grid-bg:
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(rgba(45, 212, 191, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(45, 212, 191, 0.07) 1px, transparent 1px);
+
+  --pachi-app-crosshair-bg:
+    linear-gradient(to right, transparent 49.7%, rgba(45, 212, 191, 0.14) 50%, transparent 50.3%),
+    linear-gradient(to bottom, transparent 49.7%, rgba(45, 212, 191, 0.1) 50%, transparent 50.3%);
+
+  --pachi-app-blueprint-card-bg: var(--pachi-surface);
+  --pachi-card-grid-display: block;
+  --pachi-card-glow-display: block;
+  --pachi-card-glow-color: var(--pachi-accent-soft);
+
+  --pachi-body-bg: #0a0d12;
+  --pachi-body-color: #e6eaf2;
+  --pachi-app-card-bg: #10141b;
+  --pachi-app-card-border: #1f2530;
+  --pachi-app-card-border-hover: rgba(45, 212, 191, 0.35);
+}
+
+body.body--light[data-theme='teal'] {
+  --pachi-bg: #f0f4f8;
+  --pachi-surface: #ffffff;
+  --pachi-surface-2: #e8edf3;
+  --pachi-surface-3: #dde3eb;
+
+  --pachi-border: #d1d9e0;
+  --pachi-border-hi: #b8c3cc;
+
+  --pachi-ink: #1a2232;
+  --pachi-ink-2: #3a4252;
+  --pachi-muted: #6b7688;
+  --pachi-faint: #9aa3b0;
+
+  --pachi-accent: #0d9488;
+  --pachi-accent-soft: rgba(45, 212, 191, 0.1);
+  --pachi-accent-mid: rgba(45, 212, 191, 0.2);
+  --pachi-accent-ink: #0f766e;
+  --pachi-accent-deep: #0d9488;
+
+  --pachi-blue: #2563eb;
+  --pachi-blue-soft: rgba(37, 99, 235, 0.1);
+  --pachi-amber: #d97706;
+  --pachi-amber-soft: rgba(217, 119, 6, 0.1);
+  --pachi-red: #dc2626;
+  --pachi-red-soft: rgba(220, 38, 38, 0.1);
+  --pachi-green: #059669;
+
+  // Shapes & Geometry
+  --pachi-card-r: 12px;
+  --pachi-btn-r: 7px;
+  --pachi-input-r: 7px;
+  --pachi-menu-r: 8px;
+
+  // Card Elevation & Behavior
+  --pachi-card-bg: #ffffff;
+  --pachi-card-border: 1px solid var(--pachi-border);
+  --pachi-card-border-top: 1px solid var(--pachi-border);
+  --pachi-card-border-hover: rgba(45, 212, 191, 0.35);
+  --pachi-card-shadow: none;
+  --pachi-card-shadow-hover: none;
+  --pachi-card-transform-hover: none;
+
+  // Card Elements
+  --pachi-icon-r: 11px;
+  --pachi-icon-bg: var(--pachi-accent-soft);
+  --pachi-icon-border: 1px solid var(--pachi-accent-mid);
+  --pachi-icon-shadow: none;
+  --pachi-card-code-size: 10px;
+  --pachi-card-code-color: var(--pachi-faint);
+  --pachi-card-code-bg: transparent;
+  --pachi-card-code-border: none;
+  --pachi-card-code-r: 0;
+  --pachi-card-code-pad: 0;
+  --pachi-card-code-weight: 500;
+  --pachi-card-footer-bg: var(--pachi-surface-2);
+  --pachi-card-footer-border: 1px solid var(--pachi-border);
+
+  // Technical blueprint grid + crosshairs enabled
+  --pachi-app-grid-bg:
+    linear-gradient(rgba(15, 23, 42, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 42, 0.05) 1px, transparent 1px),
+    linear-gradient(rgba(45, 212, 191, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(45, 212, 191, 0.12) 1px, transparent 1px);
+
+  --pachi-app-crosshair-bg:
+    linear-gradient(to right, transparent 49.7%, rgba(45, 212, 191, 0.18) 50%, transparent 50.3%),
+    linear-gradient(to bottom, transparent 49.7%, rgba(45, 212, 191, 0.14) 50%, transparent 50.3%);
+
+  --pachi-app-blueprint-card-bg: var(--pachi-surface);
+  --pachi-card-grid-display: block;
+  --pachi-card-glow-display: block;
+  --pachi-card-glow-color: var(--pachi-accent-soft);
+
+  --pachi-body-bg: #f0f4f8;
+  --pachi-body-color: #1a2232;
+  --pachi-app-card-bg: #ffffff;
+  --pachi-app-card-border: var(--pachi-border);
+  --pachi-app-card-border-hover: rgba(45, 212, 191, 0.35);
+}

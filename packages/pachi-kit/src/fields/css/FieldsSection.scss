@@ -1,0 +1,12 @@
+.pachi-fields-section {
+  // the rows use `q-gutter-md` (negative top margin): the gap between rows is set here
+  gap: 8px;
+}
+
+.pachi-fields-row {
+  .q-expansion-item__content {
+    &.relative-position {
+      margin-left: 22px;
+    }
+  }
+}

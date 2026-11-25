@@ -48,6 +48,8 @@ export interface IPachiDialogProps {
   /** Disables (does not hide) the close button. */
   cancelDisabled?: boolean
   cardClass?: string | null
+  /** The whole card scrolls (toolbar and actions included) instead of only `.pachi-dialog-content` (default `false`). */
+  fullScroll?: boolean
   /** Shows the text label next to the icon of the action buttons (default `false`: icon only with tooltip). */
   showActionLabels?: boolean
   /** Uses the "restore/save/close" actions instead of confirm/close. */

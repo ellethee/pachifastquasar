@@ -21,6 +21,8 @@ import { computed, onMounted } from 'vue'
 import { useQuasar } from 'quasar'
 import { useI18n } from 'vue-i18n'
 import { notifyPachiThemeChanged } from '../../helpers/auth-events'
+import { getPachiConfig, resolveThemesConfig } from '../config'
+import { ThemeManager } from '../../services/theme-manager'
 defineProps<{
   label?: string
 }>()
@@ -45,6 +47,11 @@ onMounted(() => {
 const isDark = computed({
   get: () => $q.dark.isActive,
   set: (val: boolean) => {
+    // opt-in themes: the ThemeManager applies and persists the mode (same key) and notifies the event
+    if (resolveThemesConfig(getPachiConfig()).enabled) {
+      ThemeManager.getInstance().setMode(val ? 'dark' : 'light')
+      return
+    }
     $q.dark.set(val)
     localStorage.setItem(THEME_KEY, val ? 'dark' : 'light')
     // evento `pachi:theme-changed`: `@ilpachi/fastquasar-settings` saves it as a setting if authenticated

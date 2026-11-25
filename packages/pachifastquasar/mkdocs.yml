@@ -56,6 +56,7 @@ nav:
   - HTTP client: http-client.md
   - Internationalization: i18n.md
   - Theming and styles: theming-and-styles.md
+  - Themes and side menu: themes-and-navigation.md
   - Backend contract: backend-contract.md
   - Packages: packages.md
 

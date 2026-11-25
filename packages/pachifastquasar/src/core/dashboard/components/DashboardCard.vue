@@ -119,9 +119,11 @@ onMounted(() => {
 
 <style lang="scss">
 .pachi-dashboard-card {
-  background: var(--pachi-surface);
-  border: 1px solid var(--pachi-border);
+  // `--pachi-card-*` / `--pachi-icon-*` are defined by the opt-in themes only: the fallbacks are the classic look
+  background: var(--pachi-card-bg, var(--pachi-surface));
+  border: var(--pachi-card-border, 1px solid var(--pachi-border));
   border-radius: 12px;
+  box-shadow: var(--pachi-card-shadow, none);
   padding: 22px 22px 0;
   cursor: pointer;
   position: relative;
@@ -132,6 +134,7 @@ onMounted(() => {
   min-height: 230px;
   transition:
     border-color 0.15s,
+    box-shadow 0.2s,
     transform 0.2s ease-in-out;
 
   &:focus-visible {
@@ -140,7 +143,8 @@ onMounted(() => {
   }
 
   &:hover {
-    border-color: var(--pachi-border-hi);
+    border-color: var(--pachi-card-border-hover, var(--pachi-border-hi));
+    box-shadow: var(--pachi-card-shadow-hover, var(--pachi-card-shadow, none));
     transform: var(--pachi-hover-fx-transform);
 
     .pachi-dc-title {
@@ -159,6 +163,7 @@ onMounted(() => {
 }
 
 .pachi-dc-bg {
+  display: var(--pachi-card-grid-display, block);
   position: absolute;
   inset: 0 0 50%;
   pointer-events: none;
@@ -171,13 +176,14 @@ onMounted(() => {
 }
 
 .pachi-dc-glow {
+  display: var(--pachi-card-glow-display, block);
   position: absolute;
   top: -30px;
   right: -30px;
   width: 140px;
   height: 140px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgb(45 212 191 / 13%), transparent 70%);
+  background: radial-gradient(circle, var(--pachi-card-glow-color, rgb(45 212 191 / 13%)), transparent 70%);
   pointer-events: none;
 }
 
@@ -198,9 +204,10 @@ onMounted(() => {
 .pachi-dc-icon {
   width: 44px;
   height: 44px;
-  border-radius: 11px;
-  background: linear-gradient(135deg, rgb(45 212 191 / 20%), rgb(45 212 191 / 7%));
-  border: 1px solid rgb(45 212 191 / 27%);
+  border-radius: var(--pachi-icon-r, 11px);
+  background: var(--pachi-icon-bg, linear-gradient(135deg, rgb(45 212 191 / 20%), rgb(45 212 191 / 7%)));
+  border: var(--pachi-icon-border, 1px solid rgb(45 212 191 / 27%));
+  box-shadow: var(--pachi-icon-shadow, none);
   display: grid;
   place-items: center;
   flex-shrink: 0;
@@ -216,8 +223,13 @@ onMounted(() => {
 
 .pachi-dc-code {
   font-family: var(--pachi-mono);
-  font-size: 10px;
-  color: var(--pachi-faint);
+  font-size: var(--pachi-card-code-size, 10px);
+  color: var(--pachi-card-code-color, var(--pachi-faint));
+  background: var(--pachi-card-code-bg, transparent);
+  border: var(--pachi-card-code-border, none);
+  border-radius: var(--pachi-card-code-r, 0);
+  padding: var(--pachi-card-code-pad, 0);
+  font-weight: var(--pachi-card-code-weight, inherit);
   letter-spacing: 0.06em;
 }
 
@@ -250,8 +262,8 @@ onMounted(() => {
 .pachi-dc-footer {
   margin: 18px -22px 0;
   padding: 12px 22px;
-  border-top: 1px solid var(--pachi-border);
-  background: var(--pachi-surface-2);
+  border-top: var(--pachi-card-footer-border, 1px solid var(--pachi-border));
+  background: var(--pachi-card-footer-bg, var(--pachi-surface-2));
   display: flex;
   align-items: flex-end;
   justify-content: space-between;

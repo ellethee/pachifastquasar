@@ -2,7 +2,7 @@ import type { App } from 'vue'
 import type { Router } from 'vue-router'
 import { createPachiI18n } from '@ilpachi/pachi-i18n'
 import type { PachiMessageMap } from '@ilpachi/pachi-i18n'
-import { setPachiConfig } from '../core/config'
+import { resolveThemesConfig, setPachiConfig } from '../core/config'
 import type { PachiConfigInput } from '../core/config'
 import { createPachiHttp } from './create-http'
 import { createPachiAvatarResolver, PACHI_AVATAR_URL_KEY } from '../helpers/avatar-resolver'
@@ -10,6 +10,7 @@ import { createPachiLogout, PACHI_LOGOUT_KEY } from '../helpers/logout-provider'
 import { setPachiQuasar } from '../helpers/quasar-instance'
 import { setQuasarLang } from '../i18n/quasar-lang'
 import { pachiShellMessages } from '../i18n'
+import { ThemeManager } from '../services/theme-manager'
 
 /** Part of the Quasar boot context used by the shell. */
 export interface PachiAppContext {
@@ -61,6 +62,10 @@ export function createPachiApp(ctx: PachiAppContext, options: CreatePachiAppOpti
   if (config.app.hoverEffectsEnabled === false) {
     document.body.classList.add('pachi-hover-fx-disabled')
   }
+
+  // opt-in themes: restores the persisted theme/mode (`data-theme` on <body>)
+  const themes = resolveThemesConfig(config)
+  if (themes.enabled) ThemeManager.getInstance().init({ defaultTheme: themes.default })
 }
 
 /** Alias of {@link createPachiApp}. */

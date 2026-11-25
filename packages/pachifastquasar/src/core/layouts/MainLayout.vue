@@ -1,15 +1,20 @@
 <template>
   <q-layout
-    view="lHh Lpr lFf"
+    :view="isSidebar ? 'hHh Lpr lFf' : 'lHh Lpr lFf'"
     :style="[pageBgStyle, layoutVars]"
-    :class="{ 'pachi-layout--logo-overlap': appConfig.app.logoOverlap }"
+    :class="{ 'pachi-layout--logo-overlap': appConfig.app.logoOverlap, 'pachi-layout--sidebar': isSidebar }"
   >
-    <app-bar />
+    <!-- sidebar: the bar is a q-header so the drawer (and its overlay) starts below it; dashboard: bar in the flow -->
+    <q-header v-if="isSidebar" class="pachi-header">
+      <app-bar />
+    </q-header>
+    <app-bar v-else />
+    <pachi-side-menu v-if="isSidebar" />
     <q-page-container :key="userInfoVersion">
       <q-page padding :style-fn="pageStyleFn">
-        <div v-if="isDashboard" class="pachi-app-container">
+        <div v-if="isDashboard || sidebarHome" class="pachi-app-container">
           <div class="pachi-hub-dash pachi-blueprint-card" :style="hubVars">
-            <div v-if="!hubHeader.hide" class="pachi-hub-dash__header">
+            <div v-if="!sidebarHome && !hubHeader.hide" class="pachi-hub-dash__header">
               <div class="pachi-hub-dash__code">{{ hubHeader.code }}</div>
               <h1 class="pachi-hub-dash__title">
                 {{ hubHeader.title }}
@@ -17,13 +22,20 @@
               </h1>
               <p class="pachi-hub-dash__desc">{{ hubHeader.desc }}</p>
             </div>
+            <!-- sidebar mode, home without a page of its own: hint (or the widgets of the route) -->
             <pachi-empty-state
-              v-if="cards.length === 0"
+              v-if="sidebarHome && !hasWidgets"
+              :icon="mdiMenu"
+              :title="t('dashboard.sidebarHomeTitle')"
+              :description="t('dashboard.sidebarHomeDescription')"
+            />
+            <pachi-empty-state
+              v-else-if="!sidebarHome && cards.length === 0"
               :icon="mdiApps"
               :title="t('dashboard.emptyTitle')"
               :description="t('dashboard.emptyDescription')"
             />
-            <div v-else class="pachi-hub-dash__grid">
+            <div v-else-if="!sidebarHome" class="pachi-hub-dash__grid">
               <dashboard-card v-for="(c, i) in cards" :key="c.to" :card="c" :index="i" />
             </div>
             <div v-if="hasWidgets" class="pachi-hub-dash__widgets">
@@ -47,11 +59,12 @@
   </q-layout>
 </template>
 <script setup lang="ts">
-import { mdiApps } from "@quasar/extras/mdi-v7";
+import { mdiApps, mdiMenu } from "@quasar/extras/mdi-v7";
 import { computed } from "vue";
 import { useQuasar } from "quasar";
 import AppBar from "../components/AppBar.vue";
 import PachiEmptyState from "../components/PachiEmptyState.vue";
+import PachiSideMenu from "../components/PachiSideMenu.vue";
 import { useAppBar } from "../composables/use-app-bar";
 import { useRoute, useRouter } from "vue-router";
 import type { RouteRecordRaw, RouteMeta } from "vue-router";
@@ -105,12 +118,24 @@ const deepestRecord = computed(() =>
   router.getRoutes().find((r) => r.path === deepest.value?.path),
 );
 
-/** Home is always a dashboard; routes with children only if `meta.dashboard` or `appConfig.app.autoDashboard` allow it. */
+/** `app.navigation: 'sidebar'`: tree side menu instead of the automatic dashboards. */
+const isSidebar = appConfig.app.navigation === "sidebar";
+
+/**
+ * Home is always a dashboard; routes with children only if `meta.dashboard` or `appConfig.app.autoDashboard` allow it.
+ * Never in sidebar mode (the menu replaces the cards).
+ */
 const isDashboard = computed(
   () =>
-    deepest.value?.path === "/" ||
-    ((deepestRecord.value?.children?.length ?? 0) > 0 &&
-      (deepest.value?.meta?.dashboard ?? appConfig.app.autoDashboard !== false)),
+    !isSidebar &&
+    (deepest.value?.path === "/" ||
+      ((deepestRecord.value?.children?.length ?? 0) > 0 &&
+        (deepest.value?.meta?.dashboard ?? appConfig.app.autoDashboard !== false))),
+);
+
+/** Sidebar mode and `/` without a page of its own (only the layout matched): hint or `meta.widgets` instead of the cards. */
+const sidebarHome = computed(
+  () => isSidebar && route.matched.length <= 1 && deepest.value?.path === "/",
 );
 
 /** Whole page scrollable within the bottom limit (opt-in with `meta.pageScroll`). */
@@ -162,7 +187,9 @@ const hubVars = computed(() => {
   return vars;
 });
 
-const widgets = computed(() => (isDashboard.value ? (deepest.value?.meta?.widgets ?? []) : []));
+const widgets = computed(() =>
+  isDashboard.value || sidebarHome.value ? (deepest.value?.meta?.widgets ?? []) : [],
+);
 const hasWidgets = computed(() => widgets.value.length > 0);
 
 const cards = computed<IDashboardCard[]>(() => {
@@ -212,6 +239,16 @@ function pageStyleFn(): Record<string, string> {
 }
 </script>
 <style lang="scss">
+@use 'quasar/src/css/variables' as q;
+
+.q-header.pachi-header {
+  background: transparent;
+  color: inherit;
+  // above the overlay drawer ($z-fixed-drawer) and its backdrop (-1): the hamburger stays visible and clickable.
+  // Derived from Quasar's Sass variable (default value: the app's overrides do not reach the precompiled package CSS).
+  z-index: q.$z-fixed-drawer + 1;
+}
+
 .q-layout {
   min-height: 100vh;
   max-height: 100vh;
