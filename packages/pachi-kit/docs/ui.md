@@ -209,6 +209,25 @@ The `DuotoneIcon` type is structurally identical to the one in `@ilpachi/pachifa
 so values are interchangeable. In apps that use this package, import both the component and the type from
 `@ilpachi/pachi-kit/ui`: the *component* exists only here.
 
+## v-fit-height
+
+Directive that makes an element end at the bottom of the window: `100vh - top - space below`
+(8px + the height of the following siblings, or a fixed `offset`). It recalculates on window
+resize and when the parent resizes. `PachiTable2`'s `autoHeight` uses the same logic.
+
+```vue
+<div v-fit-height="{ offset: 16, min: 300 }">...</div>
+```
+
+| Option | Description |
+|---|---|
+| `offset` | Fixed space (px) left below the element (a plain number is the offset). |
+| `min` | Minimum height (px). |
+| `delay` | Debounce (ms), default 100. |
+
+Register it with `app.directive('fit-height', vFitHeight)` or locally (`const vFitHeight`).
+`fitHeight(el, options)` is the programmatic version (returns `{ refresh, stop }`).
+
 ## Helper functions
 
 ```ts

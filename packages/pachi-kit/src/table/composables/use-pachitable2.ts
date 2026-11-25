@@ -14,6 +14,7 @@ import { usePachiI18n } from '@ilpachi/pachi-i18n'
 import { messages } from '../locales'
 import { resolveRowFlag, shouldShowActionsColumn } from '../helpers/props-helper'
 import type { IPachiTable2RequestOptions, PachiTable2BulkItem } from '../types/pachitable2-api'
+import { fitHeightValue } from '../../ui/helper/fit-height'
 
 export const pachiTable2Emits = [
   'pt2:update:multi-sort',
@@ -380,20 +381,7 @@ export function usePachiTable2<T>(options: MaybeRefOrGetter<IPachiTable2Props>, 
     if (!el || opts.value.autoHeight === false) return
     clearTimeout(resizeTimer)
     resizeTimer = setTimeout(() => {
-      const top = el.getBoundingClientRect().top
-      let bottomSpace: number
-      const rezOffset = opts.value.rezOffset
-      if (rezOffset !== undefined) {
-        bottomSpace = rezOffset
-      } else {
-        bottomSpace = 8
-        let sib = el.nextElementSibling as HTMLElement | null
-        while (sib) {
-          bottomSpace += sib.getBoundingClientRect().height
-          sib = sib.nextElementSibling as HTMLElement | null
-        }
-      }
-      const height = `calc(100vh - ${top + bottomSpace}px)`
+      const height = fitHeightValue(el, opts.value.rezOffset)
       if (el.style.height !== height) el.style.height = height
     }, opts.value.rezDelay ?? 100)
   }
