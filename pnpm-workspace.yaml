@@ -24,10 +24,16 @@ minimumReleaseAgeExclude:
 # Known and accepted advisories (build tools only, no code in the published bundles):
 # - GHSA-vfj7-8cjw-p6xm: braces (fast-glob > micromatch, via @intlify/unplugin-vue-i18n), no fixed version
 # - GHSA-g7r4-m6w7-qqqr: esbuild (vite-plugin-checker > vite), severity low, needs vite with esbuild >=0.28.1
+# - GHSA-3g3m-2fjr-6pw4: glob 13 (js-beautify > glob, via @vue/test-utils, dev only), flaw in the glob CLI which is not used;
+#   js-beautify requires glob ^13 and the fix is in glob 14
+# - GHSA-g3hv-75wg-m249: minimatch 9/10 (eslint, typescript-estree, @microsoft/api-extractor: pinned to 10.2.3), build/lint tools
+#   with trusted patterns, never bundled in the published packages; fixed only in minimatch 11
 auditConfig:
   ignoreGhsas:
     - GHSA-vfj7-8cjw-p6xm
     - GHSA-g7r4-m6w7-qqqr
+    - GHSA-3g3m-2fjr-6pw4
+    - GHSA-g3hv-75wg-m249
 
 # fast-uri (ajv > fast-uri, build tools only): the lockfile kept 3.1.8, with the 4 advisories fixed in 3.1.9.
 overrides:
