@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-11-25
+
+### Changed
+
+- Dependency `vite-plugin-checker` updated from `^0.14.5` to `^1.0.0`.
+- Peer dependency `@ilpachi/use-alova` raised from `^2.1.1` to `^2.1.2`.
+- Dev dependencies updated (Quasar 2.35.6, Vite 8.3.8, Vue 3.5.46, vue-i18n 11.4.23, ...); no changes to the published code.
+
 ## [0.2.0] - 2026-11-25
 
 ### Added
@@ -77,7 +85,8 @@ Initial public release. Vue 3 / Quasar application shell for pachifast backends.
 - HTTP client on `@ilpachi/use-alova`, wired to authentication, spinner and error messages.
 - Runtime configuration through `QCLI_*` environment variables or code, and the Quasar preset `definePachiQuasarConfig`.
 
-[Unreleased]: https://github.com/ellethee/pachifastquasar/compare/pachifastquasar@0.2.0...HEAD
+[Unreleased]: https://github.com/ellethee/pachifastquasar/compare/pachifastquasar@0.2.1...HEAD
+[0.2.1]: https://github.com/ellethee/pachifastquasar/compare/pachifastquasar@0.2.0...pachifastquasar@0.2.1
 [0.2.0]: https://github.com/ellethee/pachifastquasar/compare/pachifastquasar@0.1.6...pachifastquasar@0.2.0
 [0.1.6]: https://github.com/ellethee/pachifastquasar/compare/pachifastquasar@0.1.5...pachifastquasar@0.1.6
 [0.1.5]: https://github.com/ellethee/pachifastquasar/compare/pachifastquasar@0.1.4...pachifastquasar@0.1.5
