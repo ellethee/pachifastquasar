@@ -449,7 +449,7 @@ All names below are exported from `@ilpachi/pachi-kit/table` unless stated other
 | `grid` | `boolean` | `false` | QTable grid mode. |
 | `useSkeleton` | `boolean` | `false` | Shows a skeleton instead of the spinner during slow loads. Read once at setup. |
 | `hideToolbar` | `boolean` | `false` | Hides the toolbar (filter box and the `toolbar-actions` slot). |
-| `hidePagination` | `boolean` | `false` | Hides the pagination bar. With `localPagination` all rows are shown; with server paging the page size stays 50. Read once at setup. |
+| `hidePagination` | `boolean` | `false` | Hides the pagination bar (the "no data" message and, with selection, the selected-rows banner stay). With `localPagination` all rows are shown; with server paging the page size stays 50. Read once at setup. |
 | `autoHeight` | `boolean` | `true` | Sets the container height to the rest of the viewport. `false` leaves the height to the layout (dialogs, tabs); `rezOffset` is then ignored. |
 | `singleSort` | `boolean` | `false` | A header click sorts by that column only (asc → desc → none) instead of adding a criterion to the multi-sort. `initialSort` still sets the starting criteria. |
 | `lazyLoadingTimeout` | `number` | `300` | Milliseconds before the spinner / skeleton appears. |

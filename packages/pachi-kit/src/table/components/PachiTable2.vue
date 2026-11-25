@@ -49,7 +49,7 @@
       :grid="grid"
       v-bind="$attrs"
       :rows-per-page-options="[0]"
-      :hide-bottom="props.hidePagination"
+      :hide-pagination="props.hidePagination"
       :class="tableClasses"
       @request="onRequest"
     >
@@ -60,7 +60,8 @@
           :sort-by-column="sortByColumn"
         />
       </template>
-      <template #bottom="scope">
+      <!-- without our `bottom` slot QTable keeps the "no data" message and, with hide-pagination, shows no pager -->
+      <template v-if="!props.hidePagination" #bottom="scope">
         <pachi-table2-pagination
           :pagination="scope.pagination"
           :pages-number="scope.pagesNumber"
