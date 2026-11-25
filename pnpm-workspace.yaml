@@ -29,6 +29,10 @@ auditConfig:
     - GHSA-vfj7-8cjw-p6xm
     - GHSA-g7r4-m6w7-qqqr
 
+# fast-uri (ajv > fast-uri, build tools only): the lockfile kept 3.1.8, with the 4 advisories fixed in 3.1.9.
+overrides:
+  fast-uri: '>=3.1.9 <4'
+
 # vite-plugin-dts 5 (unplugin-dts) declares peer `@vue/language-core ^3`, but the d.ts of the .vue components
 # stay equivalent to those of vite-plugin-dts 4 (language-core 2.2) only with 2.2.x: for consumers with
 # `exactOptionalPropertyTypes` those of language-core 3 change shape (see CONTRIBUTING.md).
